@@ -21,5 +21,6 @@ namespace CarBookingTest.Models
         public bool IsDeleted { get; set; }
 
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
+        public virtual ICollection<Request> Requests { get; set; }
     }
 }

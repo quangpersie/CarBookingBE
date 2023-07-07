@@ -55,7 +55,7 @@ namespace CarBookingBE.Controllers
             try
             {
                 var req = requests.SingleOrDefault(r => r.Id == id);
-                if (req == null || req.isDeleted == true)
+                if (req == null || req.IsDeleted == true)
                 {
                     return NotFound();
                 }

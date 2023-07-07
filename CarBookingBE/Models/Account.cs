@@ -91,5 +91,7 @@ namespace CarBookingTest.Models
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
         public virtual ICollection<Request> Requests { get; set; }
         public virtual ICollection<RequestShare> RequestShares { get; set; }
+
+        public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
     }
 }

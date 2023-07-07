@@ -3,7 +3,7 @@ namespace CarBookingBE.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitDB : DbMigration
+    public partial class InitDb : DbMigration
     {
         public override void Up()
         {
@@ -114,7 +114,7 @@ namespace CarBookingBE.Migrations
                         Id = c.Int(nullable: false, identity: true),
                         RequestCode = c.String(),
                         SenderId = c.Int(),
-                        Department = c.String(),
+                        DepartmentId = c.Int(),
                         ReceiverId = c.Int(),
                         Created = c.DateTime(),
                         Mobile = c.String(),
@@ -133,10 +133,12 @@ namespace CarBookingBE.Migrations
                         Account_Id = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Department", t => t.DepartmentId)
                 .ForeignKey("dbo.Account", t => t.ReceiverId)
                 .ForeignKey("dbo.Account", t => t.SenderId)
                 .ForeignKey("dbo.Account", t => t.Account_Id)
                 .Index(t => t.SenderId)
+                .Index(t => t.DepartmentId)
                 .Index(t => t.ReceiverId)
                 .Index(t => t.Account_Id);
             
@@ -172,6 +174,7 @@ namespace CarBookingBE.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
+                        UserId = c.Int(),
                         Level = c.Int(nullable: false),
                         Status = c.Boolean(nullable: false),
                         IsDeleted = c.Boolean(nullable: false),
@@ -179,6 +182,8 @@ namespace CarBookingBE.Migrations
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Request", t => t.RequestId)
+                .ForeignKey("dbo.Account", t => t.UserId)
+                .Index(t => t.UserId)
                 .Index(t => t.RequestId);
             
             CreateTable(
@@ -231,10 +236,12 @@ namespace CarBookingBE.Migrations
             DropForeignKey("dbo.RequestShare", "RequestId", "dbo.Request");
             DropForeignKey("dbo.Request", "Account_Id", "dbo.Account");
             DropForeignKey("dbo.Request", "SenderId", "dbo.Account");
+            DropForeignKey("dbo.RequestWorkflow", "UserId", "dbo.Account");
             DropForeignKey("dbo.RequestWorkflow", "RequestId", "dbo.Request");
             DropForeignKey("dbo.RequestComment", "RequestId", "dbo.Request");
             DropForeignKey("dbo.RequestAttachment", "RequestId", "dbo.Request");
             DropForeignKey("dbo.Request", "ReceiverId", "dbo.Account");
+            DropForeignKey("dbo.Request", "DepartmentId", "dbo.Department");
             DropForeignKey("dbo.DepartmentMembers", "UserId", "dbo.Account");
             DropForeignKey("dbo.DepartmentMembers", "DepartmentId", "dbo.Department");
             DropIndex("dbo.AccountRole", new[] { "RoleId" });
@@ -242,10 +249,12 @@ namespace CarBookingBE.Migrations
             DropIndex("dbo.RequestShare", new[] { "RequestId" });
             DropIndex("dbo.RequestShare", new[] { "UserId" });
             DropIndex("dbo.RequestWorkflow", new[] { "RequestId" });
+            DropIndex("dbo.RequestWorkflow", new[] { "UserId" });
             DropIndex("dbo.RequestComment", new[] { "RequestId" });
             DropIndex("dbo.RequestAttachment", new[] { "RequestId" });
             DropIndex("dbo.Request", new[] { "Account_Id" });
             DropIndex("dbo.Request", new[] { "ReceiverId" });
+            DropIndex("dbo.Request", new[] { "DepartmentId" });
             DropIndex("dbo.Request", new[] { "SenderId" });
             DropIndex("dbo.Account", new[] { "EmployeeNumber" });
             DropIndex("dbo.Account", new[] { "Username" });

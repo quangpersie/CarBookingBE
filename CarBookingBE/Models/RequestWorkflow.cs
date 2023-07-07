@@ -10,6 +10,10 @@ namespace CarBookingTest.Models
     public class RequestWorkflow
     {
         public int Id { get; set; }
+
+        public int? UserId { get; set; }
+        [ForeignKey("UserId")]
+        public Account User { get; set; }
         public int Level { get; set; }
         public bool Status { get; set; }
         public bool IsDeleted { get; set; }

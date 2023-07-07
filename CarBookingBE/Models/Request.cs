@@ -16,7 +16,9 @@ namespace CarBookingTest.Models
         public int? SenderId { get; set; }
         [ForeignKey("SenderId")]
         public Account SenderUser { get; set; }
-        public string Department { get; set; }
+        public int? DepartmentId { get; set; }
+        [ForeignKey("DepartmentId")]
+        public Department Department { get; set; }
         public int? ReceiverId { get; set; }
         [ForeignKey("ReceiverId")]
         public Account ReceiveUser { get; set; }

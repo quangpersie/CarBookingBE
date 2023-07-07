@@ -7,13 +7,13 @@ namespace CarBookingBE.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class InitDB : IMigrationMetadata
+    public sealed partial class InitDb : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(InitDB));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(InitDb));
         
         string IMigrationMetadata.Id
         {
-            get { return "202307070429210_InitDB"; }
+            get { return "202307070449188_InitDb"; }
         }
         
         string IMigrationMetadata.Source

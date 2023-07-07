@@ -14,6 +14,6 @@ namespace CarBookingTest.Models
         public int? RequestId { get; set; }
         [ForeignKey("RequestId")]
         public Request Request { get; set; }
-        public bool isDeleted { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

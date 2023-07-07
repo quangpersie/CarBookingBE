@@ -13,7 +13,7 @@ namespace CarBookingTest.Models
         [Key]
         public int Id { get; set; }
         public string Title { get; set; }
-        public bool isDeleted { get; set; }
+        public bool IsDeleted { get; set; }
         public virtual ICollection<AccountRole> UserRoles { get; set; }
     }
 }

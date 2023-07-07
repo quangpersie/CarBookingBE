@@ -13,7 +13,7 @@ namespace CarBookingBE.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202307070407565_InitDB"; }
+            get { return "202307070429210_InitDB"; }
         }
         
         string IMigrationMetadata.Source

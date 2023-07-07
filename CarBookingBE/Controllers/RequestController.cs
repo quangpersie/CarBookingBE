@@ -39,7 +39,7 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult GetRequest(int id)
         {
             Request request = db.Requests.Find(id);
-            if (request == null || request.isDeleted == true)
+            if (request == null || request.IsDeleted == true)
             {
                 return NotFound();
             }
@@ -55,7 +55,7 @@ namespace CarBookingBE.Controllers
             try
             {
                 var req = requests.SingleOrDefault(r => r.Id == id);
-                if (req == null || req.IsDeleted == true)
+                if (req == null || req.isDeleted == true)
                 {
                     return NotFound();
                 }

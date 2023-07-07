@@ -31,7 +31,10 @@ namespace CarBookingTest.Models
         public string Destination { get; set; }
         public string Reason { get; set; }
         public int? Share { get; set; }
-        public bool isDeleted { get; set; }
+
+        public string Note { get; set; }
+        public bool? ApplyNote { get; set; }
+        public bool IsDeleted { get; set; }
         public virtual ICollection<RequestAttachment> RequestAttachments { get; set;}
         public virtual ICollection<RequestComment> RequestComments { get; set;}
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }

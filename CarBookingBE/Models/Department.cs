@@ -18,7 +18,7 @@ namespace CarBookingTest.Models
         public string Code { get; set; }
         public int? UnderDepartment { get; set; }
         public string Description { get; set; }
-        public bool isDeleted { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
     }

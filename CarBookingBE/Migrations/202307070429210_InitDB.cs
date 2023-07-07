@@ -17,7 +17,7 @@ namespace CarBookingBE.Migrations
                         Code = c.String(),
                         UnderDepartment = c.Int(),
                         Description = c.String(),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             
@@ -27,7 +27,7 @@ namespace CarBookingBE.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Position = c.String(),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                         UserId = c.Int(),
                         DepartmentId = c.Int(),
                     })
@@ -127,7 +127,9 @@ namespace CarBookingBE.Migrations
                         Destination = c.String(),
                         Reason = c.String(),
                         Share = c.Int(),
-                        isDeleted = c.Boolean(nullable: false),
+                        Note = c.String(),
+                        ApplyNote = c.Boolean(),
+                        IsDeleted = c.Boolean(nullable: false),
                         Account_Id = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
@@ -145,7 +147,7 @@ namespace CarBookingBE.Migrations
                         Id = c.Int(nullable: false, identity: true),
                         Path = c.String(),
                         RequestId = c.Int(),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Request", t => t.RequestId)
@@ -159,7 +161,7 @@ namespace CarBookingBE.Migrations
                         Content = c.String(),
                         Created = c.DateTime(nullable: false),
                         RequestId = c.Int(),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Request", t => t.RequestId)
@@ -172,7 +174,7 @@ namespace CarBookingBE.Migrations
                         Id = c.Int(nullable: false, identity: true),
                         Level = c.Int(nullable: false),
                         Status = c.Boolean(nullable: false),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                         RequestId = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
@@ -184,7 +186,7 @@ namespace CarBookingBE.Migrations
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                         UserId = c.Int(),
                         RequestId = c.Int(),
                     })
@@ -199,7 +201,7 @@ namespace CarBookingBE.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                         UserId = c.Int(),
                         RoleId = c.Int(),
                     })
@@ -215,7 +217,7 @@ namespace CarBookingBE.Migrations
                     {
                         Id = c.Int(nullable: false, identity: true),
                         Title = c.String(),
-                        isDeleted = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
             

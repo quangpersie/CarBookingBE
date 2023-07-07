@@ -12,7 +12,7 @@ namespace CarBookingTest.Models
     {
         [Key]
         public int Id { get; set; }
-        public bool isDeleted { get; set; }
+        public bool IsDeleted { get; set; }
         public int? UserId { get; set; }
         [ForeignKey("UserId")]
         public Account User { get; set; }

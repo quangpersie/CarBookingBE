@@ -48,11 +48,39 @@ namespace CarBookingBE.Controllers
         }
 
         // PUT: api/Request/5
-        /*[Route("{id}")]
+        [Route("{id}")]
         [HttpPut]
         public IHttpActionResult EditRequest(int id, Request requestEdit)
         {
-            try
+            var req = requests.SingleOrDefault(r => r.Id == id);
+            if (req == null || req.IsDeleted == true)
+            {
+                return NotFound();
+            }
+
+            if (id != req.Id)
+            {
+                return BadRequest();
+            }
+            /*if (requestEdit.DepartmentId != null) req.DepartmentId = requestEdit.DepartmentId;
+            if (requestEdit.ReceiverId != null) req.ReceiverId = requestEdit.ReceiverId;
+            if (requestEdit.Mobile != null) req.Mobile = requestEdit.Mobile;
+            if (requestEdit.CostCenter != null) req.CostCenter = requestEdit.CostCenter;
+            if (requestEdit.TotalPassengers == 0) req.TotalPassengers = requestEdit.TotalPassengers;
+            if (requestEdit.UsageFrom != null) req.UsageFrom = requestEdit.UsageFrom;
+            if (requestEdit.UsageTo != null) req.UsageTo = requestEdit.UsageTo;
+            if (requestEdit.PickTime != null) req.PickTime = requestEdit.PickTime;
+            if (requestEdit.PickLocation != null) req.PickLocation = requestEdit.PickLocation;
+            if (requestEdit.Destination != null) req.Destination = requestEdit.Destination;
+            if (requestEdit.Reason != null) req.Reason = requestEdit.Reason;
+            if (requestEdit.ApplyNote != null) req.ApplyNote = requestEdit.ApplyNote;*/
+            if (requestEdit.Mobile != null) req.Mobile = requestEdit.Mobile;
+            if (requestEdit.TotalPassengers != 0) req.TotalPassengers = requestEdit.TotalPassengers;
+            req.Created = DateTime.Now;
+
+            db.SaveChanges();
+            return Ok(req);
+            /*try
             {
                 var req = requests.SingleOrDefault(r => r.Id == id);
                 if (req == null || req.IsDeleted == true)
@@ -64,24 +92,28 @@ namespace CarBookingBE.Controllers
                 {
                     return BadRequest();
                 }
-                if (requestEdit.EmployeePassword != null) emp.EmployeePassword = requestEdit.EmployeePassword;
-                if (requestEdit.FirstName != null) emp.FirstName = requestEdit.FirstName;
-                if (requestEdit.LastName != null) emp.LastName = requestEdit.LastName;
-                if (requestEdit.Gender != null) emp.Gender = requestEdit.Gender;
-                if (requestEdit.Age != null) emp.Age = requestEdit.Age;
-                if (requestEdit.Phone != null) emp.Phone = requestEdit.Phone;
-                if (requestEdit.EmployeeAddress != null) emp.EmployeeAddress = requestEdit.EmployeeAddress;
-                if (requestEdit.EmployeeNumber != null) emp.EmployeeNumber = requestEdit.EmployeeNumber;
-                emp.ModifyAt = DateTime.Now;
+                if (requestEdit.DepartmentId != null) req.DepartmentId = requestEdit.DepartmentId;
+                if (requestEdit.ReceiverId != null) req.ReceiverId = requestEdit.ReceiverId;
+                if (requestEdit.Mobile != null) req.Mobile = requestEdit.Mobile;
+                if (requestEdit.CostCenter != null) req.CostCenter = requestEdit.CostCenter;
+                if (requestEdit.TotalPassengers == 0) req.TotalPassengers = requestEdit.TotalPassengers;
+                if (requestEdit.UsageFrom != null) req.UsageFrom = requestEdit.UsageFrom;
+                if (requestEdit.UsageTo != null) req.UsageTo = requestEdit.UsageTo;
+                if (requestEdit.PickTime != null) req.PickTime = requestEdit.PickTime;
+                if (requestEdit.PickLocation != null) req.PickLocation = requestEdit.PickLocation;
+                if (requestEdit.Destination != null) req.Destination = requestEdit.Destination;
+                if (requestEdit.Reason != null) req.Reason = requestEdit.Reason;
+                if (requestEdit.ApplyNote != null) req.ApplyNote = requestEdit.ApplyNote;
+                req.Created = DateTime.Now;
 
                 db.SaveChanges();
-                return Ok(emp);
+                return Ok(req);
             }
             catch
             {
                 return BadRequest();
-            }
-        }*/
+            }*/
+        }
 
         // POST: api/Request
         [ResponseType(typeof(Request))]

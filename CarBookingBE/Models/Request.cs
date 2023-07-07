@@ -25,10 +25,10 @@ namespace CarBookingTest.Models
         public DateTime? Created { get; set; }
         public string Mobile { get; set; }
         public string CostCenter { get; set; }
-        public int TotalPassengers { get; set; }
-        public DateTime UsageFrom { get; set; }
-        public DateTime UsageTo { get; set; }
-        public DateTime PickTime { get; set; }
+        public int? TotalPassengers { get; set; }
+        public DateTime? UsageFrom { get; set; }
+        public DateTime? UsageTo { get; set; }
+        public DateTime? PickTime { get; set; }
         public string PickLocation { get; set; }
         public string Destination { get; set; }
         public string Reason { get; set; }

@@ -3,7 +3,7 @@ namespace CarBookingBE.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitDb : DbMigration
+    public partial class InitDB : DbMigration
     {
         public override void Up()
         {
@@ -119,10 +119,10 @@ namespace CarBookingBE.Migrations
                         Created = c.DateTime(),
                         Mobile = c.String(),
                         CostCenter = c.String(),
-                        TotalPassengers = c.Int(nullable: false),
-                        UsageFrom = c.DateTime(nullable: false),
-                        UsageTo = c.DateTime(nullable: false),
-                        PickTime = c.DateTime(nullable: false),
+                        TotalPassengers = c.Int(),
+                        UsageFrom = c.DateTime(),
+                        UsageTo = c.DateTime(),
+                        PickTime = c.DateTime(),
                         PickLocation = c.String(),
                         Destination = c.String(),
                         Reason = c.String(),

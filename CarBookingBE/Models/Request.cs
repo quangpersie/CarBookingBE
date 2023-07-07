@@ -13,9 +13,13 @@ namespace CarBookingTest.Models
         [Key]
         public int Id { get; set; }
         public string RequestCode { get; set; }
-        public string Sender { get; set; }
+        public int? SenderId { get; set; }
+        [ForeignKey("SenderId")]
+        public Account SenderUser { get; set; }
         public string Department { get; set; }
-        public string Receiver { get; set; }
+        public int? ReceiverId { get; set; }
+        [ForeignKey("ReceiverId")]
+        public Account ReceiveUser { get; set; }
         public DateTime? Created { get; set; }
         public string Mobile { get; set; }
         public string CostCenter { get; set; }
@@ -28,10 +32,6 @@ namespace CarBookingTest.Models
         public string Reason { get; set; }
         public int? Share { get; set; }
         public bool isDeleted { get; set; }
-
-        public int? UserId { get; set; }
-        [ForeignKey("UserId")]
-        public Account User { get; set; }
         public virtual ICollection<RequestAttachment> RequestAttachments { get; set;}
         public virtual ICollection<RequestComment> RequestComments { get; set;}
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }

@@ -1,9 +1,9 @@
-﻿namespace CarBookingBE.Migrations
+namespace CarBookingBE.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class initCB : DbMigration
+    public partial class InitDB : DbMigration
     {
         public override void Up()
         {
@@ -113,9 +113,9 @@
                     {
                         Id = c.Int(nullable: false, identity: true),
                         RequestCode = c.String(),
-                        Sender = c.String(),
+                        SenderId = c.Int(),
                         Department = c.String(),
-                        Receiver = c.String(),
+                        ReceiverId = c.Int(),
                         Created = c.DateTime(),
                         Mobile = c.String(),
                         CostCenter = c.String(),
@@ -128,11 +128,15 @@
                         Reason = c.String(),
                         Share = c.Int(),
                         isDeleted = c.Boolean(nullable: false),
-                        UserId = c.Int(),
+                        Account_Id = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Account", t => t.UserId)
-                .Index(t => t.UserId);
+                .ForeignKey("dbo.Account", t => t.ReceiverId)
+                .ForeignKey("dbo.Account", t => t.SenderId)
+                .ForeignKey("dbo.Account", t => t.Account_Id)
+                .Index(t => t.SenderId)
+                .Index(t => t.ReceiverId)
+                .Index(t => t.Account_Id);
             
             CreateTable(
                 "dbo.RequestAttachment",
@@ -223,10 +227,12 @@
             DropForeignKey("dbo.AccountRole", "RoleId", "dbo.Role");
             DropForeignKey("dbo.RequestShare", "UserId", "dbo.Account");
             DropForeignKey("dbo.RequestShare", "RequestId", "dbo.Request");
-            DropForeignKey("dbo.Request", "UserId", "dbo.Account");
+            DropForeignKey("dbo.Request", "Account_Id", "dbo.Account");
+            DropForeignKey("dbo.Request", "SenderId", "dbo.Account");
             DropForeignKey("dbo.RequestWorkflow", "RequestId", "dbo.Request");
             DropForeignKey("dbo.RequestComment", "RequestId", "dbo.Request");
             DropForeignKey("dbo.RequestAttachment", "RequestId", "dbo.Request");
+            DropForeignKey("dbo.Request", "ReceiverId", "dbo.Account");
             DropForeignKey("dbo.DepartmentMembers", "UserId", "dbo.Account");
             DropForeignKey("dbo.DepartmentMembers", "DepartmentId", "dbo.Department");
             DropIndex("dbo.AccountRole", new[] { "RoleId" });
@@ -236,7 +242,9 @@
             DropIndex("dbo.RequestWorkflow", new[] { "RequestId" });
             DropIndex("dbo.RequestComment", new[] { "RequestId" });
             DropIndex("dbo.RequestAttachment", new[] { "RequestId" });
-            DropIndex("dbo.Request", new[] { "UserId" });
+            DropIndex("dbo.Request", new[] { "Account_Id" });
+            DropIndex("dbo.Request", new[] { "ReceiverId" });
+            DropIndex("dbo.Request", new[] { "SenderId" });
             DropIndex("dbo.Account", new[] { "EmployeeNumber" });
             DropIndex("dbo.Account", new[] { "Username" });
             DropIndex("dbo.DepartmentMembers", new[] { "DepartmentId" });

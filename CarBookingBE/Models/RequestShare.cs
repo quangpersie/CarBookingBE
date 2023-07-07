@@ -12,12 +12,12 @@ namespace CarBookingTest.Models
     public class RequestShare
     {
         [Key]
-        public string Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public bool IsDeleted { get; set; }
-        public int? UserId { get; set; }
+        public Guid? UserId { get; set; }
         [ForeignKey("UserId")]
         public Account User { get; set; }
-        public int? RequestId { get; set; }
+        public Guid? RequestId { get; set; }
         [ForeignKey("RequestId")]
         public Request Request { get; set; }
     }

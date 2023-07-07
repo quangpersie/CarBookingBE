@@ -12,7 +12,7 @@ namespace CarBookingTest.Models
     public class Account
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Index(IsUnique = true)]
         [MaxLength(50)]
         public string Username { get; set; }

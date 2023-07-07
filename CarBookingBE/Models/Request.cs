@@ -11,15 +11,15 @@ namespace CarBookingTest.Models
     public class Request
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string RequestCode { get; set; }
-        public int? SenderId { get; set; }
+        public Guid? SenderId { get; set; }
         [ForeignKey("SenderId")]
         public Account SenderUser { get; set; }
-        public int? DepartmentId { get; set; }
+        public Guid? DepartmentId { get; set; }
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
-        public int? ReceiverId { get; set; }
+        public Guid? ReceiverId { get; set; }
         [ForeignKey("ReceiverId")]
         public Account ReceiveUser { get; set; }
         public DateTime? Created { get; set; }
@@ -32,8 +32,9 @@ namespace CarBookingTest.Models
         public string PickLocation { get; set; }
         public string Destination { get; set; }
         public string Reason { get; set; }
-        public int? Share { get; set; }
-
+        public Guid? Share { get; set; }
+        [ForeignKey("Share")]
+        public Account ShareUser { get; set; }
         public string Note { get; set; }
         public bool? ApplyNote { get; set; }
         public bool IsDeleted { get; set; }

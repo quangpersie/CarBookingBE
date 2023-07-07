@@ -1,11 +1,18 @@
 ﻿using CarBookingTest.Models;
 using CarBookingTest.Utils;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Policy;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Web.Helpers;
 using System.Web.Http;
+using System.Web.ModelBinding;
 
 namespace CarBookingTest.Controllers
 {
@@ -112,6 +119,41 @@ namespace CarBookingTest.Controllers
                 
                 return Ok(new { Success = true, Message = "Register new user successfully !", Data = newUser });
             }
+        }
+
+        [HttpGet]
+        [Route("all")]
+        public IHttpActionResult getAllUser()
+        {
+            var users = db.Users.Where(u => u.IsDeleted == false).ToList();
+            if (users == null)
+            {
+                return Ok(new { Success = false, Message = "Get all users fail !", Data = new List<Account>() });
+            }
+            return Ok(new { Success = true, Message = "Get all users successfully !", Data = users });
+        }
+
+        [HttpGet]
+        [Route("profile/{id}")]
+        public IHttpActionResult getProfile(int id)
+        {
+            var user = db.Users.Find(id);
+            if (user == null || user.IsDeleted == true)
+            {
+                return Ok(new { Success = false, Message = "User does not exist", Data = new List<Account>() });
+            }
+            var jsonString = JsonSerializer.Serialize(user);
+            JObject jsonObject = JObject.Parse(jsonString);
+            jsonObject.Remove("Password");
+            return Ok(new { Success = true, Message = "Get user profile successfully !", Data = jsonObject });
+        }
+
+        [HttpPost]
+        [Route("logout")]
+        public IHttpActionResult logoutUser([FromBody] TokenProps jwtToken)
+        {
+            //var token = jwt.UpdateTokenExpiration(jwtToken.tokenForLogout, jwt.secretKey, 0);
+            return Ok(new { Success = true, Message = "Logout successfully !", check = jwt.expirationMinutes * (-1) });
         }
     }
 }

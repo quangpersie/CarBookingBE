@@ -11,12 +11,12 @@ namespace CarBookingTest.Models
     public class AccountRole
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public bool IsDeleted { get; set; }
-        public int? UserId { get; set; }
+        public Guid? UserId { get; set; }
         [ForeignKey("UserId")]
         public Account User { get; set; }
-        public int? RoleId { get; set; }
+        public Guid? RoleId { get; set; }
         [ForeignKey("RoleId")]
         public Role Role { get; set; }
     }

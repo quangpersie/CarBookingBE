@@ -11,7 +11,7 @@ namespace CarBookingTest.Models
     public class Role
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Title { get; set; }
         public bool IsDeleted { get; set; }
         public virtual ICollection<AccountRole> UserRoles { get; set; }

@@ -9,9 +9,9 @@ namespace CarBookingTest.Models
     [Table("RequestAttachment")]
     public class RequestAttachment
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Path { get; set; }
-        public int? RequestId { get; set; }
+        public Guid? RequestId { get; set; }
         [ForeignKey("RequestId")]
         public Request Request { get; set; }
         public bool IsDeleted { get; set; }

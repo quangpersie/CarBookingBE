@@ -11,12 +11,12 @@ namespace CarBookingTest.Models
     public class Department
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public string Name { get; set; }
         public string ContactInfo { get; set; }
         public string Code { get; set; }
-        public int? UnderDepartment { get; set; }
+        public Guid? UnderDepartment { get; set; }
         public string Description { get; set; }
         public bool IsDeleted { get; set; }
 

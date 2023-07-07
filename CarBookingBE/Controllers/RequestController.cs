@@ -50,15 +50,15 @@ namespace CarBookingBE.Controllers
         // PUT: api/Request/5
         [Route("{id}")]
         [HttpPut]
-        public IHttpActionResult EditRequest(int id, Request requestEdit)
+        public IHttpActionResult EditRequest(string id, Request requestEdit)
         {
-            var req = requests.SingleOrDefault(r => r.Id == id);
+            var req = requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
             if (req == null || req.IsDeleted == true)
             {
                 return NotFound();
             }
 
-            if (id != req.Id)
+            if (Guid.Parse(id) != req.Id)
             {
                 return BadRequest();
             }
@@ -155,9 +155,9 @@ namespace CarBookingBE.Controllers
             base.Dispose(disposing);
         }
 
-        private bool RequestExists(int id)
+        private bool RequestExists(string id)
         {
-            return db.Requests.Count(e => e.Id == id) > 0;
+            return db.Requests.Count(e => e.Id == Guid.Parse(id)) > 0;
         }
     }
 }

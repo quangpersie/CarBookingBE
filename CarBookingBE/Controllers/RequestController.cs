@@ -30,15 +30,17 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult GetRequests()
         {
-            return Ok(requests.ToList());
+            return Ok(requests.Where(request => request.IsDeleted == false)
+                .OrderByDescending(request => request.Created).ToList());
         }
 
         // GET: api/Request/5
         [Route("{id}")]
         [HttpGet]
-        public IHttpActionResult GetRequest(int id)
+        public IHttpActionResult GetRequest(string id)
         {
-            Request request = db.Requests.Find(id);
+
+            Request request = db.Requests.SingleOrDefault(r => r.Id.ToString() == id);
             if (request == null || request.IsDeleted == true)
             {
                 return NotFound();
@@ -52,43 +54,15 @@ namespace CarBookingBE.Controllers
         [HttpPut]
         public IHttpActionResult EditRequest(string id, Request requestEdit)
         {
-            var req = requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
-            if (req == null || req.IsDeleted == true)
+            try
             {
-                return NotFound();
-            }
-
-            if (Guid.Parse(id) != req.Id)
-            {
-                return BadRequest();
-            }
-            /*if (requestEdit.DepartmentId != null) req.DepartmentId = requestEdit.DepartmentId;
-            if (requestEdit.ReceiverId != null) req.ReceiverId = requestEdit.ReceiverId;
-            if (requestEdit.Mobile != null) req.Mobile = requestEdit.Mobile;
-            if (requestEdit.CostCenter != null) req.CostCenter = requestEdit.CostCenter;
-            if (requestEdit.TotalPassengers == 0) req.TotalPassengers = requestEdit.TotalPassengers;
-            if (requestEdit.UsageFrom != null) req.UsageFrom = requestEdit.UsageFrom;
-            if (requestEdit.UsageTo != null) req.UsageTo = requestEdit.UsageTo;
-            if (requestEdit.PickTime != null) req.PickTime = requestEdit.PickTime;
-            if (requestEdit.PickLocation != null) req.PickLocation = requestEdit.PickLocation;
-            if (requestEdit.Destination != null) req.Destination = requestEdit.Destination;
-            if (requestEdit.Reason != null) req.Reason = requestEdit.Reason;
-            if (requestEdit.ApplyNote != null) req.ApplyNote = requestEdit.ApplyNote;*/
-            if (requestEdit.Mobile != null) req.Mobile = requestEdit.Mobile;
-            if (requestEdit.TotalPassengers != 0) req.TotalPassengers = requestEdit.TotalPassengers;
-            req.Created = DateTime.Now;
-
-            db.SaveChanges();
-            return Ok(req);
-            /*try
-            {
-                var req = requests.SingleOrDefault(r => r.Id == id);
+                var req = requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
                 if (req == null || req.IsDeleted == true)
                 {
                     return NotFound();
                 }
 
-                if (id != req.Id)
+                if (Guid.Parse(id) != req.Id)
                 {
                     return BadRequest();
                 }
@@ -96,7 +70,7 @@ namespace CarBookingBE.Controllers
                 if (requestEdit.ReceiverId != null) req.ReceiverId = requestEdit.ReceiverId;
                 if (requestEdit.Mobile != null) req.Mobile = requestEdit.Mobile;
                 if (requestEdit.CostCenter != null) req.CostCenter = requestEdit.CostCenter;
-                if (requestEdit.TotalPassengers == 0) req.TotalPassengers = requestEdit.TotalPassengers;
+                if (requestEdit.TotalPassengers != 0) req.TotalPassengers = requestEdit.TotalPassengers;
                 if (requestEdit.UsageFrom != null) req.UsageFrom = requestEdit.UsageFrom;
                 if (requestEdit.UsageTo != null) req.UsageTo = requestEdit.UsageTo;
                 if (requestEdit.PickTime != null) req.PickTime = requestEdit.PickTime;
@@ -112,40 +86,119 @@ namespace CarBookingBE.Controllers
             catch
             {
                 return BadRequest();
-            }*/
+            }
         }
 
         // POST: api/Request
-        [ResponseType(typeof(Request))]
-        public IHttpActionResult PostRequest(Request request)
+        [Route("create")]
+        [HttpPost]
+        public IHttpActionResult CreateRequest(Request request)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                request.Created = DateTime.Now;
+                request.IsDeleted = false;
+                request.RequestCode = GenerateRequestCode();
+                db.Requests.Add(request);
+                db.SaveChanges();
+
+                return Ok(request);
             }
-
-            db.Requests.Add(request);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = request.Id }, request);
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         // DELETE: api/Request/5
-        [ResponseType(typeof(Request))]
-        public IHttpActionResult DeleteRequest(int id)
+        [Route("{id}")]
+        [HttpDelete]
+        public IHttpActionResult DeleteRequest(string id)
         {
-            Request request = db.Requests.Find(id);
-            if (request == null)
+            try
             {
-                return NotFound();
+                Request request = db.Requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
+                if (request == null || request.IsDeleted == true)
+                {
+                    return NotFound();
+                }
+                request.IsDeleted = true;
+                db.SaveChanges();
+
+                return Ok("Delete Success Request has Id = " + id);
+            }
+            catch
+            {
+                return BadRequest();
             }
 
-            db.Requests.Remove(request);
-            db.SaveChanges();
-
-            return Ok(request);
         }
 
+        // -----FILTER-------------------
+        [Route("filter")]
+        [HttpGet]
+        public IHttpActionResult FilterRequest(string requestCode, string created, string createdBy)
+        {
+
+            var requestList = requests.Where(req => req.IsDeleted == false);
+            requestList = requestList.Where(req => req.RequestCode.ToString().Contains(requestCode));
+            if (requestCode != null)
+            {
+                requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
+            }
+            if (created != null)
+            {
+                requestList = requestList.Where(req => req.Created > DateTime.Parse(created));
+            }
+            if (createdBy != null)
+            {
+                requestList = requestList.Where(req => req.SenderId.ToString() == createdBy);
+            }
+            List<Request> result = requestList.OrderBy(req => req.Created).ToList();
+            return Ok(result);
+        }
+
+
+        // ---------------------------Function----------------------------------------
+        protected string GenerateRequestCode()
+        {
+            string year = DateTime.Now.Year.ToString();
+            string companyCode = "OPS";
+            string module = "CAR";
+            string month = DateTime.Now.Month.ToString("d2");
+            string day = DateTime.Now.Day.ToString("d2");
+            string requestCodeBase = year + companyCode + "-" + module + "-" + month + day + "-";
+            List<string> requestCodeList = new List<string>();
+            List<int> requestCodeNumbers = new List<int>();
+            int maxNumber = 0;
+
+            foreach (Request request in requests)
+            {
+                if (request.RequestCode.Contains(requestCodeBase) && request.IsDeleted == false)
+                {
+                    requestCodeList.Add(request.RequestCode);
+                }
+            }
+
+            if (requestCodeList.Count() != 0)
+            {
+                foreach (string requestCode in requestCodeList)
+                {
+                    string requestCodeString = requestCode.Substring(requestCode.Length - 3);
+                    requestCodeNumbers.Add(int.Parse(requestCodeString));
+                }
+                maxNumber = requestCodeNumbers.Max();
+            }
+
+            return requestCodeBase + (maxNumber + 1).ToString("000");
+        }
+
+        //----------FIlter---------------
+        public List<Request> Filter(List<string> filters)
+        {
+
+            return null;
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

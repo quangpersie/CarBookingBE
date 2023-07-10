@@ -137,22 +137,21 @@ namespace CarBookingBE.Controllers
         // -----FILTER-------------------
         [Route("filter")]
         [HttpGet]
-        public IHttpActionResult FilterRequest(string requestCode, string created, string createdBy)
+        public IHttpActionResult FilterRequest(string requestCode, string createdTime, string senderId)
         {
 
             var requestList = requests.Where(req => req.IsDeleted == false);
-            requestList = requestList.Where(req => req.RequestCode.ToString().Contains(requestCode));
             if (requestCode != null)
             {
                 requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
             }
-            if (created != null)
+            if (createdTime != null)
             {
-                requestList = requestList.Where(req => req.Created > DateTime.Parse(created));
+                requestList = requestList.Where(req => req.Created > DateTime.Parse(createdTime));
             }
-            if (createdBy != null)
+            if (senderId != null)
             {
-                requestList = requestList.Where(req => req.SenderId.ToString() == createdBy);
+                requestList = requestList.Where(req => req.SenderId.ToString() == senderId);
             }
             List<Request> result = requestList.OrderBy(req => req.Created).ToList();
             return Ok(result);
@@ -193,12 +192,6 @@ namespace CarBookingBE.Controllers
             return requestCodeBase + (maxNumber + 1).ToString("000");
         }
 
-        //----------FIlter---------------
-        public List<Request> Filter(List<string> filters)
-        {
-
-            return null;
-        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

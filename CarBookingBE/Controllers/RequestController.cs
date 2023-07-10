@@ -38,7 +38,7 @@ namespace CarBookingBE.Controllers
         }
 
         // GET: api/Request/5
-        [Route("{id}")]
+        [Route("Id={id}")]
         [HttpGet]
         public IHttpActionResult GetRequest(string id)
         {
@@ -50,6 +50,19 @@ namespace CarBookingBE.Controllers
             }
 
             return Ok(request);
+        }
+
+        // GET: Sent to me
+        [Route("sent-to-me/{Id}")]
+        [HttpGet]
+
+        public IHttpActionResult GetSentToMe(string Id)
+        {
+            List<Request> requestList = requests.Where(request => request.SenderId.ToString() == Id
+                || request.ReceiverId.ToString() == Id
+            )
+                .ToList();
+            return Ok();
         }
 
         // PUT: api/Request/5

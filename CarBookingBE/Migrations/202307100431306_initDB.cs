@@ -163,13 +163,16 @@ namespace CarBookingBE.Migrations
                 c => new
                     {
                         Id = c.Guid(nullable: false),
+                        UserId = c.Guid(),
                         Content = c.String(),
                         Created = c.DateTime(nullable: false),
                         RequestId = c.Guid(),
                         IsDeleted = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Account", t => t.UserId)
                 .ForeignKey("dbo.Request", t => t.RequestId)
+                .Index(t => t.UserId)
                 .Index(t => t.RequestId);
             
             CreateTable(
@@ -179,7 +182,7 @@ namespace CarBookingBE.Migrations
                         Id = c.Guid(nullable: false),
                         UserId = c.Guid(),
                         Level = c.Int(nullable: false),
-                        Status = c.Boolean(nullable: false),
+                        Status = c.String(),
                         IsDeleted = c.Boolean(nullable: false),
                         RequestId = c.Guid(),
                     })
@@ -243,6 +246,7 @@ namespace CarBookingBE.Migrations
             DropForeignKey("dbo.RequestWorkflow", "UserId", "dbo.Account");
             DropForeignKey("dbo.RequestWorkflow", "RequestId", "dbo.Request");
             DropForeignKey("dbo.RequestComment", "RequestId", "dbo.Request");
+            DropForeignKey("dbo.RequestComment", "UserId", "dbo.Account");
             DropForeignKey("dbo.RequestAttachment", "RequestId", "dbo.Request");
             DropForeignKey("dbo.Request", "ReceiverId", "dbo.Account");
             DropForeignKey("dbo.Request", "DepartmentId", "dbo.Department");
@@ -255,6 +259,7 @@ namespace CarBookingBE.Migrations
             DropIndex("dbo.RequestWorkflow", new[] { "RequestId" });
             DropIndex("dbo.RequestWorkflow", new[] { "UserId" });
             DropIndex("dbo.RequestComment", new[] { "RequestId" });
+            DropIndex("dbo.RequestComment", new[] { "UserId" });
             DropIndex("dbo.RequestAttachment", new[] { "RequestId" });
             DropIndex("dbo.Request", new[] { "Account_Id" });
             DropIndex("dbo.Request", new[] { "Share" });

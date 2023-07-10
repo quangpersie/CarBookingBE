@@ -14,7 +14,7 @@ namespace CarBookingTest.Models
         [ForeignKey("UserId")]
         public Account User { get; set; }
         public int Level { get; set; }
-        public bool Status { get; set; }
+        public string Status { get; set; }
         public bool IsDeleted { get; set; }
         public Guid? RequestId { get; set; }
         [ForeignKey("RequestId")]

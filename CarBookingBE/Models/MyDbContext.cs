@@ -10,7 +10,7 @@ namespace CarBookingTest.Models
     {
         public MyDbContext(): base("name=CarBooking")
         {
-            Configuration.ProxyCreationEnabled = false;
+            Configuration.ProxyCreationEnabled = true;
         }
         public virtual DbSet<Account> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }

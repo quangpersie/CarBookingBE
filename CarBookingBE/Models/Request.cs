@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using System.Web;
 
 namespace CarBookingTest.Models
@@ -40,8 +42,17 @@ namespace CarBookingTest.Models
 
         public string Status { get; set; }
         public bool IsDeleted { get; set; }
+
+        [JsonIgnore]
+        [IgnoreDataMember]
         public virtual ICollection<RequestAttachment> RequestAttachments { get; set;}
+
+        [JsonIgnore]
+        [IgnoreDataMember]
         public virtual ICollection<RequestComment> RequestComments { get; set;}
+
+        [JsonIgnore]
+        [IgnoreDataMember]
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
     }
 }

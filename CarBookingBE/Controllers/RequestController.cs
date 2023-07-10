@@ -6,9 +6,11 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using CarBookingTest.Models;
+using Newtonsoft.Json;
 
 namespace CarBookingBE.Controllers
 {
@@ -30,11 +32,13 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult GetRequests(int page, int limit)
         {
-            return Ok(requests.Where(request => request.IsDeleted == false)
+            List<Request> queries = requests.Where(request => request.IsDeleted == false)
                 .OrderByDescending(request => request.Created)
                 .Skip(getSkip(page, limit))
                 .Take(limit)
-                .ToList());
+                .ToList();
+
+            return Ok(queries);
         }
 
         // GET: api/Request/5
@@ -49,7 +53,7 @@ namespace CarBookingBE.Controllers
                 return NotFound();
             }
 
-            return Ok(request);
+            return Ok(request.RequestComments.ToList());
         }
 
         // GET: Sent to me
@@ -153,16 +157,16 @@ namespace CarBookingBE.Controllers
         // -----FILTER-------------------
         [Route("filter")]
         [HttpGet]
-        public IHttpActionResult FilterRequest(string requestCode, string createdTime, string senderId, string status, int page, int limit)
+        public IHttpActionResult FilterRequest(string requestCode, string createdFrom,string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requests.Where(req => req.IsDeleted == false);
             if (requestCode != null)
             {
                 requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
             }
-            if (createdTime != null)
+            if (createdFrom != null && createdTo != null)
             {
-                requestList = requestList.Where(req => req.Created > DateTime.Parse(createdTime));
+                requestList = requestList.Where(req => req.Created > DateTime.Parse(createdFrom) && req.Created < DateTime.Parse(createdTo));
             }
             if (senderId != null)
             {

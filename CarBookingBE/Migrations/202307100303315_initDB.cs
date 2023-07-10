@@ -1,4 +1,4 @@
-﻿namespace CarBookingBE.Migrations
+namespace CarBookingBE.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
@@ -129,6 +129,7 @@
                         Share = c.Guid(),
                         Note = c.String(),
                         ApplyNote = c.Boolean(),
+                        Status = c.String(),
                         IsDeleted = c.Boolean(nullable: false),
                         Account_Id = c.Guid(),
                     })

@@ -37,6 +37,8 @@ namespace CarBookingTest.Models
         public Account ShareUser { get; set; }
         public string Note { get; set; }
         public bool? ApplyNote { get; set; }
+
+        public string Status { get; set; }
         public bool IsDeleted { get; set; }
         public virtual ICollection<RequestAttachment> RequestAttachments { get; set;}
         public virtual ICollection<RequestComment> RequestComments { get; set;}

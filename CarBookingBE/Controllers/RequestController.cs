@@ -28,10 +28,13 @@ namespace CarBookingBE.Controllers
         // GET: api/Request
         [Route("get-all")]
         [HttpGet]
-        public IHttpActionResult GetRequests()
+        public IHttpActionResult GetRequests(int page, int limit)
         {
             return Ok(requests.Where(request => request.IsDeleted == false)
-                .OrderByDescending(request => request.Created).ToList());
+                .OrderByDescending(request => request.Created)
+                .Skip(getSkip(page, limit))
+                .Take(limit)
+                .ToList());
         }
 
         // GET: api/Request/5
@@ -137,7 +140,7 @@ namespace CarBookingBE.Controllers
         // -----FILTER-------------------
         [Route("filter")]
         [HttpGet]
-        public IHttpActionResult FilterRequest(string requestCode, string createdTime, string senderId)
+        public IHttpActionResult FilterRequest(string requestCode, string createdTime, string senderId, int page, int limit)
         {
 
             var requestList = requests.Where(req => req.IsDeleted == false);
@@ -153,7 +156,7 @@ namespace CarBookingBE.Controllers
             {
                 requestList = requestList.Where(req => req.SenderId.ToString() == senderId);
             }
-            List<Request> result = requestList.OrderBy(req => req.Created).ToList();
+            List<Request> result = requestList.OrderBy(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
             return Ok(result);
         }
 
@@ -192,6 +195,12 @@ namespace CarBookingBE.Controllers
             return requestCodeBase + (maxNumber + 1).ToString("000");
         }
 
+        //--------------------Pagination ----------------------------------
+        protected int getSkip(int pageIndex, int limit)
+        {
+            return (pageIndex - 1) * limit;
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -205,5 +214,6 @@ namespace CarBookingBE.Controllers
         {
             return db.Requests.Count(e => e.Id == Guid.Parse(id)) > 0;
         }
+
     }
 }

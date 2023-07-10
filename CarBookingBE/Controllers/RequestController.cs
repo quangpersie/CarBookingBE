@@ -140,9 +140,8 @@ namespace CarBookingBE.Controllers
         // -----FILTER-------------------
         [Route("filter")]
         [HttpGet]
-        public IHttpActionResult FilterRequest(string requestCode, string createdTime, string senderId, int page, int limit)
+        public IHttpActionResult FilterRequest(string requestCode, string createdTime, string senderId, string status, int page, int limit)
         {
-
             var requestList = requests.Where(req => req.IsDeleted == false);
             if (requestCode != null)
             {
@@ -155,6 +154,10 @@ namespace CarBookingBE.Controllers
             if (senderId != null)
             {
                 requestList = requestList.Where(req => req.SenderId.ToString() == senderId);
+            }
+            if (senderId != null)
+            {
+                requestList = requestList.Where(req => req.Status == status);
             }
             List<Request> result = requestList.OrderBy(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
             return Ok(result);

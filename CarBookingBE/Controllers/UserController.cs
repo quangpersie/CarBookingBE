@@ -1,5 +1,6 @@
 ﻿using CarBookingTest.Models;
 using CarBookingTest.Utils;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Security.Claims;
 using System.Security.Policy;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Helpers;
 using System.Web.Http;
 using System.Web.ModelBinding;
@@ -22,6 +24,7 @@ namespace CarBookingTest.Controllers
         MyDbContext db = new MyDbContext();
         HandlePassword hp = new HandlePassword();
         TokenProps jwt = new TokenProps();
+        Guid curUserId;
 
         [HttpPost]
         [Route("login")]
@@ -55,6 +58,7 @@ namespace CarBookingTest.Controllers
                     };
                     string jwtToken = jwt.GenerateJwtToken(secretKey, issuer, audience, expirationMinutes, customClaims);
                     //bool check = jwt.VerifyJwtToken(jwtToken, secretKey);
+                    curUserId = validUser.Id;
 
                     return Ok(new { Success = true, Message = "Login successfully !", Token = jwtToken });
                 }
@@ -135,7 +139,7 @@ namespace CarBookingTest.Controllers
 
         [HttpGet]
         [Route("profile/{id}")]
-        public IHttpActionResult getProfile(int id)
+        public IHttpActionResult getProfile(Guid id)
         {
             var user = db.Users.Find(id);
             if (user == null || user.IsDeleted == true)
@@ -155,5 +159,23 @@ namespace CarBookingTest.Controllers
             //var token = jwt.UpdateTokenExpiration(jwtToken.tokenForLogout, jwt.secretKey, 0);
             return Ok(new { Success = true, Message = "Logout successfully !", check = jwt.expirationMinutes * (-1) });
         }
+
+        [HttpPost]
+        [Route("edit")]
+        public IHttpActionResult Post()
+        {
+            var httpRequest = HttpContext.Current.Request;
+            if (httpRequest.Files.Count > 0)
+            {
+                var docfiles = new List<string>();
+                var postedFile = httpRequest.Files[0];
+                var filePath = HttpContext.Current.Server.MapPath($"~/Files/Avatar/{curUserId}/{postedFile.FileName}");
+                postedFile.SaveAs(filePath);
+                docfiles.Add(filePath);
+                return Ok(new { Success = true, Message = "Upload success" });
+            }
+            return Ok(new { Success = false, Message = "Upload fail" });
+        }
+
     }
 }

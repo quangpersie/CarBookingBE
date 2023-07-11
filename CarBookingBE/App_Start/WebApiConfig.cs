@@ -14,6 +14,8 @@ namespace CarBookingBE
             var corsAttr = new EnableCorsAttribute("http://localhost:3000", "*", "*");
             config.EnableCors(corsAttr);
 
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new System.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
+
             // Web API routes
             config.MapHttpAttributeRoutes();
 

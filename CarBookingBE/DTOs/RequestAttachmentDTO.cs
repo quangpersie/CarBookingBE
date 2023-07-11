@@ -5,8 +5,9 @@ using System.Web;
 
 namespace CarBookingBE.DTOs
 {
-    public class RequestResult
+    public class RequestAttachmentDTO
     {
-
+        public Guid Id { get; set; }
+        public string Path { get; set; }
     }
 }

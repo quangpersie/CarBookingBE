@@ -36,6 +36,7 @@ namespace CarBookingBE.Controllers
                     RequestCode = req.RequestCode,
                     SenderUser = new AccountDTO()
                     {
+                        Id = req.Id,
                         FirstName = req.SenderUser.FirstName,
                         LastName = req.SenderUser.LastName
                     },
@@ -46,6 +47,7 @@ namespace CarBookingBE.Controllers
                     },
                     ReceiveUser = new AccountDTO()
                     {
+                        Id = req.Id,
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName
                     },
@@ -74,25 +76,90 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult GetRequest(string id)
         {
 
-            Request request = db.Requests.SingleOrDefault(r => r.Id.ToString() == id);
+            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                .Select(req => new RequestDetailDTO() {
+                    Id = req.Id,
+                    RequestCode = req.RequestCode,
+                    SenderUser = new AccountDTO()
+                    {
+                        Id = req.Id,
+                        FirstName = req.SenderUser.FirstName,
+                        LastName = req.SenderUser.LastName
+                    },
+                    Created = req.Created,
+                    Department = new DepartmentDTO()
+                    {
+                        Name = req.Department.Name
+                    },
+                    ReceiveUser = new AccountDTO()
+                    {
+                        Id = req.Id,
+                        FirstName = req.ReceiveUser.FirstName,
+                        LastName = req.ReceiveUser.LastName
+                    },
+                    UsageFrom = req.UsageFrom,
+                    UsageTo = req.UsageTo,
+                    Status = req.Status,
+                    Mobile = req.Mobile,
+                    CostCenter = req.CostCenter,
+                    TotalPassengers = req.TotalPassengers,
+                    PickLocation = req.PickLocation,
+                    Destination = req.Destination,
+                    Reason = req.Reason,
+                    ShareUser = req.ShareUser,
+                    Note = req.Note,
+                    ApplyNote = req.ApplyNote,
+                    IsDeleted = req.IsDeleted
+
+                })
+                .SingleOrDefault(r => r.Id.ToString() == id);
             if (request == null || request.IsDeleted == true)
             {
                 return NotFound();
             }
 
-            return Ok(request.RequestComments.ToList());
+            return Ok(request);
         }
 
         // GET: Sent to me
         [Route("sent-to-me/{Id}")]
         [HttpGet]
 
-        public IHttpActionResult GetSentToMe(string Id)
+        public IHttpActionResult GetSentToMe(string Id, int page, int limit)
         {
-            var requestWorkflow = db.Requests.Where(request => request.RequestWorkflows != null && request.RequestWorkflows.SingleOrDefault(reqwf => reqwf.Id.ToString() == Id) != null );
-            var requestList = db.Requests.Where(request => request.SenderId.ToString() == Id
-                || request.ReceiverId.ToString() == Id
-            );
+            List<RequestDTO> requestList = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                .Where(request => request.IsDeleted == false)
+                .Where(request => request.SenderId.ToString() == Id || request.ReceiverId.ToString() == Id)
+                .Select(req => new RequestDTO()
+                {
+                    Id = req.Id,
+                    RequestCode = req.RequestCode,
+                    SenderUser = new AccountDTO()
+                    {
+                        Id = req.Id,
+                        FirstName = req.SenderUser.FirstName,
+                        LastName = req.SenderUser.LastName
+                    },
+                    Created = req.Created,
+                    Department = new DepartmentDTO()
+                    {
+                        Name = req.Department.Name
+                    },
+                    ReceiveUser = new AccountDTO()
+                    {
+                        Id = req.Id,
+                        FirstName = req.ReceiveUser.FirstName,
+                        LastName = req.ReceiveUser.LastName
+                    },
+                    UsageFrom = req.UsageFrom,
+                    UsageTo = req.UsageTo,
+                    Status = req.Status
+                })
+                .Where(req => req.)
+                .OrderByDescending(request => request.Created)
+                .Skip(getSkip(page, limit))
+                .Take(limit)
+                .ToList();
             return Ok();
         }
 

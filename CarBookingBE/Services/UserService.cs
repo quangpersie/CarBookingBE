@@ -171,7 +171,7 @@ namespace CarBookingBE.Services
                         Trace.WriteLine($"{prop.Name}: {prop.GetValue(updateUser, null)}");
                     }
                 }*/
-
+            }
             return new Result<JObject>(true, "Get user profile successfully !");
         }
 

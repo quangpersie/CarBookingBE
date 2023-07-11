@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarBookingBE.DTOs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,5 +23,10 @@ namespace CarBookingTest.Models
 
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
         public virtual ICollection<Request> Requests { get; set; }
+
+        public static implicit operator Department(DepartmentDTO v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

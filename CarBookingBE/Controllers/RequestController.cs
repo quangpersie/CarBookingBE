@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
+using CarBookingBE.DTOs;
 using CarBookingTest.Models;
 using Newtonsoft.Json;
 
@@ -18,13 +19,9 @@ namespace CarBookingBE.Controllers
     public class RequestController : ApiController
     {
         private MyDbContext db = new MyDbContext();
-        List<Request> requests;
         // GET: Request
 
-        public RequestController()
-        {
-            requests = db.Requests.ToList();
-        }
+       
 
 
         // GET: api/Request
@@ -32,11 +29,41 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult GetRequests(int page, int limit)
         {
-            List<Request> queries = requests.Where(request => request.IsDeleted == false)
+            List<RequestDTO> queries = db.Requests.Include(r => r.SenderUser).Include(receiver => receiver.ReceiveUser)
+                .Where(request => request.IsDeleted == false)
+                .Select(req => new RequestDTO() {
+                    Id = req.Id,
+                    RequestCode = req.RequestCode,
+                    SenderUser = new AccountDTO()
+                    {
+                        FirstName = req.SenderUser.FirstName,
+                        LastName = req.SenderUser.LastName
+                    },
+                    Created = req.Created,
+                    Department = new DepartmentDTO()
+                    {
+                        Name = req.Department.Name
+                    },
+                    ReceiveUser = new AccountDTO()
+                    {
+                        FirstName = req.ReceiveUser.FirstName,
+                        LastName = req.ReceiveUser.LastName
+                    },
+                    UsageFrom = req.UsageFrom,
+                    UsageTo = req.UsageTo,
+                    Status = req.Status
+
+                })
                 .OrderByDescending(request => request.Created)
                 .Skip(getSkip(page, limit))
                 .Take(limit)
                 .ToList();
+
+            //List<Request> queries = requests.Where(request => request.IsDeleted == false)
+            //    .OrderByDescending(request => request.Created)
+            //    .Skip(getSkip(page, limit))
+            //    .Take(limit)
+            //    .ToList();
 
             return Ok(queries);
         }
@@ -62,10 +89,10 @@ namespace CarBookingBE.Controllers
 
         public IHttpActionResult GetSentToMe(string Id)
         {
-            List<Request> requestList = requests.Where(request => request.SenderId.ToString() == Id
+            var requestWorkflow = db.Requests.Where(request => request.RequestWorkflows != null && request.RequestWorkflows.SingleOrDefault(reqwf => reqwf.Id.ToString() == Id) != null );
+            var requestList = db.Requests.Where(request => request.SenderId.ToString() == Id
                 || request.ReceiverId.ToString() == Id
-            )
-                .ToList();
+            );
             return Ok();
         }
 
@@ -76,7 +103,7 @@ namespace CarBookingBE.Controllers
         {
             try
             {
-                var req = requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
+                var req = db.Requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
                 if (req == null || req.IsDeleted == true)
                 {
                     return NotFound();
@@ -159,7 +186,7 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult FilterRequest(string requestCode, string createdFrom,string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requests.Where(req => req.IsDeleted == false);
+            var requestList = db.Requests.Where(req => req.IsDeleted == false);
             if (requestCode != null)
             {
                 requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
@@ -194,7 +221,7 @@ namespace CarBookingBE.Controllers
             List<int> requestCodeNumbers = new List<int>();
             int maxNumber = 0;
 
-            foreach (Request request in requests)
+            foreach (Request request in db.Requests)
             {
                 if (request.RequestCode.Contains(requestCodeBase) && request.IsDeleted == false)
                 {

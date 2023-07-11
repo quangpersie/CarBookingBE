@@ -215,12 +215,16 @@
     <Compile Include="Controllers\RequestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="DTOs\AccountDTO.cs" />
+    <Compile Include="DTOs\DepartmentDTO.cs" />
+    <Compile Include="DTOs\RequestDTO.cs" />
+    <Compile Include="DTOs\RequestResult.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202307100910421_initDB.cs" />
-    <Compile Include="Migrations\202307100910421_initDB.Designer.cs">
-      <DependentUpon>202307100910421_initDB.cs</DependentUpon>
+    <Compile Include="Migrations\202307110839543_initDB.cs" />
+    <Compile Include="Migrations\202307110839543_initDB.Designer.cs">
+      <DependentUpon>202307110839543_initDB.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account.cs" />
@@ -384,8 +388,8 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202307100910421_initDB.resx">
-      <DependentUpon>202307100910421_initDB.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202307110839543_initDB.resx">
+      <DependentUpon>202307110839543_initDB.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

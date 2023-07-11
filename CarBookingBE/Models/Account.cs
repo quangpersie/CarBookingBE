@@ -1,4 +1,5 @@
-﻿using CarBookingTest.Models;
+﻿using CarBookingBE.DTOs;
+using CarBookingTest.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -93,5 +94,10 @@ namespace CarBookingTest.Models
         public virtual ICollection<RequestShare> RequestShares { get; set; }
 
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
+
+        public static implicit operator Account(AccountDTO v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

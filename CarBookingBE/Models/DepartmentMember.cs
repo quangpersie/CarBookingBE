@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
+using System.Text.Json.Serialization;
 
 namespace CarBookingTest.Models
 {
@@ -10,6 +8,7 @@ namespace CarBookingTest.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Position { get; set; }
+        [JsonIgnore]
         public bool IsDeleted { get; set; }
         public Guid? UserId { get; set; }
         [ForeignKey("UserId")]

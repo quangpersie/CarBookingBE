@@ -4,6 +4,7 @@ using CarBookingTest.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Mime;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
@@ -13,7 +14,6 @@ namespace CarBookingTest.Controllers
     [RoutePrefix("api/user")]
     public class UserController : ApiController
     {
-        MyDbContext db = new MyDbContext();
         UserService userService = new UserService();
 
         [HttpPost]
@@ -25,9 +25,20 @@ namespace CarBookingTest.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IHttpActionResult registerUser([FromBody] Account user)
+        public IHttpActionResult registerUser()
         {
-            return Ok(userService.registerService(user));
+            var httpRequest = HttpContext.Current.Request;
+            Account user = new Account();
+            user.Username = httpRequest.Form["Username"];
+            user.Password = httpRequest.Form["Password"];
+            user.Email = httpRequest.Form["Email"];
+            user.Sex = bool.Parse(httpRequest.Form["Sex"]);
+            user.EmployeeNumber = httpRequest.Form["EmployeeNumber"];
+            if (httpRequest.Files.Count == 1)
+            {
+                return Ok(userService.registerService(httpRequest.Files[0], user));
+            }
+            return Ok(userService.registerService(null, user));
         }
 
         [HttpGet]
@@ -55,11 +66,26 @@ namespace CarBookingTest.Controllers
         [HttpPost]
         //[JwtAuthorize]
         [Route("edit/{id}")]
-        public IHttpActionResult editProfile(string id)
+        public IHttpActionResult editProfile(string id, [FromBody] Account user)
         {
             var httpRequest = HttpContext.Current.Request;
-            return Ok(userService.editProfileService(httpRequest, id));
+            if (httpRequest.Files.Count == 1)
+            {
+                return Ok(userService.editProfileService(httpRequest.Files[0], id, user));
+            }
+            return Ok(userService.editProfileService(null, id, user));
         }
 
+        [HttpPost]
+        [Route("testUpload")]
+        public IHttpActionResult testUpload()
+        {
+            var httpRequest = HttpContext.Current.Request;
+            if(httpRequest.Files.Count == 1)
+            {
+                return Ok(userService.uploadAvatar(httpRequest.Files[0]));
+            }
+            return BadRequest();
+        }
     }
 }

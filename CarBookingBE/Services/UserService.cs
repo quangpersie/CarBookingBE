@@ -1,21 +1,16 @@
 ﻿using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http;
-using System.Web.Http.Results;
-using System.Web.Mvc;
 
 namespace CarBookingBE.Services
 {
@@ -24,6 +19,13 @@ namespace CarBookingBE.Services
         MyDbContext db = new MyDbContext();
         HandlePassword hp = new HandlePassword();
         TokenProps jwt = new TokenProps();
+        string curUserId = "quang";
+
+        public JObject parseToJson(object obj)
+        {
+            var jsonString = JsonConvert.SerializeObject(obj);
+            return JObject.Parse(jsonString); 
+        }
         public Result<string> loginService(Account user)
         {
             if (user == null || user.Username == null || user.Password == null)
@@ -64,7 +66,7 @@ namespace CarBookingBE.Services
                 }
             }
         }
-        public Result<Account> registerService(Account user)
+        public Result<Account> registerService(HttpPostedFile file, Account user)
         {
             if (user == null)
             {
@@ -100,6 +102,16 @@ namespace CarBookingBE.Services
             }
             else
             {
+                string flag = "";
+                if (file != null)
+                {
+                    var rs = uploadAvatar(file);
+                    if (!rs.Success)
+                    {
+                        return new Result<Account>(false, rs.Message);
+                    }
+                    flag = rs.Data;
+                }
                 Account newUser = new Account();
                 newUser.Username = user.Username;
                 newUser.Password = hp.HashPassword(user.Password);
@@ -108,7 +120,14 @@ namespace CarBookingBE.Services
                 newUser.EmployeeNumber = user.EmployeeNumber;
                 newUser.IsDeleted = false;
                 newUser.Created = DateTime.Now;
-
+                if (flag.Length > 0)
+                {
+                    newUser.AvatarPath = flag;
+                }
+                else
+                {
+                    newUser.AvatarPath = "Files/default-user-profile.png";
+                }
                 db.Users.Add(newUser);
                 db.SaveChanges();
 
@@ -125,80 +144,97 @@ namespace CarBookingBE.Services
             return new Result<List<Account>>(false, "Get all users successfully !", users);
         }
 
-        public Result<JObject> getProfileService(string id)
+        public Account getAcc(string id)
+        {
+            return db.Users.Find(Guid.Parse(id));
+        }
+
+        public Result<Account> getProfileService(string id)
         {
             try
             {
                 var user = db.Users.Find(Guid.Parse(id));
                 if (user == null || user.IsDeleted == true)
                 {
-                    return new Result<JObject>(false, "User does not exist");
+                    return new Result<Account>(false, "User does not exist");
                 }
-                var jsonString = JsonSerializer.Serialize(user);
-                JObject jsonObject = JObject.Parse(jsonString);
-                jsonObject.Remove("Password");
-                return new Result<JObject>(true, "Get user profile successfully !", jsonObject);
+                return new Result<Account>(true, "Get user profile successfully !", user);
             }
             catch (Exception ex)
             {
-                return new Result<JObject>(false, ex.Message);
+                return new Result<Account>(false, ex.Message);
             }
         }
 
-        public Result<JObject> editProfileService(HttpRequest httpRequest, string updateUserId)
+        public Result<List<AccountRole>> editProfileService(HttpPostedFile postedFile, string updateUserId, Account updateUser)
         {
-            var updateUser = db.Users.Find(Guid.Parse(updateUserId));
-            if (updateUser == null || updateUser.IsDeleted == true)
+            var user = db.Users.Find(Guid.Parse(updateUserId));
+            if (user == null || user.IsDeleted == true)
             {
-                return new Result<JObject>(false, "User do not exist !");
+                return new Result<List<AccountRole>>(false, "User do not exist !");
             }
 
-            var roles = db.UserRoles.Where(r => r.IsDeleted == false && r.UserId == Guid.Parse(updateUserId));
-            if(!roles.Any())
+            var userRoles = db.UserRoles.Where(r => r.IsDeleted == false && r.UserId.ToString().ToLower() == updateUserId.ToLower()).ToList();
+            if (!userRoles.Any())
             {
-                return new Result<JObject>(false, "User do not have any roles !");
+                return new Result<List<AccountRole>>(false, "User do not have any roles !");
             }
-            foreach (var r in roles)
+            bool isAdmin = false;
+            foreach (var r in userRoles)
             {
-                var rTitle = db.Roles.Find(r.RoleId).Title;
-                /*if (rTitle.Equals("ADMIN") {
-
-                }
-                else if (rTitle.Equals("EMPLOYEE"))
+                var rTitle = db.Roles.Find(r.RoleId);
+                if (rTitle.Title.Equals("ADMIN"))
                 {
-                    foreach (PropertyInfo prop in updateUser.GetType().GetProperties())
-                    {
-                        Trace.WriteLine($"{prop.Name}: {prop.GetValue(updateUser, null)}");
-                    }
-                }*/
+                    isAdmin = true;
+                }
             }
-            return new Result<JObject>(true, "Get user profile successfully !");
+
+            if (isAdmin)
+            {
+                foreach (PropertyInfo prop in updateUser.GetType().GetProperties())
+                {
+                    Trace.WriteLine($"{prop.Name}: {prop.GetValue(updateUser, null)}");
+                }
+            }
+            else
+            {
+                foreach (PropertyInfo prop in updateUser.GetType().GetProperties())
+                {
+                    Trace.WriteLine($"{prop.Name}: {prop.GetValue(updateUser, null)}");
+                }
+            }
+            return new Result<List<AccountRole>>(true, "Get user profile successfully ! " + isAdmin, userRoles);
         }
 
-        public bool uploadAvatar(HttpRequest httpRequest)
+        public Result<string> uploadAvatar(HttpPostedFile postedFile)
         {
             try
             {
-                if (httpRequest.Files.Count > 0)
+                string[] acceptExtensionImg = { ".png", ".jpg", ".jpeg" };
+                if(postedFile == null || postedFile.FileName.Length == 0)
                 {
-                    var postedFile = httpRequest.Files[0];
-                    string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Avatar"), "quang");
-                    if (!Directory.Exists(pathToSave))
-                    {
-                        Directory.CreateDirectory(pathToSave);
-                    }
-                    postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
-                    //return new Result<string>(true, "Upload success", pathToSave);
-                    return true;
+                    return new Result<string>(false, "Missing file !");
                 }
-                return false;
+                if(!acceptExtensionImg.Contains(Path.GetExtension(postedFile.FileName)))
+                {
+                    return new Result<string>(false, "Not support file type !");
+                }
+                if (postedFile.ContentLength > (2 * 1024 * 1024))
+                {
+                    return new Result<string>(false, "The maximum size of file is 20MB !");
+                }
+                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Avatar"), curUserId);
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+                postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
+                return new Result<string>(true, "Upload file successfully !", $"Files/Avatar/{curUserId}/{postedFile.FileName}");
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
-                return false;
+                return new Result<string>(false, ex.Message); ;
             }
-            //return new Result<string>(false, "Upload fail");
         }
     }
 }

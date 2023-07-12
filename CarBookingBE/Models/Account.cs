@@ -1,11 +1,9 @@
 ﻿using CarBookingBE.DTOs;
-using CarBookingTest.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
+using System.Text.Json.Serialization;
 
 namespace CarBookingTest.Models
 {
@@ -17,7 +15,10 @@ namespace CarBookingTest.Models
         [Index(IsUnique = true)]
         [MaxLength(50)]
         public string Username { get; set; }
+        [JsonIgnore]
         public string Password { get; set; }
+        /*[Index(IsUnique = true)]
+        [MaxLength(50)]*/
         public string Email { get; set; }
         [Index(IsUnique = true)]
         [MaxLength(30)]
@@ -40,6 +41,7 @@ namespace CarBookingTest.Models
         public string Rank { get; set; }
         public string EmployeeType { get; set; }
         public string Rights { get; set; }
+        [JsonIgnore]
         public bool IsDeleted { get; set; }
         /* Additional */
         public string Nation { get; set; }
@@ -87,12 +89,10 @@ namespace CarBookingTest.Models
         public string ProvinceR { get; set; }
         public string PostalCodeR { get; set; }
         public string CountryR { get; set; }
-
         public virtual ICollection<AccountRole> UserRoles { get; set; }
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
         public virtual ICollection<Request> Requests { get; set; }
         public virtual ICollection<RequestShare> RequestShares { get; set; }
-
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
 
         public static implicit operator Account(AccountDTO v)

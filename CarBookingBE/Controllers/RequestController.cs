@@ -35,7 +35,7 @@ namespace CarBookingBE.Controllers
                     RequestCode = req.RequestCode,
                     SenderUser = new AccountDTO()
                     {
-                        Id = req.Id,
+                        Id = req.SenderUser.Id,
                         FirstName = req.SenderUser.FirstName,
                         LastName = req.SenderUser.LastName
                     },
@@ -46,7 +46,7 @@ namespace CarBookingBE.Controllers
                     },
                     ReceiveUser = new AccountDTO()
                     {
-                        Id = req.Id,
+                        Id = req.ReceiveUser.Id,
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName
                     },
@@ -74,14 +74,16 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult GetRequest(string id)
         {
-
-            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser).Include(rwf => rwf.RequestWorkflows)
-                .Select(req => new RequestDetailDTO() {
+            /*List <RequestWorkflow> requests = db.RequestWorkflows.Include(u => u.User).Where(rwf => rwf.RequestId.ToString() == id).ToList();
+            return Ok(requests);*/
+            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                .Select(req => new RequestDetailDTO()
+                {
                     Id = req.Id,
                     RequestCode = req.RequestCode,
                     SenderUser = new AccountDTO()
                     {
-                        Id = req.Id,
+                        Id = req.SenderUser.Id,
                         FirstName = req.SenderUser.FirstName,
                         LastName = req.SenderUser.LastName
                     },
@@ -92,11 +94,10 @@ namespace CarBookingBE.Controllers
                     },
                     ReceiveUser = new AccountDTO()
                     {
-                        Id = req.Id,
+                        Id = req.ReceiveUser.Id,
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName
                     },
-                    RequestWorkflow = req.RequestWorkflows,
                     UsageFrom = req.UsageFrom,
                     UsageTo = req.UsageTo,
                     Status = req.Status,
@@ -136,7 +137,7 @@ namespace CarBookingBE.Controllers
                     RequestCode = req.RequestCode,
                     SenderUser = new AccountDTO()
                     {
-                        Id = req.Id,
+                        Id = req.SenderUser.Id,
                         FirstName = req.SenderUser.FirstName,
                         LastName = req.SenderUser.LastName
                     },
@@ -147,7 +148,7 @@ namespace CarBookingBE.Controllers
                     },
                     ReceiveUser = new AccountDTO()
                     {
-                        Id = req.Id,
+                        Id = req.ReceiveUser.Id,
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName
                     },

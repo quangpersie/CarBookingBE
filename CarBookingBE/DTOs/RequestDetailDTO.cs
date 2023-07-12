@@ -32,5 +32,7 @@ namespace CarBookingBE.DTOs
         public string Status { get; set; }
         public bool IsDeleted { get; set; }
 
+        public ICollection<RequestWorkflow> RequestWorkflow { get; set; }
+
     }
 }

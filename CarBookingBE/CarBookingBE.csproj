@@ -211,7 +211,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\RequestCommentDTO.cs" />
+    <Compile Include="DTOs\RequestCommentDTO.cs" />
     <Compile Include="Controllers\RequestCommentsController.cs" />
     <Compile Include="Controllers\RequestController.cs" />
     <Compile Include="Controllers\UserController.cs" />
@@ -221,6 +221,7 @@
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestDTO.cs" />
     <Compile Include="DTOs\RequestDetailDTO.cs" />
+    <Compile Include="DTOs\RequestWorkflowDTO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

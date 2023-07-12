@@ -19,7 +19,6 @@ namespace CarBookingBE.Controllers
     public class RequestController : ApiController
     {
         private MyDbContext db = new MyDbContext();
-        // GET: Request
 
        
 
@@ -76,7 +75,7 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult GetRequest(string id)
         {
 
-            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser).Include(rwf => rwf.RequestWorkflows)
                 .Select(req => new RequestDetailDTO() {
                     Id = req.Id,
                     RequestCode = req.RequestCode,
@@ -97,6 +96,7 @@ namespace CarBookingBE.Controllers
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName
                     },
+                    RequestWorkflow = req.RequestWorkflows,
                     UsageFrom = req.UsageFrom,
                     UsageTo = req.UsageTo,
                     Status = req.Status,
@@ -155,7 +155,6 @@ namespace CarBookingBE.Controllers
                     UsageTo = req.UsageTo,
                     Status = req.Status
                 })
-                .Where(req => req.)
                 .OrderByDescending(request => request.Created)
                 .Skip(getSkip(page, limit))
                 .Take(limit)

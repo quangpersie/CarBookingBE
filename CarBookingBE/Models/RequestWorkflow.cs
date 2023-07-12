@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarBookingBE.DTOs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -19,5 +20,10 @@ namespace CarBookingTest.Models
         public Guid? RequestId { get; set; }
         [ForeignKey("RequestId")]
         public Request Request { get; set; }
+
+        public static implicit operator RequestWorkflow(RequestWorkflowDTO v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

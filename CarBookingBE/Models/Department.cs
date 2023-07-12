@@ -1,9 +1,9 @@
-﻿using CarBookingBE.DTOs;
+﻿using Newtonsoft.Json;
+using CarBookingBE.DTOs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace CarBookingTest.Models
 {

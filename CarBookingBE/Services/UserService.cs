@@ -153,9 +153,9 @@ namespace CarBookingBE.Services
                 .ToList();
                 if(users == null)
                 {
-                    return new Result<List<Account>>(false, "Get all users fail !");
+                    return new Result<List<Account>>(true, "There's no data !", new List<Account>());
                 }
-                return new Result<List<Account>>(false, "Get all users successfully !", users);
+                return new Result<List<Account>>(true, "Get all users successfully !", users);
             }
             catch(Exception e)
             {
@@ -282,6 +282,35 @@ namespace CarBookingBE.Services
             {
                 Trace.WriteLine(e.ToString());
                 return new Result<Account>(false, "Internal error !");
+            }
+        }
+
+        public Result<AccountRole> adjustRoles(string userId, string roleId)
+        {
+            try
+            {
+                var uId = Guid.Parse(userId);
+                var rId = Guid.Parse(roleId);
+                var user = _db.Users.Find(uId);
+                var role = _db.Roles.Find(rId);
+                if (user != null && role != null)
+                {
+                    var isExist = _db.UserRoles.Where(r => r.UserId == uId && r.RoleId == rId).ToList();
+                    if (isExist.Count == 0)
+                    {
+                        var newUserRole = new AccountRole { UserId = uId, RoleId = rId };
+                        _db.UserRoles.Add(newUserRole);
+                        _db.SaveChanges();
+                        return new Result<AccountRole>(true, "Adjust role for user successfully !", newUserRole);
+                    }
+                    return new Result<AccountRole>(false, "Adjust fail, this user's already had the input role !");
+                }
+                return new Result<AccountRole>(false, "User or role do not exist !");
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<AccountRole>(false, "Internal error !");
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using NPOI.SS.UserModel;
+﻿using NPOI.SS.Formula.Functions;
+using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using System;
@@ -6,6 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Web;
 
 namespace CarBookingBE.Utils
@@ -74,7 +78,8 @@ namespace CarBookingBE.Utils
                 {
                     Directory.CreateDirectory(pathToSave);
                 }
-                FileStream fs = new FileStream($"{pathToSave}/result.xlsx", FileMode.CreateNew);
+                //Create # CreateNew
+                FileStream fs = new FileStream($"{pathToSave}/result.xlsx", FileMode.Create);
                 wb.Write(fs);
                 return true;
             }
@@ -82,6 +87,35 @@ namespace CarBookingBE.Utils
             {
                 Trace.WriteLine(e.Message);
                 return false;
+            }
+        }
+
+        public HttpResponseMessage downloadFile()
+        {
+            try
+            {
+                var fileName = "result.xlsx";
+                var requestId = "requestId";
+                var fileUrl = $"http://localhost:63642/Files/Excel/{requestId}/{fileName}";
+                using (WebClient client = new WebClient())
+                {
+                    byte[] fileData = client.DownloadData(fileUrl);
+
+                    HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new ByteArrayContent(fileData);
+                    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = fileName
+                    };
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                    return response;
+                }
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
         }
     }

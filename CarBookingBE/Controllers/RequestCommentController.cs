@@ -6,6 +6,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using CarBookingBE.Services;
@@ -32,9 +33,37 @@ namespace CarBookingBE.Controllers
 
         [Route("comment/requestId={requestId}/create")]
         [HttpPost]
-        public IHttpActionResult CreateComment (RequestComment requestComment, string requestId)
+        public IHttpActionResult CreateComment (string requestId)
         {
-            return Ok();
+            var httpRequest = HttpContext.Current.Request;
+            RequestComment requestComment = new RequestComment();
+            requestComment.UserId = Guid.Parse(httpRequest.Form["UserId"]);
+            requestComment.Content = httpRequest.Form["Content"];
+            requestComment.Created = DateTime.Now;
+            requestComment.RequestId = Guid.Parse(httpRequest.Form["requestId"]);
+            requestComment.IsDeleted = false;
+
+            if (httpRequest.Files.Count > 0)
+            {
+                for (int i = 0; i < httpRequest.Files.Count; i++)
+                {
+                    var comments = requestCommentService.CreateComment(httpRequest.Files[i], requestComment, requestId);
+                    if (!comments.Success)
+                    {
+                        return BadRequest(comments.Message);
+                    } 
+                }
+            }
+            else
+            {
+                var comments = requestCommentService.CreateComment(null, requestComment, requestId);
+                if (!comments.Success)
+                {
+                    return BadRequest(comments.Message);
+                }
+            }
+
+            return Ok("Create Comment Success");
         }
     }
 }

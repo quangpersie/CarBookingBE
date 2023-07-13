@@ -51,18 +51,33 @@ namespace CarBookingBE.Controllers
         }
 
         // GET: Sent to me Not Complete
-        [Route("sent-to-me/UserId={id}")]
+        [Route("sent-to-me/userId={userId}")]
         [HttpGet]
 
-        public IHttpActionResult GetSentToMe(string id, int page, int limit)
+        public IHttpActionResult GetSentToMe(string userId, int page, int limit)
         {
-            var requests = requestService.GetAllRequestsByUserId(id, page, limit);
+            var requests = requestService.GetSentToMe(userId, page, limit);
             if (!requests.Success)
             {
                 return BadRequest(requests.Message);
             }
             return Ok(requests);
         }
+
+        // GET: Sent to others Not Complete
+        [Route("sent-to-others/userId={userId}")]
+        [HttpGet]
+
+        public IHttpActionResult GetSentToOthers(string userId, int page, int limit)
+        {
+            var requests = requestService.GetSentToOthers(userId, page, limit);
+            if (!requests.Success)
+            {
+                return BadRequest(requests.Message);
+            }
+            return Ok(requests);
+        }
+
 
         // PUT: api/Request/5
         [Route("Id={id}")]

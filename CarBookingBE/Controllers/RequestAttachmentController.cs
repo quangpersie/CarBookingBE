@@ -34,9 +34,9 @@ namespace CarBookingBE.Controllers
         }
         
 
-        [Route("create")]
+        [Route("create/requestId={requestId}")]
         [HttpPost]
-        public IHttpActionResult CreateAttachment()
+        public IHttpActionResult CreateAttachment(string requestId)
         {
             var httpRequest = HttpContext.Current.Request;
             if (httpRequest.Files.Count > 0)
@@ -44,7 +44,7 @@ namespace CarBookingBE.Controllers
 
                 for (int i = 0; i < httpRequest.Files.Count; i++)
                 {
-                    var rAS = requestAttachmentService.CreateAttachment(httpRequest.Files[i], httpRequest.Form["requestId"]);
+                    var rAS = requestAttachmentService.CreateAttachment(httpRequest.Files[i], requestId);
                     if (!rAS.Success)
                     {
                         return BadRequest(rAS.Message);

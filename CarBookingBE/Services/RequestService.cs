@@ -113,45 +113,83 @@ namespace CarBookingBE.Services
             return new Result<RequestDetailDTO>(true, "Success", request);
         }
 
-        public Result<List<RequestDTO>> GetAllRequestsByUserId(string id, int page, int limit)
+        public Result<List<RequestDTO>> GetSentToMe(string userId, int page, int limit)
         {
-            List<RequestDTO> queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
-                .Where(request => request.IsDeleted == false)
-                .Where(request => request.SenderId.ToString() == id || request.ReceiverId.ToString() == id)
+            var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
+                .Where(request => request.r.IsDeleted == false)
+                .Where(request => request.r.SenderId.ToString() == userId || request.r.ReceiverId.ToString() == userId || request.rwf.UserId.ToString() == userId)
                 .Select(req => new RequestDTO()
                 {
-                    Id = req.Id,
-                    RequestCode = req.RequestCode,
+                    Id = req.r.Id,
+                    RequestCode = req.r.RequestCode,
                     SenderUser = new AccountDTO()
                     {
-                        Id = req.SenderUser.Id,
-                        FirstName = req.SenderUser.FirstName,
-                        LastName = req.SenderUser.LastName
+                        Id = req.r.SenderUser.Id,
+                        FirstName = req.r.SenderUser.FirstName,
+                        LastName = req.r.SenderUser.LastName
                     },
-                    Created = req.Created,
+                    Created = req.r.Created,
                     Department = new DepartmentDTO()
                     {
-                        Name = req.Department.Name
+                        Name = req.r.Department.Name
                     },
                     ReceiveUser = new AccountDTO()
                     {
-                        Id = req.ReceiveUser.Id,
-                        FirstName = req.ReceiveUser.FirstName,
-                        LastName = req.ReceiveUser.LastName
+                        Id = req.r.ReceiveUser.Id,
+                        FirstName = req.r.ReceiveUser.FirstName,
+                        LastName = req.r.ReceiveUser.LastName
                     },
-                    UsageFrom = req.UsageFrom,
-                    UsageTo = req.UsageTo,
-                    Status = req.Status
+                    UsageFrom = req.r.UsageFrom,
+                    UsageTo = req.r.UsageTo,
+                    Status = req.r.Status
                 })
                 .OrderByDescending(request => request.Created)
                 .Skip(getSkip(page, limit))
                 .Take(limit)
                 .ToList();
+
 /*            if (queries.Count() == 0)
             {
                 return new Result<List<RequestDTO>>(false, "Get Requests Failed");
             }*/
             return new Result<List<RequestDTO>>(true,"Get Requests Success",queries);
+        }
+
+        public Result<List<RequestDTO>> GetSentToOthers(string userId, int page, int limit)
+        {
+            var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                        .Where(request => request.IsDeleted == false)
+                        .Where(request => request.SenderId.ToString() == userId)
+                        .Select(
+                            req => new RequestDTO()
+                            {
+                                Id = req.Id,
+                                RequestCode = req.RequestCode,
+                                SenderUser = new AccountDTO()
+                                {
+                                    Id = req.SenderUser.Id,
+                                    FirstName = req.SenderUser.FirstName,
+                                    LastName = req.SenderUser.LastName
+                                },
+                                Created = req.Created,
+                                Department = new DepartmentDTO()
+                                {
+                                    Name = req.Department.Name
+                                },
+                                ReceiveUser = new AccountDTO()
+                                {
+                                    Id = req.ReceiveUser.Id,
+                                    FirstName = req.ReceiveUser.FirstName,
+                                    LastName = req.ReceiveUser.LastName
+                                },
+                                UsageFrom = req.UsageFrom,
+                                UsageTo = req.UsageTo,
+                                Status = req.Status
+                            }
+                        )
+                        .ToList();
+            return new Result<List<RequestDTO>>(true, "Get Requests Success", queries);
         }
 
         public Result<Request> EditRequest(string id, Request requestEdit)

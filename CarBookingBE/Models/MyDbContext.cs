@@ -16,7 +16,7 @@ namespace CarBookingTest.Models
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<AccountRole> UserRoles { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
-        public virtual DbSet<DepartmentMember> DepartmentsMember { get; set;}
+        public virtual DbSet<DepartmentMember> DepartmentsMembers { get; set;}
         public virtual DbSet<Request> Requests { get; set; }
         public virtual DbSet<RequestAttachment> RequestAttachments { get; set; }
         public virtual DbSet<RequestComment> RequestComments { get; set; }

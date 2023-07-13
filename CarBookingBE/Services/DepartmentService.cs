@@ -32,6 +32,24 @@ namespace CarBookingBE.Services
                 return new Result<List<Department>>(false, "Internal error !");
             }
         }
+        public Result<Department> addDepartment(Department department)
+        {
+            try
+            {
+                if (department == null || department.Name == null || department.ContactInfo == null || department.Code == null || department.Description == null)
+                {
+                    return new Result<Department>(false, "Missing parameter(s) !");
+                }
+                _db.Departments.Add(department);
+                _db.SaveChanges();
+                return new Result<Department>(true, "Add department succesfully !", department);
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<Department>(false, "Internal error !");
+            }
+        }
         public Result<Department> getDepartment(string id)
         {
             try

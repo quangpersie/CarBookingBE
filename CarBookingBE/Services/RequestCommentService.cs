@@ -39,6 +39,5 @@ namespace CarBookingBE.Services
             return new Result<List<RequestCommentDTO>>(true, "Get Success", requestComments);
         }
 
-        public Result<RequestComment> 
     }
 }

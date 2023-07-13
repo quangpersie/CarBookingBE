@@ -186,13 +186,14 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var user = _db.Users.Find(Guid.Parse(updateUserId));
+                var updateId = Guid.Parse(updateUserId);
+                var user = _db.Users.Find(updateId);
                 if(user == null || user.IsDeleted == true)
                 {
                     return new Result<Account>(false, "User do not exist !");
                 }
 
-                var userRoles = _db.UserRoles.Where(r => r.IsDeleted == false && r.UserId.ToString().ToLower() == updateUserId.ToLower()).ToList();
+                var userRoles = _db.UserRoles.Where(r => r.IsDeleted == false && r.UserId == updateId).ToList();
                 if(!userRoles.Any())
                 {
                     return new Result<Account>(false, "User do not have any roles !");

@@ -3,6 +3,7 @@ using CarBookingTest.Models;
 using CarBookingTest.Utils;
 using System.Web;
 using System.Web.Http;
+using System.Web.Security;
 
 namespace CarBookingTest.Controllers
 {
@@ -69,6 +70,14 @@ namespace CarBookingTest.Controllers
                 return Ok(userService.editProfileService(httpRequest.Files[0], id, user));
             }
             return Ok(userService.editProfileService(null, id, user));
+        }
+
+        [HttpPost]
+        [Route("adjust-role")]
+        public IHttpActionResult adjustRole()
+        {
+            var httpRequest = HttpContext.Current.Request;
+            return Ok(userService.adjustRoles(httpRequest.Form["userId"], httpRequest.Form["roleId"]));
         }
 
         [HttpPost]

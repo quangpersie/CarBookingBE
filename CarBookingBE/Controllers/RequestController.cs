@@ -29,8 +29,11 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult GetRequests(int page, int limit)
         {
-            List<RequestDTO> requests = requestService.GetAllRequests(page, limit);
-
+            var requests = requestService.GetAllRequests(page, limit);
+            if (!requests.Success)
+            {
+                return BadRequest(requests.Message);
+            }
             return Ok(requests);
         }
 
@@ -39,7 +42,12 @@ namespace CarBookingBE.Controllers
         [HttpGet]
         public IHttpActionResult GetRequest(string id)
         {
-            return Ok(requestService.GetRequestById(id));
+            var request = requestService.GetRequestById(id);
+            if (!request.Success)
+            {
+                return BadRequest(request.Message);
+            }
+            return Ok(request);
         }
 
         // GET: Sent to me Not Complete
@@ -48,7 +56,12 @@ namespace CarBookingBE.Controllers
 
         public IHttpActionResult GetSentToMe(string id, int page, int limit)
         {
-            return Ok(requestService.GetAllRequestsByUserId(id, page, limit));
+            var requests = requestService.GetAllRequestsByUserId(id, page, limit);
+            if (!requests.Success)
+            {
+                return BadRequest(requests.Message);
+            }
+            return Ok(requests);
         }
 
         // PUT: api/Request/5
@@ -56,7 +69,8 @@ namespace CarBookingBE.Controllers
         [HttpPut]
         public IHttpActionResult EditRequest(string id, Request requestEdit)
         {
-                return Ok(requestService.EditRequest(id, requestEdit));
+            var request = requestService.EditRequest(id, requestEdit);
+            return Ok();
         }
 
         // POST: api/Request

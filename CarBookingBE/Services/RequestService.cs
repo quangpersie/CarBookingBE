@@ -16,7 +16,7 @@ namespace CarBookingBE.Services
         private MyDbContext db = new MyDbContext();
 
 
-        public List<RequestDTO> GetAllRequests(int page, int limit)
+        public Result<List<RequestDTO>> GetAllRequests(int page, int limit)
         {
             List<RequestDTO> queries = db.Requests.Include(r => r.SenderUser).Include(receiver => receiver.ReceiveUser)
                 .Where(request => request.IsDeleted == false)
@@ -50,7 +50,7 @@ namespace CarBookingBE.Services
                 .Skip(getSkip(page, limit))
                 .Take(limit)
                 .ToList();
-            return queries;
+            return new Result<List<RequestDTO>>(true, "Get Success", queries);
         }
 
         public Result<RequestDetailDTO> GetRequestById(string id)
@@ -187,29 +187,32 @@ namespace CarBookingBE.Services
 
         public Result<Request> CreateRequest(Request request)
         {
-            if (request.Mobile == null || request.CostCenter == null || request.TotalPassengers == null 
-                || request.SenderId == null || request.ReceiverId == null || request.UsageFrom == null 
+            request.Created = DateTime.Now;
+            request.IsDeleted = false;
+            request.RequestCode = GenerateRequestCode();
+            request.Status = "Waiting for Approval";
+            if (request.Mobile == null || request.CostCenter == null || request.TotalPassengers == null || request.UsageFrom == null 
                 || request.UsageTo == null || request.PickTime == null || request.PickLocation == null
                 || request.Destination == null || request.Reason == null || request.ApplyNote == null)
             {
-                return new Result<Request>(false, "Missing Fields");
+                return new Result<Request>(false, "Missing Fields", request);
             }
-                if (db.Users.SingleOrDefault(u => u.Id == request.SenderId && u.IsDeleted == false) == null)
+
+            if (db.Users.SingleOrDefault(u => u.Id == request.SenderId && u.IsDeleted == false) == null)
             {
                 return new Result<Request>(false, "Sender User Not Exist");
             }
+
+            if (db.Departments.SingleOrDefault(d => d.Id == request.DepartmentId && d.IsDeleted == false) == null)
+            {
+                return new Result<Request>(false, "Department Not Exist");
+            } 
 
             if (db.Users.SingleOrDefault(u => u.Id == request.ReceiverId && u.IsDeleted == false) == null)
             {
                 return new Result<Request>(false, "Receiver User Not Exist");
             }
 
-            
-
-            request.Created = DateTime.Now;
-            request.IsDeleted = false;
-            request.RequestCode = GenerateRequestCode();
-            request.Status = "Waiting for Approval";
             db.Requests.Add(request);
             db.SaveChanges();
             return new Result<Request>(true, "Create Request Success!", request);

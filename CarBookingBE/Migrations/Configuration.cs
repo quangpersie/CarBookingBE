@@ -15,10 +15,18 @@ namespace CarBookingBE.Migrations
         protected override void Seed(CarBookingTest.Models.MyDbContext context)
         {
             context.Users.AddOrUpdate(
-                            new CarBookingTest.Models.Account { Username = "admin0001", Password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", EmployeeNumber = "AD0001", IsDeleted = false, Sex = true, Created = DateTime.Now },
-                            new CarBookingTest.Models.Account { Username = "admin0002", Password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", EmployeeNumber = "AD0002", IsDeleted = false, Sex = true, Created = DateTime.Now },
-                            new CarBookingTest.Models.Account { Username = "admin0003", Password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", EmployeeNumber = "AD0003", IsDeleted = false, Sex = true, Created = DateTime.Now }
-                        );
+                new CarBookingTest.Models.Account { Username = "admin0001", Password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", EmployeeNumber = "AD0001", IsDeleted = false, Sex = true, Created = DateTime.Now },
+                new CarBookingTest.Models.Account { Username = "admin0002", Password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", EmployeeNumber = "AD0002", IsDeleted = false, Sex = true, Created = DateTime.Now },
+                new CarBookingTest.Models.Account { Username = "admin0003", Password = "jZae727K08KaOmKSgOaGzww/XVqGr/PKEgIMkjrcbJI=", EmployeeNumber = "AD0003", IsDeleted = false, Sex = true, Created = DateTime.Now }
+            );
+
+            context.Roles.AddOrUpdate(
+                new CarBookingTest.Models.Role { Title = "EMPLOYEE" },
+                new CarBookingTest.Models.Role { Title = "APPROVER" },
+                new CarBookingTest.Models.Role { Title = "ADMINISTRATIVE" },
+                new CarBookingTest.Models.Role { Title = "SECURITY" },
+                new CarBookingTest.Models.Role { Title = "ADMIN" }
+            );
 
             /*context.Requests.AddOrUpdate(
                 new CarBookingTest.Models.Request

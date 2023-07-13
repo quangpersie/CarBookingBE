@@ -1,11 +1,6 @@
 ﻿using CarBookingBE.Services;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Mime;
-using System.Reflection;
 using System.Web;
 using System.Web.Http;
 
@@ -43,9 +38,9 @@ namespace CarBookingTest.Controllers
 
         [HttpGet]
         [Route("all")]
-        public IHttpActionResult getAllUser()
+        public IHttpActionResult getAllUser(int page, int limit)
         {
-            return Ok(userService.getUsersService());
+            return Ok(userService.getUsersService(page, limit));
         }
 
         [HttpGet]

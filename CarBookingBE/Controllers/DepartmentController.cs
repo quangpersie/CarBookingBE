@@ -26,6 +26,13 @@ namespace CarBookingBE.Controllers
         }
 
         [HttpPost]
+        [Route("add")]
+        public IHttpActionResult addDepartment([FromBody] Department department)
+        {
+            return Ok(departmentService.addDepartment(department));
+        }
+
+        [HttpPut]
         [Route("edit/{id}")]
         public IHttpActionResult editDepartment(string id, [FromBody] Department department)
         {

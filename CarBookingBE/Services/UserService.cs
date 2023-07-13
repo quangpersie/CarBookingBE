@@ -78,6 +78,14 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Account>(false, "Password is required !");
                 }
+                else if (user.FirstName == null || user.FirstName.Trim().Length == 0)
+                {
+                    return new Result<Account>(false, "First name is required !");
+                }
+                else if (user.LastName == null || user.LastName.Trim().Length == 0)
+                {
+                    return new Result<Account>(false, "Last name is required !");
+                }
                 else if(user.Email == null || user.Email.Trim().Length == 0)
                 {
                     return new Result<Account>(false, "Email is required !");

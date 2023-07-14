@@ -8,6 +8,7 @@ using System.Web.Http;
 using System.Data;
 using System.Data.Entity;
 using CarBookingBE.Utils;
+using System.Globalization;
 
 namespace CarBookingBE.Services
 {
@@ -16,103 +17,40 @@ namespace CarBookingBE.Services
         private MyDbContext db = new MyDbContext();
 
 
-        public Result<List<RequestDTO>> GetAllRequests(int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetAllRequests(int page, int limit)
         {
-            List<RequestDTO> queries = db.Requests.Include(r => r.SenderUser).Include(receiver => receiver.ReceiveUser)
+            var queries = db.Requests.Include(r => r.SenderUser).Include(receiver => receiver.ReceiveUser)
                 .Where(request => request.IsDeleted == false)
                 .Select(req => new RequestDTO()
-                {
-                    Id = req.Id,
-                    RequestCode = req.RequestCode,
-                    SenderUser = new AccountDTO()
-                    {
-                        Id = req.SenderUser.Id,
-                        FirstName = req.SenderUser.FirstName,
-                        LastName = req.SenderUser.LastName
-                    },
-                    Created = req.Created,
-                    Department = new DepartmentDTO()
-                    {
-                        Name = req.Department.Name
-                    },
-                    ReceiveUser = new AccountDTO()
-                    {
-                        Id = req.ReceiveUser.Id,
-                        FirstName = req.ReceiveUser.FirstName,
-                        LastName = req.ReceiveUser.LastName
-                    },
-                    UsageFrom = req.UsageFrom,
-                    UsageTo = req.UsageTo,
-                    Status = req.Status
+                 {
+                     Id = req.Id,
+                     RequestCode = req.RequestCode,
+                     SenderUser = new AccountDTO()
+                     {
+                         Id = req.SenderUser.Id,
+                         FirstName = req.SenderUser.FirstName,
+                         LastName = req.SenderUser.LastName
+                     },
+                     Created = req.Created,
+                     Department = new DepartmentDTO()
+                     {
+                         Name = req.Department.Name
+                     },
+                     ReceiveUser = new AccountDTO()
+                     {
+                         Id = req.ReceiveUser.Id,
+                         FirstName = req.ReceiveUser.FirstName,
+                         LastName = req.ReceiveUser.LastName
+                     },
+                     UsageFrom = req.UsageFrom,
+                     UsageTo = req.UsageTo,
+                     Status = req.Status
 
-                })
-                .OrderByDescending(request => request.Created)
-                .Skip(getSkip(page, limit))
-                .Take(limit)
-                .ToList();
-            return new Result<List<RequestDTO>>(true, "Get Success", queries);
+                 });
+            return new Result<IQueryable<RequestDTO>>(true, "Get Success", queries);
         }
 
-        public Result<RequestDetailDTO> GetRequestById(string id)
-        {
-            /*List<RequestWorkflowDTO> requestWorkflow = db.RequestWorkflows.Where(r => r.RequestId.ToString() == id).Include(u => u.User)
-                    .Select(rwf => new RequestWorkflowDTO()
-                    {
-                        Level = rwf.Level,
-                        User = new AccountDTO()
-                        {
-                            Id = rwf.User.Id,
-                            FirstName = rwf.User.FirstName,
-                            LastName = rwf.User.LastName
-                        }
-                    }).ToList();*/
-            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
-                .Select(req => new RequestDetailDTO()
-                {
-                    Id = req.Id,
-                    RequestCode = req.RequestCode,
-                    SenderUser = new AccountDTO()
-                    {
-                        Id = req.SenderUser.Id,
-                        FirstName = req.SenderUser.FirstName,
-                        LastName = req.SenderUser.LastName
-                    },
-                    Created = req.Created,
-                    Department = new DepartmentDTO()
-                    {
-                        Name = req.Department.Name
-                    },
-                    ReceiveUser = new AccountDTO()
-                    {
-                        Id = req.ReceiveUser.Id,
-                        FirstName = req.ReceiveUser.FirstName,
-                        LastName = req.ReceiveUser.LastName
-                    },/*
-                    RequestWorkflow = requestWorkflow,*/
-                    UsageFrom = req.UsageFrom,
-                    UsageTo = req.UsageTo,
-                    Status = req.Status,
-                    Mobile = req.Mobile,
-                    CostCenter = req.CostCenter,
-                    TotalPassengers = req.TotalPassengers,
-                    PickLocation = req.PickLocation,
-                    Destination = req.Destination,
-                    Reason = req.Reason,
-                    ShareUser = req.ShareUser,
-                    Note = req.Note,
-                    ApplyNote = req.ApplyNote
-
-                })
-                .SingleOrDefault(r => r.Id.ToString() == id);
-            if (request == null || request.IsDeleted == true)
-            {
-                return new Result<RequestDetailDTO>(false, "Failed");
-            }
-
-            return new Result<RequestDetailDTO>(true, "Success", request);
-        }
-
-        public Result<List<RequestDTO>> GetSentToMe(string userId, int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetSentToMe(string userId, int page, int limit)
         {
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
@@ -142,20 +80,16 @@ namespace CarBookingBE.Services
                     UsageFrom = req.r.UsageFrom,
                     UsageTo = req.r.UsageTo,
                     Status = req.r.Status
-                })
-                .OrderByDescending(request => request.Created)
-                .Skip(getSkip(page, limit))
-                .Take(limit)
-                .ToList();
+                });
 
 /*            if (queries.Count() == 0)
             {
                 return new Result<List<RequestDTO>>(false, "Get Requests Failed");
             }*/
-            return new Result<List<RequestDTO>>(true,"Get Requests Success",queries);
+            return new Result<IQueryable<RequestDTO>>(true,"Get Requests Success",queries);
         }
 
-        public Result<List<RequestDTO>> GetSentToOthers(string userId, int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetSentToOthers(string userId, int page, int limit)
         {
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                         .Where(request => request.IsDeleted == false)
@@ -186,9 +120,71 @@ namespace CarBookingBE.Services
                                 UsageTo = req.UsageTo,
                                 Status = req.Status
                             }
-                        )
-                        .ToList();
-            return new Result<List<RequestDTO>>(true, "Get Requests Success", queries);
+                        );
+            return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
+        }
+
+        public Result<RequestDetailDTO> GetRequestById(string id)
+        {
+            /*List<RequestWorkflowDTO> requestWorkflow = db.RequestWorkflows.Where(r => r.RequestId.ToString() == id).Include(u => u.User)
+                    .Select(rwf => new RequestWorkflowDTO()
+                    {
+                        Level = rwf.Level,
+                        User = new AccountDTO()
+                        {
+                            Id = rwf.User.Id,
+                            FirstName = rwf.User.FirstName,
+                            LastName = rwf.User.LastName
+                        }
+                    }).ToList();*/
+            RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                .Select(req => new RequestDetailDTO()
+                {
+                    Id = req.Id,
+                    RequestCode = req.RequestCode,
+                    SenderUser = new AccountDTO()
+                    {
+                        Id = req.SenderUser.Id,
+                        FirstName = req.SenderUser.FirstName,
+                        LastName = req.SenderUser.LastName,
+                        Username = req.SenderUser.Username,
+                        JobTitle = req.SenderUser.JobTitle
+                    },
+                    Created = req.Created,
+                    Department = new DepartmentDTO()
+                    {
+                        Name = req.Department.Name
+                    },
+                    ReceiveUser = new AccountDTO()
+                    {
+                        Id = req.ReceiveUser.Id,
+                        FirstName = req.ReceiveUser.FirstName,
+                        LastName = req.ReceiveUser.LastName,
+                        Username = req.ReceiveUser.Username,
+                        JobTitle = req.ReceiveUser.JobTitle
+                    },/*
+                    RequestWorkflow = requestWorkflow,*/
+                    UsageFrom = req.UsageFrom,
+                    UsageTo = req.UsageTo,
+                    Status = req.Status,
+                    Mobile = req.Mobile,
+                    CostCenter = req.CostCenter,
+                    TotalPassengers = req.TotalPassengers,
+                    PickLocation = req.PickLocation,
+                    Destination = req.Destination,
+                    Reason = req.Reason,
+                    ShareUser = req.ShareUser,
+                    Note = req.Note,
+                    ApplyNote = req.ApplyNote
+
+                })
+                .SingleOrDefault(r => r.Id.ToString() == id);
+            if (request == null || request.IsDeleted == true)
+            {
+                return new Result<RequestDetailDTO>(false, "Failed");
+            }
+
+            return new Result<RequestDetailDTO>(true, "Success", request);
         }
 
         public Result<Request> EditRequest(string id, Request requestEdit)
@@ -268,27 +264,44 @@ namespace CarBookingBE.Services
             return new Result<Request>(true, "Delete Success Request has RequestCode = " + request.RequestCode);
         }
 
-        public Result<List<Request>> FilterRequest(string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public Result<List<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestList, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = db.Requests.Where(req => req.IsDeleted == false);
+            DateTime _createdFrom = DateTime.Parse(createdFrom);
+            DateTime _createdTo = DateTime.Parse(createdTo);
+            DateTime _createdToPlus = _createdTo.AddDays(1);
             if (requestCode != null)
             {
                 requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
             }
+
             if (createdFrom != null && createdTo != null)
             {
-                requestList = requestList.Where(req => req.Created > DateTime.Parse(createdFrom) && req.Created < DateTime.Parse(createdTo));
+                if (_createdFrom == _createdTo)
+                {
+                    requestList = requestList.Where(req => req.Created >= _createdFrom && req.Created < _createdToPlus);
+                }
+                else
+                {
+                    requestList = requestList.Where(req => req.Created >= _createdFrom && req.Created <= _createdTo);
+                }
             }
+            else if ((createdFrom != null && createdTo == null) || (createdFrom == null && createdTo != null))
+            { 
+                return new Result<List<RequestDTO>>(false, "createdFrom and createdTo are required!");
+            }
+
             if (senderId != null)
             {
-                requestList = requestList.Where(req => req.SenderId.ToString() == senderId);
+                requestList = requestList.Where(req => req.SenderUser.Id.ToString() == senderId);
             }
+
             if (senderId != null)
             {
                 requestList = requestList.Where(req => req.Status == status);
             }
-            List<Request> result = requestList.OrderBy(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
-            return new Result<List<Request>>(true, "Filter Success", result);
+
+            List<RequestDTO> result = requestList.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
+            return new Result<List<RequestDTO>>(true, "Filter Success", result);
         }
 
         // ---------------------------Function----------------------------------------

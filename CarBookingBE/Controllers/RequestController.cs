@@ -27,14 +27,14 @@ namespace CarBookingBE.Controllers
         // GET: api/Request
         [Route("get-all")]
         [HttpGet]
-        public IHttpActionResult GetRequests(int page, int limit)
+        public IHttpActionResult GetRequests(string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requests = requestService.GetAllRequests(page, limit);
-            if (!requests.Success)
+            var requestList = requestService.GetAllRequests(page, limit);
+            if (!requestList.Success)
             {
-                return BadRequest(requests.Message);
+                return BadRequest(requestList.Message);
             }
-            return Ok(requests);
+            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         // GET: api/Request/5
@@ -54,28 +54,28 @@ namespace CarBookingBE.Controllers
         [Route("sent-to-me/userId={userId}")]
         [HttpGet]
 
-        public IHttpActionResult GetSentToMe(string userId, int page, int limit)
+        public IHttpActionResult GetSentToMe(string userId, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requests = requestService.GetSentToMe(userId, page, limit);
-            if (!requests.Success)
+            var requestList = requestService.GetSentToMe(userId, page, limit);
+            if (!requestList.Success)
             {
-                return BadRequest(requests.Message);
+                return BadRequest(requestList.Message);
             }
-            return Ok(requests);
+            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         // GET: Sent to others Not Complete
         [Route("sent-to-others/userId={userId}")]
         [HttpGet]
 
-        public IHttpActionResult GetSentToOthers(string userId, int page, int limit)
+        public IHttpActionResult GetSentToOthers(string userId, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requests = requestService.GetSentToOthers(userId, page, limit);
-            if (!requests.Success)
+            var requestList = requestService.GetSentToOthers(userId, page, limit);
+            if (!requestList.Success)
             {
-                return BadRequest(requests.Message);
+                return BadRequest(requestList.Message);
             }
-            return Ok(requests);
+            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
 
@@ -104,13 +104,14 @@ namespace CarBookingBE.Controllers
             return Ok(requestService.DeleteRequest(id));
         }
 
-        // -----FILTER-------------------
+        /*// -----FILTER-------------------
         [Route("filter")]
         [HttpGet]
-        public IHttpActionResult FilterRequest(string requestCode, string createdFrom,string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult FilterRequestAll(string requestCode, string createdFrom,string createdTo, string senderId, string status, int page, int limit)
         {
-            return Ok(requestService.FilterRequest(requestCode, createdFrom, createdTo, senderId, status, page, limit));
-        }
+            var requestList = requestService.GetAllRequests(page, limit).Data;
+            return Ok(requestService.FilterRequest(requestList, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+        }*/
 
     }
 }

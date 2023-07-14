@@ -30,6 +30,7 @@ namespace CarBookingBE.DTOs
         public bool? ApplyNote { get; set; }
 
         public string Status { get; set; }
+
         public bool IsDeleted { get; set; }
 
         public List<RequestWorkflowDTO> RequestWorkflow { get; set; }

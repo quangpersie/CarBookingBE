@@ -1,4 +1,5 @@
-﻿using CarBookingBE.Utils;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
 using System;
@@ -18,7 +19,7 @@ namespace CarBookingBE.Services
         TokenProps jwt = new TokenProps();
         UtilMethods util = new UtilMethods();
         string curUserId = "quang";
-        public Result<string> loginService(Account user)
+        public Result<string> loginService(LoginDTO user)
         {
             if(user == null || user.Username == null || user.Password == null)
             {

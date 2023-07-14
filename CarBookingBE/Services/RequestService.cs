@@ -227,7 +227,7 @@ namespace CarBookingBE.Services
             request.Created = DateTime.Now;
             request.IsDeleted = false;
             request.RequestCode = GenerateRequestCode();
-            request.Status = "Waiting for Approval";
+            request.Status = "Waiting for approval";
             if (request.Mobile == null || request.CostCenter == null || request.TotalPassengers == null || request.UsageFrom == null 
                 || request.UsageTo == null || request.PickTime == null || request.PickLocation == null
                 || request.Destination == null || request.Reason == null || request.ApplyNote == null)

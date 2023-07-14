@@ -24,7 +24,9 @@ namespace CarBookingBE.Services
                     {
                         Id = rwf.User.Id,
                         FirstName = rwf.User.FirstName,
-                        LastName = rwf.User.LastName
+                        LastName = rwf.User.LastName,
+                        Username = rwf.User.Username,
+                        JobTitle = rwf.User.JobTitle
                     },
                     Level = rwf.Level,
                     Status = rwf.Status

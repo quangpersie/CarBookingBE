@@ -1,4 +1,5 @@
-﻿using CarBookingBE.Services;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Services;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
 using System.Web;
@@ -14,7 +15,7 @@ namespace CarBookingTest.Controllers
 
         [HttpPost]
         [Route("login")]
-        public IHttpActionResult loginUser([FromBody] Account user)
+        public IHttpActionResult loginUser([FromBody] LoginDTO user)
         {
             return Ok(userService.loginService(user));
         }

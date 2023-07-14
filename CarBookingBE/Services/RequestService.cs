@@ -55,7 +55,7 @@ namespace CarBookingBE.Services
 
         public Result<RequestDetailDTO> GetRequestById(string id)
         {
-            List<RequestWorkflowDTO> requestWorkflow = db.RequestWorkflows.Where(r => r.RequestId.ToString() == id).Include(u => u.User)
+            /*List<RequestWorkflowDTO> requestWorkflow = db.RequestWorkflows.Where(r => r.RequestId.ToString() == id).Include(u => u.User)
                     .Select(rwf => new RequestWorkflowDTO()
                     {
                         Level = rwf.Level,
@@ -65,7 +65,7 @@ namespace CarBookingBE.Services
                             FirstName = rwf.User.FirstName,
                             LastName = rwf.User.LastName
                         }
-                    }).ToList();
+                    }).ToList();*/
             RequestDetailDTO request = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Select(req => new RequestDetailDTO()
                 {
@@ -87,8 +87,8 @@ namespace CarBookingBE.Services
                         Id = req.ReceiveUser.Id,
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName
-                    },
-                    RequestWorkflow = requestWorkflow,
+                    },/*
+                    RequestWorkflow = requestWorkflow,*/
                     UsageFrom = req.UsageFrom,
                     UsageTo = req.UsageTo,
                     Status = req.Status,

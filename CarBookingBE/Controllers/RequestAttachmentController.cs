@@ -34,7 +34,7 @@ namespace CarBookingBE.Controllers
         }
         
 
-        [Route("create/requestId={requestId}")]
+        /*[Route("create/requestId={requestId}")]
         [HttpPost]
         public IHttpActionResult CreateAttachment(string requestId)
         {
@@ -55,6 +55,6 @@ namespace CarBookingBE.Controllers
             return Ok();
             
 
-        }
+        }*/
     }
 }

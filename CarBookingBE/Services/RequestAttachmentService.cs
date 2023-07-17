@@ -23,9 +23,9 @@ namespace CarBookingBE.Services
             return new Result<List<RequestAttachmentDTO>>(true, "Get Request Attachments Success", requestAttachmentList);
         }
 
-        public Result<RequestAttachment> CreateAttachment (HttpPostedFile file, string requestId)
+        public Result<RequestAttachment> CreateAttachment (HttpPostedFile file, Guid requestId)
         {
-            Request request = db.Requests.SingleOrDefault(r => r.Id.ToString() == requestId && r.IsDeleted == false);
+            Request request = db.Requests.SingleOrDefault(r => r.Id == requestId && r.IsDeleted == false);
             if (request == null)
             {
                 return new Result<RequestAttachment>(false, "Request Not Exist");
@@ -40,7 +40,7 @@ namespace CarBookingBE.Services
                 
                 RequestAttachment requestAttachment = new RequestAttachment();
                 requestAttachment.IsDeleted = false;
-                requestAttachment.RequestId = Guid.Parse(requestId);
+                requestAttachment.RequestId = requestId;
                 var rs = uploadFile(file, request.RequestCode, requestId);
                 if (!rs.Success)
                 {
@@ -54,13 +54,13 @@ namespace CarBookingBE.Services
             return new Result<RequestAttachment>(true, "Create Attachments Success");
         }
 
-        public Result<string> uploadFile(HttpPostedFile postedFile, string requestCode, string requestId)
+        public Result<string> uploadFile(HttpPostedFile postedFile, string requestCode, Guid requestId)
         {
             string newPath = "Files/Attachments/" + requestCode + "/" + postedFile.FileName;
             List<RequestAttachment> requestAttachments = db.RequestAttachments.ToList();
             foreach (RequestAttachment req in requestAttachments)
             {
-                if (req.Path == newPath && req.RequestId.ToString() == requestId)
+                if (req.Path == newPath && req.RequestId == requestId)
                 {
                     return new Result<string>(false, "File: " + postedFile.FileName + " is exist in this Request");
                 }

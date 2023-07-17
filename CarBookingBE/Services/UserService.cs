@@ -279,7 +279,7 @@ namespace CarBookingBE.Services
                 if(updateUser["CountryR"] != null) user.CountryR = updateUser["CountryR"];
                 user.Created = DateTime.Now;
 
-                //_db.SaveChanges();
+                _db.SaveChanges();
                 return new Result<Account>(true, "Edit profile successfully !", user);
             }
             catch(Exception e)

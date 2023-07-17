@@ -61,7 +61,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<DepartmentMember>(false, "Data (with input id) does not exist !");
                 }
-                return new Result<DepartmentMember>(false, "Get data successfully !", dm);
+                return new Result<DepartmentMember>(true, "Get data successfully !", dm);
             }
             catch (Exception e)
             {

@@ -24,7 +24,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<List<Department>>(false, "Get all departments fail !");
                 }
-                return new Result<List<Department>>(false, "Get all departments successfully !", departments);
+                return new Result<List<Department>>(true, "Get all departments successfully !", departments);
             }
             catch(Exception e)
             {
@@ -59,7 +59,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Department>(false, "Department does not exist !");
                 }
-                return new Result<Department>(false, "Get department successfully !", department);
+                return new Result<Department>(true, "Get department successfully !", department);
             }
             catch(Exception e)
             {

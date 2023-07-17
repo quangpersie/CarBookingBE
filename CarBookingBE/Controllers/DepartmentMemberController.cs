@@ -1,4 +1,5 @@
 ﻿using CarBookingBE.Services;
+using CarBookingTest.Models;
 using System.Web.Http;
 
 namespace CarBookingBE.Controllers
@@ -11,7 +12,35 @@ namespace CarBookingBE.Controllers
         [Route("all")]
         public IHttpActionResult getAll(int page, int limit)
         {
-            return Ok();
+            return Ok(dms.getAll(page, limit));
+        }
+
+        [HttpGet]
+        [Route("find/{id}")]
+        public IHttpActionResult getDepartment(string id)
+        {
+            return Ok(dms.getDepartmentMember(id));
+        }
+
+        [HttpPost]
+        [Route("add")]
+        public IHttpActionResult addDepartment([FromBody] DepartmentMember dm)
+        {
+            return Ok(dms.addDepartmentMember(dm));
+        }
+
+        [HttpPut]
+        [Route("edit/{id}")]
+        public IHttpActionResult editDepartment(string id, [FromBody] DepartmentMember dm)
+        {
+            return Ok(dms.editDepartmentMember(id, dm));
+        }
+
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public IHttpActionResult deleteDepartment(string id)
+        {
+            return Ok(dms.deleteDepartmentMember(id));
         }
     }
 }

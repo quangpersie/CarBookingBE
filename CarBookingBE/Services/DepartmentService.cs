@@ -20,7 +20,7 @@ namespace CarBookingBE.Services
                 .Skip(util.getSkip(page, limit))
                 .Take(limit)
                 .ToList();
-                if(departments != null)
+                if(departments == null)
                 {
                     return new Result<List<Department>>(false, "Get all departments fail !");
                 }

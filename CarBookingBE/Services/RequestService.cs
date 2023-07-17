@@ -266,9 +266,7 @@ namespace CarBookingBE.Services
 
         public Result<List<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestList, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            DateTime _createdFrom = DateTime.Parse(createdFrom);
-            DateTime _createdTo = DateTime.Parse(createdTo);
-            DateTime _createdToPlus = _createdTo.AddDays(1);
+            
             if (requestCode != null)
             {
                 requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
@@ -276,6 +274,9 @@ namespace CarBookingBE.Services
 
             if (createdFrom != null && createdTo != null)
             {
+                DateTime _createdFrom = DateTime.Parse(createdFrom);
+                DateTime _createdTo = DateTime.Parse(createdTo);
+                DateTime _createdToPlus = _createdTo.AddDays(1);
                 if (_createdFrom == _createdTo)
                 {
                     requestList = requestList.Where(req => req.Created >= _createdFrom && req.Created < _createdToPlus);

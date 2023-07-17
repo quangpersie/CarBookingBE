@@ -18,7 +18,7 @@ namespace CarBookingBE.Services
             try
             {
                 var dmsList = _db.DepartmentsMembers.Where(dm => dm.IsDeleted == false)
-                    .OrderByDescending(dm => dm.Department)
+                    .OrderByDescending(dm => dm.DepartmentId)
                     .Skip(util.getSkip(page, limit))
                     .Take(limit)
                     .ToList();

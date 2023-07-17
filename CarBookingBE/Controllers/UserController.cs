@@ -29,6 +29,8 @@ namespace CarBookingTest.Controllers
             Account user = new Account();
             user.Username = httpRequest.Form["Username"];
             user.Password = httpRequest.Form["Password"];
+            user.FirstName = httpRequest.Form["FirstName"];
+            user.LastName = httpRequest.Form["LastName"];
             user.Email = httpRequest.Form["Email"];
             user.Sex = bool.Parse(httpRequest.Form["Sex"]);
             user.EmployeeNumber = httpRequest.Form["EmployeeNumber"];

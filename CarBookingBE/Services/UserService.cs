@@ -212,7 +212,17 @@ namespace CarBookingBE.Services
                     }
                 }
 
-                if(isAdmin)
+                if (postedFile != null)
+                {
+                    var rs = uploadAvatar(postedFile);
+                    if (!rs.Success)
+                    {
+                        return new Result<Account>(false, rs.Message);
+                    }
+                    user.AvatarPath = rs.Data;
+                }
+
+                if (isAdmin)
                 {
                     //Password, IsDeleted
                     if(updateUser["Birthday"] != null) user.Birthday = DateTime.ParseExact(updateUser["Birthday"], "yyyy-MM-dd", CultureInfo.InvariantCulture);

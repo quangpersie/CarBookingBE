@@ -296,7 +296,7 @@ namespace CarBookingBE.Services
                 requestList = requestList.Where(req => req.SenderUser.Id.ToString() == senderId);
             }
 
-            if (senderId != null)
+            if (status != null)
             {
                 requestList = requestList.Where(req => req.Status == status);
             }
@@ -337,6 +337,25 @@ namespace CarBookingBE.Services
             }
 
             return requestCodeBase + (maxNumber + 1).ToString("000");
+        }
+
+        public Result<string> CheckKeysRequired(string[] allKeys)
+        {
+            if (!allKeys.Contains("SenderId")) return new Result<string>(false, "SenderId is required!");
+            if (!allKeys.Contains("ReceiverId")) return new Result<string>(false, "ReceiverId is required!");
+            if (!allKeys.Contains("DepartmentId")) return new Result<string>(false, "DepartmentId is required!");
+            if (!allKeys.Contains("Mobile")) return new Result<string>(false, "Mobile is required!");
+            if (!allKeys.Contains("CostCenter")) return new Result<string>(false, "CostCenter is required!");
+            if (!allKeys.Contains("TotalPassengers")) return new Result<string>(false, "TotalPassengers is required!");
+            if (!allKeys.Contains("UsageFrom")) return new Result<string>(false, "UsageFrom is required!");
+            if (!allKeys.Contains("UsageTo")) return new Result<string>(false, "UsageTo is required!");
+            if (!allKeys.Contains("PickTime")) return new Result<string>(false, "PickTime is required!");
+            if (!allKeys.Contains("PickLocation")) return new Result<string>(false, "PickLocation is required!");
+            if (!allKeys.Contains("Destination")) return new Result<string>(false, "Destination is required!");
+            if (!allKeys.Contains("Reason")) return new Result<string>(false, "Reason is required!");
+            if (!allKeys.Contains("ApplyNote")) return new Result<string>(false, "ApplyNote is required!");
+
+            return new Result<string>(true, "Ok");
         }
 
         //--------------------Pagination ----------------------------------

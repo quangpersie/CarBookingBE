@@ -84,10 +84,63 @@ namespace CarBookingBE.Controllers
         // PUT: api/Request/5
         [Route("Id={id}")]
         [HttpPut]
-        public IHttpActionResult EditRequest(string id, Request requestEdit)
+        public IHttpActionResult EditRequest(string id)
         {
-            var request = requestService.EditRequest(id, requestEdit);
-            return Ok();
+            var httpRequest = HttpContext.Current.Request;
+            Request request = new Request();
+            if (httpRequest.Form["SenderId"] != null) request.SenderId = Guid.Parse(httpRequest.Form["SenderId"]);
+            if (httpRequest.Form["DepartmentId"] != null) request.DepartmentId = Guid.Parse(httpRequest.Form["DepartmentId"]);
+            if (httpRequest.Form["ReceiverId"] != null) request.ReceiverId = Guid.Parse(httpRequest.Form["ReceiverId"]);
+            if (httpRequest.Form["Mobile"] != null) request.Mobile = httpRequest.Form["Mobile"];
+            if (httpRequest.Form["CostCenter"] != null) request.CostCenter = httpRequest.Form["CostCenter"];
+            if (httpRequest.Form["TotalPassengers"] != null) request.TotalPassengers = int.Parse(httpRequest.Form["TotalPassengers"]);
+            if (httpRequest.Form["UsageFrom"] != null) request.UsageFrom = DateTime.Parse(httpRequest.Form["UsageFrom"]);
+            if (httpRequest.Form["UsageTo"] != null) request.UsageTo = DateTime.Parse(httpRequest.Form["UsageTo"]);
+            if (httpRequest.Form["PickTime"] != null) request.PickTime = DateTime.Parse(httpRequest.Form["PickTime"]);
+            if (httpRequest.Form["PickLocation"] != null) request.PickLocation = httpRequest.Form["PickLocation"];
+            if (httpRequest.Form["Destination"] != null) request.Destination = httpRequest.Form["Destination"];
+            if (httpRequest.Form["Reason"] != null) request.Reason = httpRequest.Form["Reason"];
+            if (httpRequest.Form["ApplyNote"] != null) request.ApplyNote = bool.Parse(httpRequest.Form["ApplyNote"]);
+            if (httpRequest.Form["Note"] != null) request.Note = httpRequest.Form["Note"];
+            var requestEdit = requestService.EditRequest(id, request);
+
+            var requestId = requestEdit.Data.Id;
+
+            // Edit RequestWorkflow
+            if (httpRequest.Form["ListOfUserId"] != null)
+            {
+                var listOfUserId = httpRequest.Params.GetValues("ListOfUserId");
+
+                var createRequestWorkflow = requestWorkflowService.EditRequestWorkflow(requestId, listOfUserId);
+                if (!createRequestWorkflow.Success)
+                {
+                    return BadRequest(createRequestWorkflow.Message);
+                }
+            }
+
+            // Edit RequestAttachment
+            if (httpRequest.Files.Count > 0)
+            {
+                for (int i = 0; i < httpRequest.Files.Count; i++)
+                {
+                    
+                    var createAttachment = requestAttachmentService.EditAttachment(httpRequest.Files[i], requestId);
+                    if (!createAttachment.Success)
+                    {
+                        return BadRequest(createAttachment.Message);
+                    }
+                }
+                /*var requestAttachments = requestAttachmentService.GetAttachmentByRequestId(requestId.ToString());
+                foreach(RequestAttachmentDTO requestAttachment in requestAttachments.Data)
+                {
+                    if (!newRequestAttachments.Exists(nr => nr.Path == requestAttachment.Path))
+                    {
+                        requestAttachmentService.deleteAttachment(requestAttachment.Id);
+                    }
+                }*/
+            }
+
+            return Ok(requestEdit);
         }
 
         /*// POST: api/Request
@@ -139,7 +192,9 @@ namespace CarBookingBE.Controllers
                 // Create RequestWorkflow
                 if (httpRequest.Form["ListOfUserId"] != null)
                 {
-                    List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
+                    var requestId = newRequest.Data.Id;
+                    var listOfUserId = httpRequest.Params.GetValues("ListOfUserId");
+                    /*List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
                     foreach (var userId in httpRequest.Params.GetValues("ListOfUserId"))
                     {
                         RequestWorkflow requestWorkflow = new RequestWorkflow();
@@ -147,8 +202,8 @@ namespace CarBookingBE.Controllers
                         requestWorkflow.RequestId = newRequest.Data.Id;
                         requestWorkflows.Add(requestWorkflow);
                     }
-
-                    var createRequestWorkflow = requestWorkflowService.CreateRequestWorkflow(requestWorkflows);
+*/
+                    var createRequestWorkflow = requestWorkflowService.CreateRequestWorkflow(requestId, listOfUserId);
                     if (!createRequestWorkflow.Success)
                     {
                         return BadRequest(createRequestWorkflow.Message);
@@ -171,15 +226,6 @@ namespace CarBookingBE.Controllers
             }
             return Ok(newRequest);
         }
-
-        /*// -----FILTER-------------------
-        [Route("filter")]
-        [HttpGet]
-        public IHttpActionResult FilterRequestAll(string requestCode, string createdFrom,string createdTo, string senderId, string status, int page, int limit)
-        {
-            var requestList = requestService.GetAllRequests(page, limit).Data;
-            return Ok(requestService.FilterRequest(requestList, requestCode, createdFrom, createdTo, senderId, status, page, limit));
-        }*/
 
     }
 }

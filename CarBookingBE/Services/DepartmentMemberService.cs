@@ -25,6 +25,7 @@ namespace CarBookingBE.Services
                         User = new AccountDTO
                         {
                             Id = d.User.Id,
+                            Email = d.User.Email,
                             Username = d.User.Username,
                             FirstName = d.User.FirstName,
                             LastName = d.User.LastName,

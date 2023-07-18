@@ -55,7 +55,7 @@ namespace CarBookingBE.Services
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
                 .Where(request => request.r.IsDeleted == false)
-                .Where(request => request.r.SenderId.ToString() == userId || request.r.ReceiverId.ToString() == userId || request.rwf.UserId.ToString() == userId)
+                .Where(request => request.r.ReceiverId.ToString() == userId || request.rwf.UserId.ToString() == userId)
                 .Select(req => new RequestDTO()
                 {
                     Id = req.r.Id,
@@ -325,6 +325,11 @@ namespace CarBookingBE.Services
             return new Result<List<RequestDTO>>(true, "Filter Success", result);
         }
 
+        public Result<Request> ApprovedRequest(Guid Id,[FromBody] string Note)
+        {
+            return new Result<Request>(true, "Ok");
+        }
+
         // ---------------------------Function----------------------------------------
         protected string GenerateRequestCode()
         {
@@ -378,11 +383,16 @@ namespace CarBookingBE.Services
             return new Result<string>(true, "Ok");
         }
 
+
         //--------------------Pagination ----------------------------------
         protected int getSkip(int pageIndex, int limit)
         {
             return (pageIndex - 1) * limit;
         }
+
+        
+
+
 
     }
 

@@ -221,59 +221,80 @@ namespace CarBookingBE.Services
             return new Result<Request>(true, "Edit Request Succcess!", req);
         }
 
-        public Result<Request> CreateRequest(Request request)
+        public Result<NewRequestDTO> CreateRequest(Request request)
         {
             request.Created = DateTime.Now;
             request.IsDeleted = false;
             request.RequestCode = GenerateRequestCode();
-            request.Status = "Waiting for approval";
+            if (request.Status != "Draft" || request.Status == null)
+            {
+                request.Status = "Waiting for approval";
+            }
+            else
+            {
+                request.Status = "Draft";
+            }
             if (request.Mobile == null || request.CostCenter == null || request.TotalPassengers == null || request.UsageFrom == null 
                 || request.UsageTo == null || request.PickTime == null || request.PickLocation == null
                 || request.Destination == null || request.Reason == null || request.ApplyNote == null)
             {
-                return new Result<Request>(false, "Missing Fields", request);
+                return new Result<NewRequestDTO>(false, "Missing Fields");
             }
 
             if (db.Users.SingleOrDefault(u => u.Id == request.SenderId && u.IsDeleted == false) == null)
             {
-                return new Result<Request>(false, "Sender User Not Exist");
+                return new Result<NewRequestDTO>(false, "Sender User Not Exist");
             }
 
             if (db.Departments.SingleOrDefault(d => d.Id == request.DepartmentId && d.IsDeleted == false) == null)
             {
-                return new Result<Request>(false, "Department Not Exist");
+                return new Result<NewRequestDTO>(false, "Department Not Exist");
             } 
 
             if (db.Users.SingleOrDefault(u => u.Id == request.ReceiverId && u.IsDeleted == false) == null)
             {
-                return new Result<Request>(false, "Receiver User Not Exist");
+                return new Result<NewRequestDTO>(false, "Receiver User Not Exist");
             }
 
             if (request.UsageFrom > request.UsageTo)
             {
-                return new Result<Request>(false, "Usage From must earlier than Usage To");
+                return new Result<NewRequestDTO>(false, "Usage From must earlier than Usage To");
             }
 
             if (request.PickTime < request.UsageFrom || request.PickTime > request.UsageTo) 
             {
-                return new Result<Request>(false, "Pick Time must between Usage From and Usage To"); 
+                return new Result<NewRequestDTO>(false, "Pick Time must between Usage From and Usage To"); 
             }
 
             if (request.TotalPassengers <= 0)
             {
-                return new Result<Request>(false, "Total Passengers must > 0");
+                return new Result<NewRequestDTO>(false, "Total Passengers must > 0");
             }
 
 
 
             db.Requests.Add(request);
             db.SaveChanges();
-            return new Result<Request>(true, "Create Request Success!", request);
+            NewRequestDTO requestDTO = new NewRequestDTO()
+            {
+                Id = request.Id,
+                SenderId = request.SenderId,
+                ReceiverId = request.ReceiverId,
+                DepartmentId = request.DepartmentId,
+                Created = request.Created,
+                Share = request.Share,
+                ApplyNote = request.ApplyNote,
+                Status = request.Status,
+                RequestAttachments = request.RequestAttachments,
+                RequestWorkflows = request.RequestWorkflows
+            };
+
+            return new Result<NewRequestDTO>(true, "Create Request Success!", requestDTO);
         }
 
-        public Result<Request> DeleteRequest(string id)
+        public Result<Request> DeleteRequest(Guid id)
         {
-            Request request = db.Requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
+            Request request = db.Requests.SingleOrDefault(r => r.Id == id);
             if (request == null || request.IsDeleted == true)
             {
                 return new Result<Request>(false, "Request Not Found");
@@ -325,9 +346,31 @@ namespace CarBookingBE.Services
             return new Result<List<RequestDTO>>(true, "Filter Success", result);
         }
 
-        public Result<Request> ApprovedRequest(Guid Id,[FromBody] string Note)
+        public Result<Request> ActionRequest(string Id, string Note,string UserId, string action)
         {
-            return new Result<Request>(true, "Ok");
+            var request = db.Requests.SingleOrDefault(r => r.Id.ToString() == Id && r.IsDeleted == false);
+
+            if (request == null)
+            {
+                return new Result<Request>(false, "Request Not Found");
+            }
+            if (request.Status != "Waiting for approval")
+            {
+                return new Result<Request>(false, "Request Status: " + request.Status + " is required");
+            }
+            /*if (request.Status == "Rejected" && action == "Draft")
+            {
+                return new Result<Request>(false, "Request is " + request.Status);
+            }*/
+            if (Note != null)
+            {
+                request.Note = Note;
+            }
+
+            request.Status = action;
+            db.SaveChanges();
+
+            return new Result<Request>(true,request.Status + " Request Success");
         }
 
         // ---------------------------Function----------------------------------------
@@ -382,6 +425,8 @@ namespace CarBookingBE.Services
 
             return new Result<string>(true, "Ok");
         }
+
+
 
 
         //--------------------Pagination ----------------------------------

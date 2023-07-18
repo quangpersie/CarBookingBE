@@ -245,6 +245,7 @@
     <Compile Include="DTOs\DepartmentMemberDTO.cs" />
     <Compile Include="DTOs\LoginDTO.cs" />
     <Compile Include="DTOs\LoginReturnDTO.cs" />
+    <Compile Include="DTOs\NewRequestDTO.cs" />
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestCommentDTO.cs" />
     <Compile Include="DTOs\RequestDTO.cs" />

@@ -156,7 +156,11 @@ namespace CarBookingBE.Controllers
         [HttpDelete]
         public IHttpActionResult DeleteRequest(string id)
         {
-            return Ok(requestService.DeleteRequest(id));
+            Guid requestId = Guid.Parse(id);
+            requestWorkflowService.DeleteAllRequestWorkflows(requestId);
+            requestAttachmentService.DeleteAllAttachments(requestId);
+            requestService.DeleteRequest(requestId);
+            return Ok();
         }
 
         [Route("create")]
@@ -183,7 +187,7 @@ namespace CarBookingBE.Controllers
             request.Destination = httpRequest.Form["Destination"];
             request.Reason = httpRequest.Form["Reason"];
             request.ApplyNote = bool.Parse(httpRequest.Form["ApplyNote"]);
-            if (httpRequest.Form["Note"] != null) request.Note = httpRequest.Form["Note"];
+            if (httpRequest.Form["Status"] != null) request.Status = httpRequest.Form["Status"];
             
             var newRequest = requestService.CreateRequest(request);
 
@@ -227,12 +231,34 @@ namespace CarBookingBE.Controllers
             return Ok(newRequest);
         }
 
-        [Route("approved/Id={Id}")]
+        [Route("action/Id={Id}")]
         [HttpPut]
-        public IHttpActionResult ApprovedRequest(string Id, [FromBody] string Note)
+        public IHttpActionResult ActionRequest(string Id)
         {
-            
-            return Ok();
+            var httpRequest = HttpContext.Current.Request;
+            string userId = httpRequest.Form["userId"];
+            string action = httpRequest.Form["action"];
+            string Note = httpRequest.Form["Note"];
+            var requestWorkflow = requestWorkflowService.ActionRequest(Guid.Parse(Id), Guid.Parse(userId), action);
+            if (!requestWorkflow.Success)
+            {
+                return BadRequest(requestWorkflow.Message);
+            }
+
+            var checkWorkflow = requestWorkflowService.CheckWorkflow(requestWorkflow.Data);
+            if (checkWorkflow.Success)
+            {
+                var actionRequest = requestService.ActionRequest(Id, Note, userId, action);
+                if (!actionRequest.Success)
+                {
+                    return BadRequest(actionRequest.Message);
+                }
+                return Ok(actionRequest.Message);
+
+            }
+
+
+            return Ok(requestWorkflow.Message);
         }
 
     }

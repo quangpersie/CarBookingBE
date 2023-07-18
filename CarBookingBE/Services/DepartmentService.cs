@@ -10,7 +10,6 @@ namespace CarBookingBE.Services
     public class DepartmentService
     {
         MyDbContext _db = new MyDbContext();
-        UtilMethods util = new UtilMethods();
         public Result<List<Department>> getAll(int page, int limit)
         {
             try

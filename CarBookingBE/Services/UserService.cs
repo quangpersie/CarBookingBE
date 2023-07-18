@@ -131,7 +131,7 @@ namespace CarBookingBE.Services
                 else
                 {
                     string flag = "";
-                    if(file != null)
+                    if(file != null && file.ContentType != null && file.FileName.Count() != 0)
                     {
                         var rs = uploadAvatar(file);
                         if(!rs.Success)

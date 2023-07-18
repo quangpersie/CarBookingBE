@@ -18,7 +18,7 @@ namespace CarBookingBE.Services
             try
             {
                 var dmsList = _db.DepartmentsMembers.Where(dm => dm.IsDeleted == false)
-                    .OrderByDescending(dm => dm.Department)
+                    .OrderByDescending(dm => dm.DepartmentId)
                     .Skip(util.getSkip(page, limit))
                     .Take(limit)
                     .ToList();
@@ -61,7 +61,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<DepartmentMember>(false, "Data (with input id) does not exist !");
                 }
-                return new Result<DepartmentMember>(false, "Get data successfully !", dm);
+                return new Result<DepartmentMember>(true, "Get data successfully !", dm);
             }
             catch (Exception e)
             {

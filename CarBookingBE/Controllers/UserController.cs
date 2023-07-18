@@ -2,6 +2,7 @@
 using CarBookingBE.Services;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
+using System;
 using System.Web;
 using System.Web.Http;
 using System.Web.Security;
@@ -28,6 +29,8 @@ namespace CarBookingTest.Controllers
             Account user = new Account();
             user.Username = httpRequest.Form["Username"];
             user.Password = httpRequest.Form["Password"];
+            user.FirstName = httpRequest.Form["FirstName"];
+            user.LastName = httpRequest.Form["LastName"];
             user.Email = httpRequest.Form["Email"];
             user.Sex = bool.Parse(httpRequest.Form["Sex"]);
             user.EmployeeNumber = httpRequest.Form["EmployeeNumber"];
@@ -61,16 +64,16 @@ namespace CarBookingTest.Controllers
         }
 
         [HttpPost]
-        //[JwtAuthorize]
         [Route("edit/{id}")]
-        public IHttpActionResult editProfile(string id, [FromBody] Account user)
+        public IHttpActionResult editProfile(string id)
         {
             var httpRequest = HttpContext.Current.Request;
+            var formData = httpRequest.Form;
             if (httpRequest.Files.Count == 1)
             {
-                return Ok(userService.editProfileService(httpRequest.Files[0], id, user));
+                return Ok(userService.editProfileService(httpRequest.Files[0], id, formData));
             }
-            return Ok(userService.editProfileService(null, id, user));
+            return Ok(userService.editProfileService(null, id, formData));
         }
 
         [HttpPost]

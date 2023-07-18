@@ -174,7 +174,7 @@ namespace CarBookingBE.Services
             {
                 var users = _db.Users.Where(u => u.IsDeleted == false)
                 .OrderByDescending(user => user.Created)
-                .Skip(util.getSkip(page, limit))
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
                 if(users == null)
@@ -214,22 +214,22 @@ namespace CarBookingBE.Services
             {
                 var updateId = Guid.Parse(updateUserId);
                 var user = _db.Users.Find(updateId);
-                if(user == null || user.IsDeleted == true)
+                if (user == null || user.IsDeleted == true)
                 {
                     return new Result<Account>(false, "User do not exist !");
                 }
 
                 var userRoles = _db.UserRoles.Where(r => r.IsDeleted == false && r.UserId == updateId).ToList();
-                if(!userRoles.Any())
+                if (!userRoles.Any())
                 {
                     return new Result<Account>(false, "User do not have any roles !");
                 }
-                
+
                 bool isAdmin = false;
-                foreach(var r in userRoles)
+                foreach (var r in userRoles)
                 {
                     var rTitle = _db.Roles.Find(r.RoleId);
-                    if(rTitle.Title.Equals("ADMIN"))
+                    if (rTitle.Title.Equals("ADMIN"))
                     {
                         isAdmin = true;
                     }
@@ -248,106 +248,77 @@ namespace CarBookingBE.Services
                 if (isAdmin)
                 {
                     //Password, IsDeleted
-                    if(updateUser["Birthday"] != null) user.Birthday = DateTime.ParseExact(updateUser["Birthday"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    if(updateUser["StartingDateOfficial"] != null) user.StartingDateOfficial = DateTime.ParseExact(updateUser["StartingDateOfficial"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    if(updateUser["LeavingDate"] != null) user.LeavingDate = DateTime.ParseExact(updateUser["LeavingDate"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                    if(updateUser["StartDateMaternityLeave"] != null) user.StartDateMaternityLeave = DateTime.ParseExact(updateUser["StartDateMaternityLeave"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    if (updateUser["Birthday"] != null) user.Birthday = DateTime.ParseExact(updateUser["Birthday"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    if (updateUser["StartingDateOfficial"] != null) user.StartingDateOfficial = DateTime.ParseExact(updateUser["StartingDateOfficial"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    if (updateUser["LeavingDate"] != null) user.LeavingDate = DateTime.ParseExact(updateUser["LeavingDate"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    if (updateUser["StartDateMaternityLeave"] != null) user.StartDateMaternityLeave = DateTime.ParseExact(updateUser["StartDateMaternityLeave"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-                    if(updateUser["Username"] != null) user.Username = updateUser["Username"];
-                    if(updateUser["Email"] != null) user.Email = updateUser["Email"];
-                    if(updateUser["EmployeeNumber"] != null) user.EmployeeNumber = updateUser["EmployeeNumber"];
-                    if(updateUser["AvatarPath"] != null) user.AvatarPath = updateUser["AvatarPath"];
-                    if(updateUser["FirstName"] != null) user.FirstName = updateUser["FirstName"];
-                    if(updateUser["LastName"] != null) user.LastName = updateUser["LastName"];
-                    if(updateUser["Sex"] != null) user.Sex = bool.Parse(updateUser["Sex"]);
-                    if(updateUser["JobTitle"] != null) user.JobTitle = updateUser["JobTitle"];
-                    if(updateUser["Company"] != null) user.Company = updateUser["Company"];
-                    if(updateUser["Unit"] != null) user.Unit = updateUser["Unit"];
-                    if(updateUser["Function"] != null) user.Function = updateUser["Function"];
-                    if(updateUser["SectionsOrTeam"] != null) user.SectionsOrTeam = updateUser["SectionsOrTeam"];
-                    if(updateUser["Groups"] != null) user.Groups = updateUser["Groups"];
-                    if(updateUser["OfficeLocation"] != null) user.OfficeLocation = updateUser["OfficeLocation"];
-                    if(updateUser["LineManager"] != null) user.LineManager = updateUser["LineManager"];
-                    if(updateUser["BelongToDepartments"] != null) user.BelongToDepartments = updateUser["BelongToDepartments"];
+                    if (updateUser["Username"] != null) user.Username = updateUser["Username"];
+                    if (updateUser["Email"] != null) user.Email = updateUser["Email"];
+                    if (updateUser["EmployeeNumber"] != null) user.EmployeeNumber = updateUser["EmployeeNumber"];
+                    if (updateUser["AvatarPath"] != null) user.AvatarPath = updateUser["AvatarPath"];
+                    if (updateUser["FirstName"] != null) user.FirstName = updateUser["FirstName"];
+                    if (updateUser["LastName"] != null) user.LastName = updateUser["LastName"];
+                    if (updateUser["Sex"] != null) user.Sex = bool.Parse(updateUser["Sex"]);
+                    if (updateUser["JobTitle"] != null) user.JobTitle = updateUser["JobTitle"];
+                    if (updateUser["Company"] != null) user.Company = updateUser["Company"];
+                    if (updateUser["Unit"] != null) user.Unit = updateUser["Unit"];
+                    if (updateUser["Function"] != null) user.Function = updateUser["Function"];
+                    if (updateUser["SectionsOrTeam"] != null) user.SectionsOrTeam = updateUser["SectionsOrTeam"];
+                    if (updateUser["Groups"] != null) user.Groups = updateUser["Groups"];
+                    if (updateUser["OfficeLocation"] != null) user.OfficeLocation = updateUser["OfficeLocation"];
+                    if (updateUser["LineManager"] != null) user.LineManager = updateUser["LineManager"];
+                    if (updateUser["BelongToDepartments"] != null) user.BelongToDepartments = updateUser["BelongToDepartments"];
 
                 }
                 // user can edit
-                if(updateUser["DateOfIdCard"] != null) user.DateOfIdCard = DateTime.ParseExact(updateUser["DateOfIdCard"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                if(updateUser["StartingDate"] != null) user.StartingDate = DateTime.ParseExact(updateUser["StartingDate"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                if (updateUser["DateOfIdCard"] != null) user.DateOfIdCard = DateTime.ParseExact(updateUser["DateOfIdCard"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                if (updateUser["StartingDate"] != null) user.StartingDate = DateTime.ParseExact(updateUser["StartingDate"], "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-                if(updateUser["Rank"] != null) user.Rank = updateUser["Rank"];
-                if(updateUser["EmployeeType"] != null) user.EmployeeType = updateUser["EmployeeType"];
-                if(updateUser["Rights"] != null) user.Rights = updateUser["Rights"];
-                if(updateUser["Nation"] != null) user.Nation = updateUser["Nation"];
-                if(updateUser["Phone"] != null) user.Phone = updateUser["Phone"];
-                if(updateUser["IdCardNumber"] != null) user.IdCardNumber = updateUser["IdCardNumber"];
-                if(updateUser["PlaceOfIdCard"] != null) user.PlaceOfIdCard = updateUser["PlaceOfIdCard"];
-                if(updateUser["HealthInsurance"] != null) user.HealthInsurance = updateUser["HealthInsurance"];
-                if(updateUser["Note"] != null) user.Note = updateUser["Note"];
-                if(updateUser["AcademicLevel"] != null) user.AcademicLevel = updateUser["AcademicLevel"];
-                if(updateUser["Qualification"] != null) user.Qualification = updateUser["Qualification"];
-                if(updateUser["BusinessPhone"] != null) user.BusinessPhone = updateUser["BusinessPhone"];
-                if(updateUser["HomePhone"] != null) user.HomePhone = updateUser["HomePhone"];
-                if(updateUser["PersonalEmail"] != null) user.PersonalEmail = updateUser["PersonalEmail"];
-                if(updateUser["BankName"] != null) user.BankName = updateUser["BankName"];
-                if(updateUser["BankBranchNumber"] != null) user.BankBranchNumber = updateUser["BankBranchNumber"];
-                if(updateUser["BankBranchName"] != null) user.BankBranchName = updateUser["BankBranchName"];
-                if(updateUser["BankAccountNumber"] != null) user.BankAccountNumber = updateUser["BankAccountNumber"];
-                if(updateUser["BankAccountName"] != null) user.BankAccountName = updateUser["BankAccountName"];
-                if(updateUser["Street"] != null) user.Street = updateUser["Street"];
-                if(updateUser["FlatNumber"] != null) user.FlatNumber = updateUser["FlatNumber"];
-                if(updateUser["City"] != null) user.City = updateUser["City"];
-                if(updateUser["Province"] != null) user.Province = updateUser["Province"];
-                if(updateUser["PostalCode"] != null) user.PostalCode = updateUser["PostalCode"];
-                if(updateUser["Country"] != null) user.Country = updateUser["Country"];
-                if(updateUser["MartialStatus"] != null) user.MartialStatus = updateUser["MartialStatus"];
-                if(updateUser["ContactName"] != null) user.ContactName = updateUser["ContactName"];
-                if(updateUser["Relationship"] != null) user.Relationship = updateUser["Relationship"];
-                if(updateUser["PhoneR"] != null) user.PhoneR = updateUser["PhoneR"];
-                if(updateUser["StreetR"] != null) user.StreetR = updateUser["StreetR"];
-                if(updateUser["FlatNumberR"] != null) user.FlatNumberR = updateUser["FlatNumberR"];
-                if(updateUser["CityR"] != null) user.CityR = updateUser["CityR"];
-                if(updateUser["ProvinceR"] != null) user.ProvinceR = updateUser["ProvinceR"];
-                if(updateUser["PostalCodeR"] != null) user.PostalCodeR = updateUser["PostalCodeR"];
-                if(updateUser["CountryR"] != null) user.CountryR = updateUser["CountryR"];
+                if (updateUser["Rank"] != null) user.Rank = updateUser["Rank"];
+                if (updateUser["EmployeeType"] != null) user.EmployeeType = updateUser["EmployeeType"];
+                if (updateUser["Rights"] != null) user.Rights = updateUser["Rights"];
+                if (updateUser["Nation"] != null) user.Nation = updateUser["Nation"];
+                if (updateUser["Phone"] != null) user.Phone = updateUser["Phone"];
+                if (updateUser["IdCardNumber"] != null) user.IdCardNumber = updateUser["IdCardNumber"];
+                if (updateUser["PlaceOfIdCard"] != null) user.PlaceOfIdCard = updateUser["PlaceOfIdCard"];
+                if (updateUser["HealthInsurance"] != null) user.HealthInsurance = updateUser["HealthInsurance"];
+                if (updateUser["Note"] != null) user.Note = updateUser["Note"];
+                if (updateUser["AcademicLevel"] != null) user.AcademicLevel = updateUser["AcademicLevel"];
+                if (updateUser["Qualification"] != null) user.Qualification = updateUser["Qualification"];
+                if (updateUser["BusinessPhone"] != null) user.BusinessPhone = updateUser["BusinessPhone"];
+                if (updateUser["HomePhone"] != null) user.HomePhone = updateUser["HomePhone"];
+                if (updateUser["PersonalEmail"] != null) user.PersonalEmail = updateUser["PersonalEmail"];
+                if (updateUser["BankName"] != null) user.BankName = updateUser["BankName"];
+                if (updateUser["BankBranchNumber"] != null) user.BankBranchNumber = updateUser["BankBranchNumber"];
+                if (updateUser["BankBranchName"] != null) user.BankBranchName = updateUser["BankBranchName"];
+                if (updateUser["BankAccountNumber"] != null) user.BankAccountNumber = updateUser["BankAccountNumber"];
+                if (updateUser["BankAccountName"] != null) user.BankAccountName = updateUser["BankAccountName"];
+                if (updateUser["Street"] != null) user.Street = updateUser["Street"];
+                if (updateUser["FlatNumber"] != null) user.FlatNumber = updateUser["FlatNumber"];
+                if (updateUser["City"] != null) user.City = updateUser["City"];
+                if (updateUser["Province"] != null) user.Province = updateUser["Province"];
+                if (updateUser["PostalCode"] != null) user.PostalCode = updateUser["PostalCode"];
+                if (updateUser["Country"] != null) user.Country = updateUser["Country"];
+                if (updateUser["MartialStatus"] != null) user.MartialStatus = updateUser["MartialStatus"];
+                if (updateUser["ContactName"] != null) user.ContactName = updateUser["ContactName"];
+                if (updateUser["Relationship"] != null) user.Relationship = updateUser["Relationship"];
+                if (updateUser["PhoneR"] != null) user.PhoneR = updateUser["PhoneR"];
+                if (updateUser["StreetR"] != null) user.StreetR = updateUser["StreetR"];
+                if (updateUser["FlatNumberR"] != null) user.FlatNumberR = updateUser["FlatNumberR"];
+                if (updateUser["CityR"] != null) user.CityR = updateUser["CityR"];
+                if (updateUser["ProvinceR"] != null) user.ProvinceR = updateUser["ProvinceR"];
+                if (updateUser["PostalCodeR"] != null) user.PostalCodeR = updateUser["PostalCodeR"];
+                if (updateUser["CountryR"] != null) user.CountryR = updateUser["CountryR"];
                 user.Created = DateTime.Now;
 
                 _db.SaveChanges();
                 return new Result<Account>(true, "Edit profile successfully !", user);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Trace.WriteLine(e.ToString());
                 return new Result<Account>(false, "Internal error !");
-            }
-        }
-
-        public Result<AccountRole> adjustRoles(string userId, string roleId)
-        {
-            try
-            {
-                var uId = Guid.Parse(userId);
-                var rId = Guid.Parse(roleId);
-                var user = _db.Users.Find(uId);
-                var role = _db.Roles.Find(rId);
-                if (user != null && role != null)
-                {
-                    var isExist = _db.UserRoles.Where(r => r.UserId == uId && r.RoleId == rId).ToList();
-                    if (isExist.Count == 0)
-                    {
-                        var newUserRole = new AccountRole { UserId = uId, RoleId = rId };
-                        _db.UserRoles.Add(newUserRole);
-                        _db.SaveChanges();
-                        return new Result<AccountRole>(true, "Adjust role for user successfully !", newUserRole);
-                    }
-                    return new Result<AccountRole>(false, "Adjust fail, this user's already had the input role !");
-                }
-                return new Result<AccountRole>(false, "User or role do not exist !");
-            }
-            catch(Exception e)
-            {
-                Trace.WriteLine(e.Message);
-                return new Result<AccountRole>(false, "Internal error !");
             }
         }
 

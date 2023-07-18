@@ -235,7 +235,9 @@
     <Compile Include="Controllers\RequestWorkflowController.cs" />
     <Compile Include="Controllers\RequestCommentController.cs" />
     <Compile Include="Controllers\RequestController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\UserRoleController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DTOs\AccountDTO.cs" />
     <Compile Include="DTOs\AccountLoginReturnDTO.cs" />
@@ -276,6 +278,8 @@
     <Compile Include="Services\RequestService.cs" />
     <Compile Include="Services\RequestWorkflowService.cs" />
     <Compile Include="Services\DepartmentService.cs" />
+    <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\UserRoleService.cs" />
     <Compile Include="Services\UserService.cs" />
     <Compile Include="Utils\HandlePassword.cs" />
     <Compile Include="Utils\HandleToken\JwtAuthorizeAttribute.cs" />

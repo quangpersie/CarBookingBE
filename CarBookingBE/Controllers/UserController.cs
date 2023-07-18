@@ -77,14 +77,6 @@ namespace CarBookingTest.Controllers
         }
 
         [HttpPost]
-        [Route("adjust-role")]
-        public IHttpActionResult adjustRole()
-        {
-            var httpRequest = HttpContext.Current.Request;
-            return Ok(userService.adjustRoles(httpRequest.Form["userId"], httpRequest.Form["roleId"]));
-        }
-
-        [HttpPost]
         [Route("testUpload")]
         public IHttpActionResult testUpload()
         {

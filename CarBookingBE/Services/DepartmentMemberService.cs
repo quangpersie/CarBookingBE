@@ -12,7 +12,6 @@ namespace CarBookingBE.Services
     public class DepartmentMemberService
     {
         MyDbContext _db = new MyDbContext();
-        UtilMethods util = new UtilMethods();
         public Result<List<DepartmentMemberDTO>> getAll(int page, int limit)
         {
             try
@@ -38,7 +37,7 @@ namespace CarBookingBE.Services
                         }
                     })
                     .OrderBy(dm => dm.Id)
-                    .Skip(util.getSkip(page, limit))
+                    .Skip((page - 1) * limit)
                     .Take(limit)
                     .ToList();
                 if (!dmsList.Any())
@@ -157,14 +156,23 @@ namespace CarBookingBE.Services
                 {
                     return new Result<DepartmentMember>(false, "Missing parameter(s) !");
                 }
-                /*if(newDM.Position.Equals("Manager"))
+                var reusable = _db.DepartmentsMembers
+                    .Where(d => d.IsDeleted == true && d.UserId == newDM.UserId &&
+                    d.DepartmentId == newDM.DepartmentId && d.Position == newDM.Position)
+                    .FirstOrDefault();
+                if (reusable != null)
                 {
-                    var duplicateManager = _db.DepartmentsMembers.Where(dm => dm.Position.Equals(newDM.Position));
-                    if (duplicateManager.Any())
-                    {
-                        return new Result<DepartmentMember>(false, "One department has just one manager");
-                    }
-                }*/
+                    reusable.IsDeleted = false;
+                    _db.SaveChanges();
+                    return new Result<DepartmentMember>(true, "Add role for user successfully !", reusable);
+                }
+                var checkExist = _db.DepartmentsMembers
+                    .Where(d => d.IsDeleted == false && d.UserId == newDM.UserId && d.DepartmentId == newDM.DepartmentId)
+                    .FirstOrDefault();
+                if (checkExist != null)
+                {
+                    return new Result<DepartmentMember>(false, "This employee's already existed in the department !");
+                }
                 _db.DepartmentsMembers.Add(newDM);
                 _db.SaveChanges();
                 return new Result<DepartmentMember>(true, "Add data successfully !", newDM);
@@ -220,10 +228,10 @@ namespace CarBookingBE.Services
                 var del = _db.DepartmentsMembers.Find(Guid.Parse(id));
                 if (del != null || del.IsDeleted == true)
                 {
-                    del.IsDeleted = true;
-                    _db.SaveChanges();
                     return new Result<DepartmentMember>(false, "Data (with input id) does not exist !");
                 }
+                del.IsDeleted = true;
+                _db.SaveChanges();
                 return new Result<DepartmentMember>(true, "Delete data successfully !");
             }
             catch (Exception e)

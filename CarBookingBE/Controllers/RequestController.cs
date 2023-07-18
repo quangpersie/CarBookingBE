@@ -227,5 +227,13 @@ namespace CarBookingBE.Controllers
             return Ok(newRequest);
         }
 
+        [Route("approved/Id={Id}")]
+        [HttpPut]
+        public IHttpActionResult ApprovedRequest(string Id, [FromBody] string Note)
+        {
+            
+            return Ok();
+        }
+
     }
 }

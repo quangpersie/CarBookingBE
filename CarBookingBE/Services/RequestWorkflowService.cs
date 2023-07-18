@@ -68,7 +68,7 @@ namespace CarBookingBE.Services
                 }
                 requestWorkflow.IsDeleted = false;
                 requestWorkflow.Level = level;
-                requestWorkflow.Status = "Waiting for Approval";
+                requestWorkflow.Status = "Waiting for approval";
                 level += 1;
                 db.RequestWorkflows.Add(requestWorkflow);
                 db.SaveChanges();
@@ -78,11 +78,7 @@ namespace CarBookingBE.Services
 
         public Result<List<RequestWorkflow>> EditRequestWorkflow(Guid requestId, string[] listOfUserId)
         {
-            var existRequestWorkflows = db.RequestWorkflows.Where(e => e.IsDeleted == false && e.RequestId == requestId).ToList();
-            foreach (RequestWorkflow existRequestWorkflow in existRequestWorkflows)
-            {
-                DeleteRequestWorkflow(existRequestWorkflow.Id);
-            }
+            DeleteAllRequestWorkflows(requestId);
 
             var requestWorkflows = CreateRequestWorkflow(requestId, listOfUserId);
 
@@ -135,6 +131,16 @@ namespace CarBookingBE.Services
 
         }
 
+        public Result<string> DeleteAllRequestWorkflows(Guid requestId)
+        {
+            var existRequestWorkflows = db.RequestWorkflows.Where(e => e.IsDeleted == false && e.RequestId == requestId).ToList();
+            foreach (RequestWorkflow existRequestWorkflow in existRequestWorkflows)
+            {
+                DeleteRequestWorkflow(existRequestWorkflow.Id);
+            }
+            return new Result<string>(true, "Delete All Request Workflow Success!");
+        }
+
         public Result<string> DeleteRequestWorkflow (Guid Id)
         {
             var requestWorkflow = db.RequestWorkflows.SingleOrDefault(rwf => rwf.IsDeleted == false
@@ -148,6 +154,77 @@ namespace CarBookingBE.Services
             db.SaveChanges();
 
             return new Result<string>(true, "Delete Request Workflow has Id = " + requestWorkflow.Id.ToString());
+        }
+
+        public Result<RequestWorkflow> ActionRequest(Guid requestId, Guid userId, string action)
+        {
+            var requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.RequestId == requestId && rw.UserId == userId);
+            if (requestWorkflow == null)
+            {
+                return new Result<RequestWorkflow>(false, "Request Workflow Not Found");
+            }
+
+            if (requestWorkflow.Level > 1)
+            {
+                var requestWorkflowPreLevel = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.RequestId == requestId && rw.Level == requestWorkflow.Level - 1);
+                if (requestWorkflowPreLevel != null)
+                {
+                    if (requestWorkflowPreLevel.Status == "Waiting for approval")
+                    {
+                        return new Result<RequestWorkflow>(false, "Please waiting for approval of Previous Approver!");
+                    }
+                    else if (requestWorkflowPreLevel.Status == "Approved")
+                    {
+                        requestWorkflow.Status = action;
+                        db.SaveChanges();
+                        return new Result<RequestWorkflow>(true, "Approved Success!", requestWorkflow);
+                    }
+                    else
+                    {
+                        return new Result<RequestWorkflow>(false, "Request is" + requestWorkflowPreLevel.Status);
+                    }
+                }
+            }
+            requestWorkflow.Status = action;
+            db.SaveChanges();
+
+            return new Result<RequestWorkflow>(true, "Success", requestWorkflow);
+        }
+
+        public Result<string> CheckWorkflow(RequestWorkflow requestWorkflowCheck)
+        {
+            List<RequestWorkflow> requestWorkflows = db.RequestWorkflows.Where(rw => rw.IsDeleted == false
+            && rw.RequestId == requestWorkflowCheck.RequestId
+            && rw.UserId != requestWorkflowCheck.UserId
+            ).ToList();
+
+            if (requestWorkflowCheck.Status != "Approved")
+            {
+                if (requestWorkflows.Count > 0)
+                {
+                    foreach (RequestWorkflow requestWorkflow1 in requestWorkflows)
+                    {
+                        requestWorkflow1.Status = requestWorkflowCheck.Status;
+                        db.SaveChanges();
+                    }
+                }
+                
+                return new Result<string>(true, requestWorkflowCheck.Status + "Request Success");
+            }
+            
+
+            if (requestWorkflows.Count > 0)
+            {
+                foreach (RequestWorkflow requestWorkflow1 in requestWorkflows)
+                {
+                    if (requestWorkflow1.Level > requestWorkflowCheck.Level)
+                    {
+                        return new Result<string>(false, "Not yet fully approved");
+                    }
+                }
+            }
+            
+            return new Result<string>(true, "Fully approved success");
         }
 
     }

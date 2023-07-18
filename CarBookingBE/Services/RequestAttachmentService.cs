@@ -58,11 +58,7 @@ namespace CarBookingBE.Services
 
         public Result<RequestAttachment> EditAttachment(HttpPostedFile file, Guid requestId)
         {
-            var existRequestAttachments = db.RequestAttachments.Where(e => e.IsDeleted == false && e.RequestId == requestId).ToList();
-            foreach (RequestAttachment existRequestAttachment in existRequestAttachments)
-            {
-                deleteAttachment(existRequestAttachment.Id);
-            }
+            DeleteAllAttachments(requestId);
 
             var requestAttachment = CreateAttachment(file, requestId);
             /*Request request = db.Requests.SingleOrDefault(r => r.Id == requestId && r.IsDeleted == false);
@@ -123,7 +119,7 @@ namespace CarBookingBE.Services
             return new Result<string>(true, "Upload file successfully !", $"Files/Attachments/{requestCode}/{postedFile.FileName}");
         }
 
-        public Result<RequestAttachment> deleteAttachment(Guid Id)
+        public Result<RequestAttachment> DeleteAttachment(Guid Id)
         {
             RequestAttachment requestAttachment = db.RequestAttachments.SingleOrDefault(ra => ra.Id == Id);
             if (requestAttachment == null || requestAttachment.IsDeleted == true)
@@ -133,6 +129,16 @@ namespace CarBookingBE.Services
             requestAttachment.IsDeleted = true;
             db.SaveChanges();
             return new Result<RequestAttachment>(true, "Delete Success Request Attachment has Id = " + requestAttachment.Id);
+        }
+
+        public Result<string> DeleteAllAttachments (Guid requestId)
+        {
+            var existRequestAttachments = db.RequestAttachments.Where(e => e.IsDeleted == false && e.RequestId == requestId).ToList();
+            foreach (RequestAttachment existRequestAttachment in existRequestAttachments)
+            {
+                DeleteAttachment(existRequestAttachment.Id);
+            }
+            return new Result<string>(true, "Delete All Attachments Success!");
         }
 
     }

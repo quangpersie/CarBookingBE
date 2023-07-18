@@ -16,6 +16,20 @@ namespace CarBookingBE.Controllers
         }
 
         [HttpGet]
+        [Route("position")]
+        public IHttpActionResult getByPosition(string departmentId)
+        {
+            return Ok(dms.getByDepartmentId(departmentId));
+        }
+
+        [HttpGet]
+        [Route("position")]
+        public IHttpActionResult getByPosition(string departmentId, string position)
+        {
+            return Ok(dms.getByPositionWithDeparmentId(departmentId, position));
+        }
+
+        [HttpGet]
         [Route("find/{id}")]
         public IHttpActionResult getDepartment(string id)
         {

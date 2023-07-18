@@ -1,11 +1,11 @@
-﻿using CarBookingBE.Utils;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Utils;
 using CarBookingTest.Models;
-using NPOI.HPSF;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
-using static System.Data.Entity.Infrastructure.Design.Executor;
 
 namespace CarBookingBE.Services
 {
@@ -13,25 +13,140 @@ namespace CarBookingBE.Services
     {
         MyDbContext _db = new MyDbContext();
         UtilMethods util = new UtilMethods();
-        public Result<List<DepartmentMember>> getAll(int page, int limit)
+        public Result<List<DepartmentMemberDTO>> getAll(int page, int limit)
         {
             try
             {
-                var dmsList = _db.DepartmentsMembers.Where(dm => dm.IsDeleted == false)
-                    .OrderByDescending(dm => dm.DepartmentId)
+                var dmsList = _db.DepartmentsMembers.Include(d => d.User).Include(d => d.Department)
+                    .Where(dm => dm.IsDeleted == false)
+                    .Select(d => new DepartmentMemberDTO
+                    {
+                        Id = d.Id,
+                        Position = d.Position,
+                        User = new AccountDTO
+                        {
+                            Id = d.User.Id,
+                            Username = d.User.Username,
+                            FirstName = d.User.FirstName,
+                            LastName = d.User.LastName,
+                            JobTitle = d.User.JobTitle
+                        },
+                        Department = new DepartmentDTO
+                        {
+                            Id = d.Department.Id,
+                            Name = d.Department.Name
+                        }
+                    })
+                    .OrderBy(dm => dm.Id)
                     .Skip(util.getSkip(page, limit))
                     .Take(limit)
                     .ToList();
-                if (dmsList == null)
+                if (!dmsList.Any())
                 {
-                    return new Result<List<DepartmentMember>>(false, "There's no data !");
+                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data !");
                 }
-                return new Result<List<DepartmentMember>>(true, "Get all datas successfully !", dmsList);
+                return new Result<List<DepartmentMemberDTO>>(true, "Get all datas successfully !", dmsList);
             }
             catch(Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<DepartmentMember>>(false, "Internal error !");
+                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !");
+            }
+        }
+        public Result<List<DepartmentMemberDTO>> getByDepartmentId(string departmentId)
+        {
+            try
+            {
+                if(departmentId == null)
+                {
+                    return new Result<List<DepartmentMemberDTO>>(false, "Missing id of department !");
+                }
+                var dId = Guid.Parse(departmentId);
+                var pList = _db.DepartmentsMembers
+                    .Include(d => d.User).Include(d => d.Department)
+                    .Where(d => d.IsDeleted == false)
+                    .Select(d => new DepartmentMemberDTO
+                    {
+                        Id = d.Id,
+                        Position = d.Position,
+                        User = new AccountDTO
+                        {
+                            Id = d.User.Id,
+                            Username = d.User.Username,
+                            Email = d.User.Email,
+                            FirstName = d.User.FirstName,
+                            LastName = d.User.LastName,
+                            JobTitle = d.User.JobTitle
+                        },
+                        Department = new DepartmentDTO
+                        {
+                            Id = d.Department.Id,
+                            Name = d.Department.Name
+                        }
+                    })
+                    .Where(d => d.Department.Id == dId)
+                    .ToList();
+
+                if (!pList.Any())
+                {
+                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data with this department !");
+                }
+                return new Result<List<DepartmentMemberDTO>>(true, $"Get all data in the department successfully)", pList);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !");
+            }
+        }
+        public Result<List<DepartmentMemberDTO>> getByPositionWithDeparmentId(string departmentId, string position)
+        {
+            try
+            {
+                if (departmentId == null)
+                {
+                    return new Result<List<DepartmentMemberDTO>>(false, "Missing id of department !");
+                }
+                else if(position == null)
+                {
+                    return new Result<List<DepartmentMemberDTO>>(false, "Missing position field !");
+                }
+                var dId = Guid.Parse(departmentId);
+                var pList = _db.DepartmentsMembers
+                    .Include(d => d.User).Include(d => d.Department)
+                    .Where(d => d.IsDeleted == false && d.Position.Equals(position))
+                    .Select(d => new DepartmentMemberDTO
+                    {
+                        Id = d.Id,
+                        Position = d.Position,
+                        User = new AccountDTO
+                        {
+                            Id = d.User.Id,
+                            Username = d.User.Username,
+                            Email = d.User.Email,
+                            FirstName = d.User.FirstName,
+                            LastName = d.User.LastName,
+                            JobTitle = d.User.JobTitle
+                        },
+                        Department = new DepartmentDTO
+                        {
+                            Id = d.Department.Id,
+                            Name = d.Department.Name
+                        }
+                    })
+                    .Where(d => d.Department.Id == dId)
+                    .ToList();
+
+                if (!pList.Any())
+                {
+                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data with this position !");
+                }
+                return new Result<List<DepartmentMemberDTO>>(true, $"Get all data in the department successfully (position = {position.ToLower()})", pList);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !");
             }
         }
         public Result<DepartmentMember> addDepartmentMember(DepartmentMember newDM)
@@ -42,6 +157,14 @@ namespace CarBookingBE.Services
                 {
                     return new Result<DepartmentMember>(false, "Missing parameter(s) !");
                 }
+                /*if(newDM.Position.Equals("Manager"))
+                {
+                    var duplicateManager = _db.DepartmentsMembers.Where(dm => dm.Position.Equals(newDM.Position));
+                    if (duplicateManager.Any())
+                    {
+                        return new Result<DepartmentMember>(false, "One department has just one manager");
+                    }
+                }*/
                 _db.DepartmentsMembers.Add(newDM);
                 _db.SaveChanges();
                 return new Result<DepartmentMember>(true, "Add data successfully !", newDM);

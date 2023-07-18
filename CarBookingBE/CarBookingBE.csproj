@@ -239,6 +239,7 @@
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DTOs\AccountDTO.cs" />
     <Compile Include="DTOs\DepartmentDTO.cs" />
+    <Compile Include="DTOs\DepartmentMemberDTO.cs" />
     <Compile Include="DTOs\LoginDTO.cs" />
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestCommentDTO.cs" />

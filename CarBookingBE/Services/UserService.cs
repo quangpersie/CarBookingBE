@@ -144,6 +144,8 @@ namespace CarBookingBE.Services
                     newUser.Username = user.Username;
                     newUser.Password = hp.HashPassword(user.Password);
                     newUser.Email = user.Email;
+                    newUser.FirstName = user.FirstName;
+                    newUser.LastName = user.LastName;
                     newUser.Sex = user.Sex;
                     newUser.EmployeeNumber = user.EmployeeNumber;
                     newUser.IsDeleted = false;

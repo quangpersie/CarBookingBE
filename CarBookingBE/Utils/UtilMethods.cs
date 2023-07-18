@@ -16,11 +16,6 @@ namespace CarBookingBE.Utils
 {
     public class UtilMethods
     {
-        public int getSkip(int pageIndex, int limit)
-        {
-            return (pageIndex - 1) * limit;
-        }
-
         public bool writeToExcel()
         {
             try

@@ -10,14 +10,13 @@ namespace CarBookingBE.Services
     public class DepartmentService
     {
         MyDbContext _db = new MyDbContext();
-        UtilMethods util = new UtilMethods();
         public Result<List<Department>> getAll(int page, int limit)
         {
             try
             {
                 var departments = _db.Departments.Where(d => d.IsDeleted == false)
                 .OrderByDescending(user => user.Code)
-                .Skip(util.getSkip(page, limit))
+                .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
                 if(!departments.Any())
@@ -39,6 +38,16 @@ namespace CarBookingBE.Services
                 if (department == null || department.Name == null || department.ContactInfo == null || department.Code == null || department.Description == null)
                 {
                     return new Result<Department>(false, "Missing parameter(s) !");
+                }
+                var reusable = _db.Departments
+                    .Where(d => d.IsDeleted == true && d.Name == department.Name && d.ContactInfo == department.ContactInfo &&
+                    d.Code == department.Code && d.Description == department.Description)
+                    .FirstOrDefault();
+                if (reusable != null)
+                {
+                    reusable.IsDeleted = false;
+                    _db.SaveChanges();
+                    return new Result<Department>(true, "Add role for user successfully !", reusable);
                 }
                 _db.Departments.Add(department);
                 _db.SaveChanges();
@@ -97,10 +106,15 @@ namespace CarBookingBE.Services
                 var del = _db.Departments.Find(Guid.Parse(id));
                 if(del != null || del.IsDeleted == true)
                 {
-                    del.IsDeleted = true;
-                    _db.SaveChanges();
                     return new Result<Department>(false, "Department do not exist !");
                 }
+                var deleteDepartmentMember = _db.DepartmentsMembers.Where(d => d.IsDeleted == false && d.DepartmentId == del.Id).ToList();
+                foreach (var item in deleteDepartmentMember)
+                {
+                    item.IsDeleted = true;
+                }
+                del.IsDeleted = true;
+                _db.SaveChanges();
                 return new Result<Department>(true, "Delete department successfully !");
             }
             catch(Exception e)

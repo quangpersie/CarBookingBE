@@ -63,7 +63,7 @@ namespace CarBookingTest.Controllers
             return Ok(new { Success = true, Message = "Logout successfully !" });
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("edit/{id}")]
         public IHttpActionResult editProfile(string id)
         {
@@ -74,14 +74,6 @@ namespace CarBookingTest.Controllers
                 return Ok(userService.editProfileService(httpRequest.Files[0], id, formData));
             }
             return Ok(userService.editProfileService(null, id, formData));
-        }
-
-        [HttpPost]
-        [Route("adjust-role")]
-        public IHttpActionResult adjustRole()
-        {
-            var httpRequest = HttpContext.Current.Request;
-            return Ok(userService.adjustRoles(httpRequest.Form["userId"], httpRequest.Form["roleId"]));
         }
 
         [HttpPost]

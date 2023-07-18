@@ -235,9 +235,12 @@
     <Compile Include="Controllers\RequestWorkflowController.cs" />
     <Compile Include="Controllers\RequestCommentController.cs" />
     <Compile Include="Controllers\RequestController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\UserRoleController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DTOs\AccountDTO.cs" />
+    <Compile Include="DTOs\AccountLoginReturnDTO.cs" />
     <Compile Include="DTOs\DepartmentDTO.cs" />
     <Compile Include="DTOs\DepartmentMemberDTO.cs" />
     <Compile Include="DTOs\LoginDTO.cs" />
@@ -248,6 +251,8 @@
     <Compile Include="DTOs\RequestDTO.cs" />
     <Compile Include="DTOs\RequestDetailDTO.cs" />
     <Compile Include="DTOs\RequestWorkflowDTO.cs" />
+    <Compile Include="DTOs\RoleDTO.cs" />
+    <Compile Include="DTOs\UserRolesDTO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -274,6 +279,8 @@
     <Compile Include="Services\RequestService.cs" />
     <Compile Include="Services\RequestWorkflowService.cs" />
     <Compile Include="Services\DepartmentService.cs" />
+    <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\UserRoleService.cs" />
     <Compile Include="Services\UserService.cs" />
     <Compile Include="Utils\HandlePassword.cs" />
     <Compile Include="Utils\HandleToken\JwtAuthorizeAttribute.cs" />

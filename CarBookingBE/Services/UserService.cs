@@ -38,8 +38,20 @@ namespace CarBookingBE.Services
             else
             {
                 string hash = hp.HashPassword(user.Password);
-                var validUser = _db.Users.FirstOrDefault(u => u.Username == user.Username && u.Password == hash);
-                if(validUser != null)
+                var userInfo = _db.Users
+                    .Where(ur => ur.IsDeleted == false && ur.Username == user.Username && ur.Password == hash)
+                    .Select(ur => new AccountLoginReturnDTO
+                    {
+                        Id = ur.Id,
+                        Username = ur.Username,
+                        Email = ur.Email,
+                        FirstName = ur.FirstName,
+                        LastName = ur.LastName,
+                        AvatarPath = ur.AvatarPath,
+                    })
+                    .FirstOrDefault();
+                //var validUser = _db.Users.FirstOrDefault(u => u.Username == user.Username && u.Password == hash);
+                if(userInfo != null)
                 {
                     string secretKey = jwt.secretKey;
                     string issuer = jwt.issuer;
@@ -47,13 +59,24 @@ namespace CarBookingBE.Services
                     int expirationMinutes = jwt.expirationMinutes;
                     Claim[] customClaims = new Claim[]
                     {
-                    new Claim("Username", user.Username),
-                    new Claim("Password", user.Password)
+                        new Claim("Username", user.Username),
+                        new Claim("Password", user.Password)
                     };
                     string jwtToken = jwt.GenerateJwtToken(secretKey, issuer, audience, expirationMinutes, customClaims);
                     //bool check = jwt.VerifyJwtToken(jwtToken, secretKey);
+                    var userRole = _db.UserRoles
+                        .Where(ur => ur.IsDeleted == false && ur.UserId == userInfo.Id)
+                        .Select(ur => new UserRolesDTO
+                        {
+                            Role = new RoleDTO
+                            {
+                                Id = ur.Role.Id,
+                                Title = ur.Role.Title
+                            }
+                        })
+                        .ToList();
 
-                    return new Result<LoginReturnDTO>(true, "Login successfully !", new LoginReturnDTO(validUser.Id, jwtToken));
+                    return new Result<LoginReturnDTO>(true, "Login successfully !", new LoginReturnDTO(userInfo, jwtToken, userRole));
                 }
                 else
                 {

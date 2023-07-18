@@ -45,7 +45,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<List<DepartmentMemberDTO>>(false, "There's no data !");
                 }
-                return new Result<List<DepartmentMemberDTO>>(true, "Get all datas successfully !", dmsList);
+                return new Result<List<DepartmentMemberDTO>>(true, "Get all data successfully !", dmsList);
             }
             catch(Exception e)
             {

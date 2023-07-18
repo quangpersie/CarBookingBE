@@ -63,7 +63,7 @@ namespace CarBookingTest.Controllers
             return Ok(new { Success = true, Message = "Logout successfully !" });
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("edit/{id}")]
         public IHttpActionResult editProfile(string id)
         {

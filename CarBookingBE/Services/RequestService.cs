@@ -189,7 +189,8 @@ namespace CarBookingBE.Services
 
         public Result<Request> EditRequest(string id, Request requestEdit)
         {
-            var req = db.Requests.SingleOrDefault(r => r.Id == Guid.Parse(id));
+            var requestId = Guid.Parse(id);
+            var req = db.Requests.SingleOrDefault(r => r.Id == requestId);
             if (req == null || req.IsDeleted == true)
             {
                 return new Result<Request>(false, "Request Not Found");
@@ -214,6 +215,8 @@ namespace CarBookingBE.Services
             if (requestEdit.ApplyNote != null) req.ApplyNote = requestEdit.ApplyNote;
             req.Created = DateTime.Now;
             db.SaveChanges();
+
+
 
             return new Result<Request>(true, "Edit Request Succcess!", req);
         }
@@ -245,6 +248,23 @@ namespace CarBookingBE.Services
             {
                 return new Result<Request>(false, "Receiver User Not Exist");
             }
+
+            if (request.UsageFrom > request.UsageTo)
+            {
+                return new Result<Request>(false, "Usage From must earlier than Usage To");
+            }
+
+            if (request.PickTime < request.UsageFrom || request.PickTime > request.UsageTo) 
+            {
+                return new Result<Request>(false, "Pick Time must between Usage From and Usage To"); 
+            }
+
+            if (request.TotalPassengers <= 0)
+            {
+                return new Result<Request>(false, "Total Passengers must > 0");
+            }
+
+
 
             db.Requests.Add(request);
             db.SaveChanges();

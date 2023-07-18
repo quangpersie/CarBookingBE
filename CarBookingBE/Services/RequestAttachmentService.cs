@@ -14,7 +14,7 @@ namespace CarBookingBE.Services
         private MyDbContext db = new MyDbContext();
         public Result<List<RequestAttachmentDTO>> GetAttachmentByRequestId (string id)
         {
-            List <RequestAttachmentDTO> requestAttachmentList = db.RequestAttachments.Where(ra => ra.RequestId.ToString() == id)
+            List <RequestAttachmentDTO> requestAttachmentList = db.RequestAttachments.Where(ra => ra.RequestId.ToString() == id && ra.IsDeleted == false)
                  .Select(ra => new RequestAttachmentDTO() {
                      Id = ra.Id,
                      Path = ra.Path
@@ -23,7 +23,8 @@ namespace CarBookingBE.Services
             return new Result<List<RequestAttachmentDTO>>(true, "Get Request Attachments Success", requestAttachmentList);
         }
 
-        public Result<RequestAttachment> CreateAttachment (HttpPostedFile file, Guid requestId)
+
+        public Result<RequestAttachment> CreateAttachment(HttpPostedFile file, Guid requestId)
         {
             Request request = db.Requests.SingleOrDefault(r => r.Id == requestId && r.IsDeleted == false);
             if (request == null)
@@ -37,7 +38,7 @@ namespace CarBookingBE.Services
             foreach (HttpPostedFileBase file in files)*/
             if (file != null)
             {
-                
+                List<RequestAttachment> requestAttachments = new List<RequestAttachment>();
                 RequestAttachment requestAttachment = new RequestAttachment();
                 requestAttachment.IsDeleted = false;
                 requestAttachment.RequestId = requestId;
@@ -48,16 +49,51 @@ namespace CarBookingBE.Services
                 }
                 requestAttachment.Path = rs.Data;
                 db.RequestAttachments.Add(requestAttachment);
+                requestAttachments.Add(requestAttachment);
                 db.SaveChanges();
             }
 
             return new Result<RequestAttachment>(true, "Create Attachments Success");
         }
 
+        public Result<RequestAttachment> EditAttachment(HttpPostedFile file, Guid requestId)
+        {
+            var existRequestAttachments = db.RequestAttachments.Where(e => e.IsDeleted == false && e.RequestId == requestId).ToList();
+            foreach (RequestAttachment existRequestAttachment in existRequestAttachments)
+            {
+                deleteAttachment(existRequestAttachment.Id);
+            }
+
+            var requestAttachment = CreateAttachment(file, requestId);
+            /*Request request = db.Requests.SingleOrDefault(r => r.Id == requestId && r.IsDeleted == false);
+
+            if (request == null)
+            {
+                return new Result<RequestAttachment>(false, "Request Not Exist");
+            }
+
+            RequestAttachment requestAttachment = new RequestAttachment();
+            if (file != null)
+            {
+                var rs = uploadFile(file, request.RequestCode, requestId);
+                if (!rs.Success)
+                {
+                    return new Result<RequestAttachment>(false, rs.Message);
+                }
+                
+                requestAttachment.IsDeleted = false;
+                requestAttachment.RequestId = requestId;
+                requestAttachment.Path = rs.Data;
+                db.RequestAttachments.Add(requestAttachment);
+                db.SaveChanges();
+            }*/
+            return new Result<RequestAttachment>(true, "Edit Attachments Success", requestAttachment.Data);
+        }
+
         public Result<string> uploadFile(HttpPostedFile postedFile, string requestCode, Guid requestId)
         {
             string newPath = "Files/Attachments/" + requestCode + "/" + postedFile.FileName;
-            List<RequestAttachment> requestAttachments = db.RequestAttachments.ToList();
+            List<RequestAttachment> requestAttachments = db.RequestAttachments.Where(ra => ra.IsDeleted == false).ToList();
             foreach (RequestAttachment req in requestAttachments)
             {
                 if (req.Path == newPath && req.RequestId == requestId)
@@ -86,5 +122,18 @@ namespace CarBookingBE.Services
             postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
             return new Result<string>(true, "Upload file successfully !", $"Files/Attachments/{requestCode}/{postedFile.FileName}");
         }
+
+        public Result<RequestAttachment> deleteAttachment(Guid Id)
+        {
+            RequestAttachment requestAttachment = db.RequestAttachments.SingleOrDefault(ra => ra.Id == Id);
+            if (requestAttachment == null || requestAttachment.IsDeleted == true)
+            {
+                return new Result<RequestAttachment>(false, "Request Attachment Not Found");
+            }
+            requestAttachment.IsDeleted = true;
+            db.SaveChanges();
+            return new Result<RequestAttachment>(true, "Delete Success Request Attachment has Id = " + requestAttachment.Id);
+        }
+
     }
 }

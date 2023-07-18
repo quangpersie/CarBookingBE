@@ -30,7 +30,7 @@ namespace CarBookingBE.Controllers
             return Ok(requestWorkflows);
         }
 
-        [Route("create")]
+        /*[Route("create")]
         [HttpPost]
         public IHttpActionResult CreateRequestWorkflow(List<RequestWorkflow> requestWorkflows)
         {
@@ -40,6 +40,6 @@ namespace CarBookingBE.Controllers
                 return BadRequest(requestWorkflow.Message);
             }
             return Ok(requestWorkflow);
-        }
+        }*/
     }
 }

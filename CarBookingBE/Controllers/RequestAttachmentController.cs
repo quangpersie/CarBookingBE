@@ -32,7 +32,6 @@ namespace CarBookingBE.Controllers
         {
             return Ok(requestAttachmentService.GetAttachmentByRequestId(requestId));
         }
-        
 
         /*[Route("create/requestId={requestId}")]
         [HttpPost]

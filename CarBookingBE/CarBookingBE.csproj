@@ -252,6 +252,7 @@
     <Compile Include="DTOs\RequestDetailDTO.cs" />
     <Compile Include="DTOs\RequestWorkflowDTO.cs" />
     <Compile Include="DTOs\RoleDTO.cs" />
+    <Compile Include="DTOs\RoleNameDTO.cs" />
     <Compile Include="DTOs\UserRolesDTO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

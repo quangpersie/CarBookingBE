@@ -15,7 +15,8 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var urList = _db.UserRoles.Where(r => r.IsDeleted == false)
+                var urList = _db.UserRoles
+                .Where(r => r.IsDeleted == false)
                 .OrderByDescending(r => r.Id)
                 .Skip((page - 1) * limit)
                 .Take(limit)

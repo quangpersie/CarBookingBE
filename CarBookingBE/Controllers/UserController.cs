@@ -1,10 +1,15 @@
 ﻿using CarBookingBE.DTOs;
 using CarBookingBE.Services;
+using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
 using System;
+using System.Data.Entity.Core.Objects;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Security;
 
 namespace CarBookingTest.Controllers
@@ -13,6 +18,7 @@ namespace CarBookingTest.Controllers
     public class UserController : ApiController
     {
         UserService userService = new UserService();
+        UtilMethods util = new UtilMethods();
 
         [HttpPost]
         [Route("login")]
@@ -50,9 +56,25 @@ namespace CarBookingTest.Controllers
 
         [HttpGet]
         [Route("profile/{id}")]
+        [JwtAuthorize]
         public IHttpActionResult getProfile(string id)
         {
-            return Ok(userService.getProfileService(id));
+            var curIdObj = util.getCurId();
+            var curId = new Guid();
+            if (curIdObj.Success)
+            {
+                curId = curIdObj.Data;
+            }
+            if(curId == Guid.Parse(id))
+            {
+                return Ok(userService.getProfileService(id));
+            }
+            var requireRoles = new RoleNameDTO("ADMIN", "", "", "", "");
+            if (util.isAuthorized(requireRoles.Roles))
+            {
+                return Ok(userService.getProfileService(id));
+            }
+            return BadRequest();
         }
 
         [HttpPost]

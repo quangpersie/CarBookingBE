@@ -59,6 +59,7 @@ namespace CarBookingBE.Services
                     int expirationMinutes = jwt.expirationMinutes;
                     Claim[] customClaims = new Claim[]
                     {
+                        new Claim("CurId", userInfo.Id.ToString()),
                         new Claim("Username", user.Username),
                         new Claim("Password", user.Password)
                     };

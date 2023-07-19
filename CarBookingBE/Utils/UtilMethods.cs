@@ -11,11 +11,102 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Web;
+using CarBookingBE.DTOs;
+using CarBookingTest.Models;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CarBookingBE.Utils
 {
     public class UtilMethods
     {
+        MyDbContext _db = new MyDbContext();
+        public Result<Guid> getCurId()
+        {
+            try
+            {
+                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                HttpContext httpContext = HttpContext.Current;
+                var jwt = httpContext.Request.Headers["Authorization"];
+                Trace.WriteLine(jwt);
+                var jwtTokenObj = tokenHandler.ReadJwtToken(jwt.Substring(7)); //ignore "Bearer "
+                string curId = "";
+                foreach (var claim in jwtTokenObj.Claims)
+                {
+                    //Trace.WriteLine($"{claim.Type}: {claim.Value}");
+                    if (claim.Type.Equals("CurId"))
+                    {
+                        curId = claim.Value;
+                        break;
+                    }
+                }
+                return new Result<Guid>(true, "Get curId successfully !", Guid.Parse(curId));
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<Guid>(false, "Internal error !");
+            }
+        }
+        public bool isAuthorized(List<string> requiredRoles)
+        {
+            try
+            {
+                var curIdObj = getCurId();
+                if(curIdObj.Success == false)
+                {
+                    return false;
+                }
+                var userRoleList = userRoles(curIdObj.Data);
+                if (userRoleList.Success == false) { return false; }
+                if (userRoleList.Data.Any())
+                {
+                    foreach (var item in requiredRoles)
+                    {
+                        if (userRoleList.Data.Contains(item)) { return true; }
+                    }
+                }
+                return false;
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return false;
+            }
+        }
+
+        public Result<List<string>> userRoles(Guid curId)
+        {
+            try
+            {
+                var uRoles = new List<string>();
+                var getUserRoles = _db.UserRoles
+                    .Where(u => u.IsDeleted == false && u.UserId == curId)
+                    .Select(u => new UserRolesDTO
+                    {
+                        Role = new RoleDTO
+                        {
+                            Id = u.Role.Id,
+                            Title = u.Role.Title
+                        }
+                    })
+                    .ToList();
+                if (!getUserRoles.Any())
+                {
+                    return new Result<List<string>>(false, "User does not have any roles !");
+                }
+                foreach (var item in getUserRoles)
+                {
+                    uRoles.Add(item.Role.Title);
+                }
+                return new Result<List<string>>(true, "Get user roles successfully !", uRoles);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<List<string>>(false, "Internal error !");
+            }
+        }
+
         public bool writeToExcel()
         {
             try

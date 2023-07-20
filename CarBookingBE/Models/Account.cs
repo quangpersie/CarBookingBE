@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CarBookingBE.Models;
 
 namespace CarBookingTest.Models
 {
@@ -17,8 +18,8 @@ namespace CarBookingTest.Models
         public string Username { get; set; }
         [JsonIgnore]
         public string Password { get; set; }
-        /*[Index(IsUnique = true)]
-        [MaxLength(50)]*/
+        [Index(IsUnique = true)]
+        [MaxLength(50)]
         public string Email { get; set; }
         [Index(IsUnique = true)]
         [MaxLength(30)]
@@ -89,11 +90,14 @@ namespace CarBookingTest.Models
         public string ProvinceR { get; set; }
         public string PostalCodeR { get; set; }
         public string CountryR { get; set; }
+
+        public string Signature { get; set; }
         public virtual ICollection<AccountRole> UserRoles { get; set; }
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
         public virtual ICollection<Request> Requests { get; set; }
         public virtual ICollection<RequestShare> RequestShares { get; set; }
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
+        public virtual ICollection<VehicleRequest> VehicleRequests { get; set; }
 
         public static implicit operator Account(AccountDTO v)
         {

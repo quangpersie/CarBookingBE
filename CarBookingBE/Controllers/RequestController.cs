@@ -52,7 +52,7 @@ namespace CarBookingBE.Controllers
             return Ok(request);
         }
 
-        // GET: Sent to me Not Complete
+        // GET: Sent to me
         [Route("sent-to-me/userId={userId}")]
         [HttpGet]
 
@@ -66,7 +66,7 @@ namespace CarBookingBE.Controllers
             return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
-        // GET: Sent to others Not Complete
+        // GET: Sent to others
         [Route("sent-to-others/userId={userId}")]
         [HttpGet]
 
@@ -80,6 +80,18 @@ namespace CarBookingBE.Controllers
             return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
+        //GET: Shared with me Not completed ------------------------
+        [Route("shared-with-me/userId={userId}")]
+        [HttpGet]
+        public IHttpActionResult GetSharedWithMe(string userId, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        {
+            var requestList = requestService.GetSharedWithMe(userId, page, limit);
+            if (!requestList.Success)
+            {
+                return BadRequest(requestList.Message);
+            }
+            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+        }
 
         // PUT: api/Request/5
         [Route("Id={id}")]

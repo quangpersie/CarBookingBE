@@ -47,7 +47,7 @@ namespace CarBookingBE.Utils
                 return new Result<Guid>(false, "Internal error !");
             }
         }
-        public bool isAuthorized(List<string> requiredRoles)
+        /*public bool isAuthorized(List<string> requiredRoles)
         {
             try
             {
@@ -72,9 +72,9 @@ namespace CarBookingBE.Utils
                 Trace.WriteLine(e.Message);
                 return false;
             }
-        }
+        }*/
 
-        public Result<List<string>> userRoles(Guid curId)
+        /*public Result<List<string>> userRoles(Guid curId)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace CarBookingBE.Utils
                 Trace.WriteLine(e.Message);
                 return new Result<List<string>>(false, "Internal error !");
             }
-        }
+        }*/
 
         public bool writeToExcel()
         {

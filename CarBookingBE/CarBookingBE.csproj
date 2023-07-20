@@ -246,6 +246,7 @@
     <Compile Include="DTOs\LoginDTO.cs" />
     <Compile Include="DTOs\LoginReturnDTO.cs" />
     <Compile Include="DTOs\NewRequestDTO.cs" />
+    <Compile Include="DTOs\PageDTO.cs" />
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestCommentDTO.cs" />
     <Compile Include="DTOs\RequestDTO.cs" />
@@ -257,13 +258,14 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202307110839543_initDB.cs" />
-    <Compile Include="Migrations\202307110839543_initDB.Designer.cs">
-      <DependentUpon>202307110839543_initDB.cs</DependentUpon>
+    <Compile Include="Migrations\202307200445114_InitDb.cs" />
+    <Compile Include="Migrations\202307200445114_InitDb.designer.cs">
+      <DependentUpon>202307200445114_InitDb.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountRole.cs" />
+    <Compile Include="Models\RequestCommentAttachment.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\DepartmentMember.cs" />
     <Compile Include="Models\MyDbContext.cs" />
@@ -273,6 +275,8 @@
     <Compile Include="Models\RequestShare.cs" />
     <Compile Include="Models\RequestWorkflow.cs" />
     <Compile Include="Models\Role.cs" />
+    <Compile Include="Models\Rotation.cs" />
+    <Compile Include="Models\VehicleRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DepartmentMemberService.cs" />
     <Compile Include="Services\RequestAttachmentService.cs" />
@@ -433,8 +437,8 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202307110839543_initDB.resx">
-      <DependentUpon>202307110839543_initDB.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202307200445114_InitDb.resx">
+      <DependentUpon>202307200445114_InitDb.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

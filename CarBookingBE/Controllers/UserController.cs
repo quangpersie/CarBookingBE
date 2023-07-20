@@ -20,12 +20,12 @@ namespace CarBookingTest.Controllers
         UserService userService = new UserService();
         UtilMethods util = new UtilMethods();
 
-        [HttpPost]
+        /*[HttpPost]
         [Route("login")]
         public IHttpActionResult loginUser([FromBody] LoginDTO user)
         {
             return Ok(userService.loginService(user));
-        }
+        }*/
 
         [HttpPost]
         [Route("register")]
@@ -54,7 +54,7 @@ namespace CarBookingTest.Controllers
             return Ok(userService.getUsersService(page, limit));
         }
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("profile/{id}")]
         [JwtAuthorize]
         public IHttpActionResult getProfile(string id)
@@ -75,7 +75,7 @@ namespace CarBookingTest.Controllers
                 return Ok(userService.getProfileService(id));
             }
             return BadRequest();
-        }
+        }*/
 
         [HttpPost]
         [Route("logout")]

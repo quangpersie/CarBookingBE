@@ -1,10 +1,11 @@
-﻿using System;
+﻿using CarBookingBE.Models;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 
 namespace CarBookingTest.Models
 {
@@ -33,25 +34,29 @@ namespace CarBookingTest.Models
         public string PickLocation { get; set; }
         public string Destination { get; set; }
         public string Reason { get; set; }
-        public Guid? Share { get; set; }
+        /*public Guid? Share { get; set; }
         [ForeignKey("Share")]
-        public Account ShareUser { get; set; }
+        public Account ShareUser { get; set; }*/
         public string Note { get; set; }
         public bool? ApplyNote { get; set; }
 
         public string Status { get; set; }
+        [JsonIgnore]
         public bool IsDeleted { get; set; }
 
-        [JsonIgnore]
         [IgnoreDataMember]
         public virtual ICollection<RequestAttachment> RequestAttachments { get; set;}
 
-        [JsonIgnore]
         [IgnoreDataMember]
         public virtual ICollection<RequestComment> RequestComments { get; set;}
 
-        [JsonIgnore]
         [IgnoreDataMember]
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
+
+        [IgnoreDataMember]
+        public virtual ICollection<RequestShare> RequestShares { get; set; }
+
+        [IgnoreDataMember]
+        public virtual ICollection<VehicleRequest> VehicleRequests { get; set; }
     }
 }

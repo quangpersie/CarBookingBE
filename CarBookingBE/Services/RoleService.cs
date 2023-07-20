@@ -33,7 +33,7 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<Role> getRoleById(string id)
+        /*public Result<Role> getRoleById(string id)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<Role>(false, "Internal error !");
             }
-        }
+        }*/
 
         public Result<Role> addRole(Role role)
         {
@@ -84,7 +84,7 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<Role> editRole(string id, Role role)
+        /*public Result<Role> editRole(string id, Role role)
         {
             try
             {
@@ -107,9 +107,9 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<Role>(false, "Internal error !");
             }
-        }
+        }*/
 
-        public Result<Role> deleteRole(string id)
+        /*public Result<Role> deleteRole(string id)
         {
             try
             {
@@ -133,6 +133,6 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<Role>(false, "Internal error !");
             }
-        }
+        }*/
     }
 }

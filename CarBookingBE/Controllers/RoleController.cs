@@ -9,7 +9,7 @@ namespace CarBookingBE.Controllers
     {
         RoleService roleService = new RoleService();
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("all")]
         public IHttpActionResult getAllRole(int page, int limit)
         {
@@ -42,6 +42,6 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult deleteRole(string id)
         {
             return Ok(roleService.deleteRole(id));
-        }
+        }*/
     }
 }

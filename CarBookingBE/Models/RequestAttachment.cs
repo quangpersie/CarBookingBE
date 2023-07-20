@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace CarBookingTest.Models
         public Guid? RequestId { get; set; }
         [ForeignKey("RequestId")]
         public Request Request { get; set; }
+
+        [JsonIgnore]
         public bool IsDeleted { get; set; }
     }
 }

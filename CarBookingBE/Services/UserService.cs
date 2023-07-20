@@ -21,7 +21,7 @@ namespace CarBookingBE.Services
         TokenProps jwt = new TokenProps();
         UtilMethods util = new UtilMethods();
         string curUserId = "quang";
-        public Result<LoginReturnDTO> loginService(LoginDTO user)
+        /*public Result<LoginReturnDTO> loginService(LoginDTO user)
         {
             if(user == null || user.Username == null || user.Password == null)
             {
@@ -84,7 +84,7 @@ namespace CarBookingBE.Services
                     return new Result<LoginReturnDTO>(false, "Username or password is not correct !");
                 }
             }
-        }
+        }*/
         public Result<Account> registerService(HttpPostedFile file, Account user)
         {
             try

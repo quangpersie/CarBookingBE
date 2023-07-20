@@ -3,17 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Web;
 
-namespace CarBookingTest.Models
+namespace CarBookingBE.Models
 {
-    [Table("RoleOfAccount")]
-    public class Role
+    [Table("Rotation")]
+    public class Rotation
     {
         [Key]
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Type { get; set; }
+
         [JsonIgnore]
         public bool IsDeleted { get; set; }
-        public virtual ICollection<AccountRole> UserRoles { get; set; }
+        public virtual ICollection<VehicleRequest> VehicleRequests { get; set; }
     }
 }

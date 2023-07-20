@@ -82,6 +82,7 @@ namespace CarBookingBE.Services
                     Status = req.r.Status
                 });
 
+
 /*            if (queries.Count() == 0)
             {
                 return new Result<List<RequestDTO>>(false, "Get Requests Failed");
@@ -121,6 +122,40 @@ namespace CarBookingBE.Services
                                 Status = req.Status
                             }
                         );
+            return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
+        }
+
+        public Result<IQueryable<RequestDTO>> GetSharedWithMe(string userId, int page, int limit)
+        {
+            var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
+                .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
+                .Where(request => request.r.IsDeleted == false)
+                .Where(request => request.r.ReceiverId.ToString() == userId || request.rwf.UserId.ToString() == userId)
+                .Select(req => new RequestDTO()
+                {
+                    Id = req.r.Id,
+                    RequestCode = req.r.RequestCode,
+                    SenderUser = new AccountDTO()
+                    {
+                        Id = req.r.SenderUser.Id,
+                        FirstName = req.r.SenderUser.FirstName,
+                        LastName = req.r.SenderUser.LastName
+                    },
+                    Created = req.r.Created,
+                    Department = new DepartmentDTO()
+                    {
+                        Name = req.r.Department.Name
+                    },
+                    ReceiveUser = new AccountDTO()
+                    {
+                        Id = req.r.ReceiveUser.Id,
+                        FirstName = req.r.ReceiveUser.FirstName,
+                        LastName = req.r.ReceiveUser.LastName
+                    },
+                    UsageFrom = req.r.UsageFrom,
+                    UsageTo = req.r.UsageTo,
+                    Status = req.r.Status
+                });
             return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
         }
 
@@ -173,7 +208,6 @@ namespace CarBookingBE.Services
                     PickLocation = req.PickLocation,
                     Destination = req.Destination,
                     Reason = req.Reason,
-                    ShareUser = req.ShareUser,
                     Note = req.Note,
                     ApplyNote = req.ApplyNote
 
@@ -191,6 +225,14 @@ namespace CarBookingBE.Services
         {
             var requestId = Guid.Parse(id);
             var req = db.Requests.SingleOrDefault(r => r.Id == requestId);
+            if (requestEdit.Status != "Draft" || requestEdit.Status == null)
+            {
+                requestEdit.Status = "Waiting for approval";
+            }
+            else
+            {
+                requestEdit.Status = "Draft";
+            }
             if (req == null || req.IsDeleted == true)
             {
                 return new Result<Request>(false, "Request Not Found");
@@ -282,7 +324,6 @@ namespace CarBookingBE.Services
                 ReceiverId = request.ReceiverId,
                 DepartmentId = request.DepartmentId,
                 Created = request.Created,
-                Share = request.Share,
                 ApplyNote = request.ApplyNote,
                 Status = request.Status,
                 RequestAttachments = request.RequestAttachments,
@@ -305,12 +346,12 @@ namespace CarBookingBE.Services
             return new Result<Request>(true, "Delete Success Request has RequestCode = " + request.RequestCode);
         }
 
-        public Result<List<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestList, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public Result<PageDTO<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             
             if (requestCode != null)
             {
-                requestList = requestList.Where(req => req.RequestCode.Contains(requestCode));
+                requestQueries = requestQueries.Where(req => req.RequestCode.Contains(requestCode));
             }
 
             if (createdFrom != null && createdTo != null)
@@ -320,30 +361,40 @@ namespace CarBookingBE.Services
                 DateTime _createdToPlus = _createdTo.AddDays(1);
                 if (_createdFrom == _createdTo)
                 {
-                    requestList = requestList.Where(req => req.Created >= _createdFrom && req.Created < _createdToPlus);
+                    requestQueries = requestQueries.Where(req => req.Created >= _createdFrom && req.Created < _createdToPlus);
                 }
                 else
                 {
-                    requestList = requestList.Where(req => req.Created >= _createdFrom && req.Created <= _createdTo);
+                    requestQueries = requestQueries.Where(req => req.Created >= _createdFrom && req.Created <= _createdTo);
                 }
             }
             else if ((createdFrom != null && createdTo == null) || (createdFrom == null && createdTo != null))
             { 
-                return new Result<List<RequestDTO>>(false, "createdFrom and createdTo are required!");
+                return new Result<PageDTO<RequestDTO>>(false, "createdFrom and createdTo are required!");
             }
 
             if (senderId != null)
             {
-                requestList = requestList.Where(req => req.SenderUser.Id.ToString() == senderId);
+                requestQueries = requestQueries.Where(req => req.SenderUser.Id.ToString() == senderId);
             }
 
             if (status != null)
             {
-                requestList = requestList.Where(req => req.Status == status);
+                requestQueries = requestQueries.Where(req => req.Status == status);
             }
 
-            List<RequestDTO> result = requestList.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
-            return new Result<List<RequestDTO>>(true, "Filter Success", result);
+            var TotalPage = requestQueries.ToList().Count / limit;
+            var requestList = requestQueries.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
+
+            var Pagination = new PageDTO<RequestDTO>() {
+                Requests = requestList,
+                PerPage = limit,
+                CurrentPage = page,
+                TotalPage = TotalPage
+            };
+
+            PageDTO<RequestDTO> result = Pagination;
+            return new Result<PageDTO<RequestDTO>>(true, "Filter Success", result);
         }
 
         public Result<Request> ActionRequest(string Id, string Note,string UserId, string action)

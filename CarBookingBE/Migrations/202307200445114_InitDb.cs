@@ -1,9 +1,9 @@
-namespace CarBookingBE.Migrations
+﻿namespace CarBookingBE.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class initDB : DbMigration
+    public partial class InitDb : DbMigration
     {
         public override void Up()
         {
@@ -22,7 +22,7 @@ namespace CarBookingBE.Migrations
                 .PrimaryKey(t => t.Id);
             
             CreateTable(
-                "dbo.DepartmentMembers",
+                "dbo.DepartmentMember",
                 c => new
                     {
                         Id = c.Guid(nullable: false),
@@ -44,7 +44,7 @@ namespace CarBookingBE.Migrations
                         Id = c.Guid(nullable: false),
                         Username = c.String(maxLength: 50),
                         Password = c.String(),
-                        Email = c.String(),
+                        Email = c.String(maxLength: 50),
                         EmployeeNumber = c.String(maxLength: 30),
                         AvatarPath = c.String(),
                         FirstName = c.String(),
@@ -102,9 +102,11 @@ namespace CarBookingBE.Migrations
                         ProvinceR = c.String(),
                         PostalCodeR = c.String(),
                         CountryR = c.String(),
+                        Signature = c.String(),
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.Username, unique: true)
+                .Index(t => t.Email, unique: true)
                 .Index(t => t.EmployeeNumber, unique: true);
             
             CreateTable(
@@ -126,7 +128,6 @@ namespace CarBookingBE.Migrations
                         PickLocation = c.String(),
                         Destination = c.String(),
                         Reason = c.String(),
-                        Share = c.Guid(),
                         Note = c.String(),
                         ApplyNote = c.Boolean(),
                         Status = c.String(),
@@ -137,12 +138,10 @@ namespace CarBookingBE.Migrations
                 .ForeignKey("dbo.Department", t => t.DepartmentId)
                 .ForeignKey("dbo.Account", t => t.ReceiverId)
                 .ForeignKey("dbo.Account", t => t.SenderId)
-                .ForeignKey("dbo.Account", t => t.Share)
                 .ForeignKey("dbo.Account", t => t.Account_Id)
                 .Index(t => t.SenderId)
                 .Index(t => t.DepartmentId)
                 .Index(t => t.ReceiverId)
-                .Index(t => t.Share)
                 .Index(t => t.Account_Id);
             
             CreateTable(
@@ -176,21 +175,17 @@ namespace CarBookingBE.Migrations
                 .Index(t => t.RequestId);
             
             CreateTable(
-                "dbo.RequestWorkflow",
+                "dbo.RequestCommentAttachment",
                 c => new
                     {
                         Id = c.Guid(nullable: false),
-                        UserId = c.Guid(),
-                        Level = c.Int(nullable: false),
-                        Status = c.String(),
+                        Path = c.String(),
+                        RequestCommentId = c.Guid(),
                         IsDeleted = c.Boolean(nullable: false),
-                        RequestId = c.Guid(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Request", t => t.RequestId)
-                .ForeignKey("dbo.Account", t => t.UserId)
-                .Index(t => t.UserId)
-                .Index(t => t.RequestId);
+                .ForeignKey("dbo.RequestComment", t => t.RequestCommentId)
+                .Index(t => t.RequestCommentId);
             
             CreateTable(
                 "dbo.RequestShare",
@@ -208,25 +203,75 @@ namespace CarBookingBE.Migrations
                 .Index(t => t.RequestId);
             
             CreateTable(
+                "dbo.RequestWorkflow",
+                c => new
+                    {
+                        Id = c.Guid(nullable: false),
+                        UserId = c.Guid(),
+                        Level = c.Int(nullable: false),
+                        Status = c.String(),
+                        IsDeleted = c.Boolean(nullable: false),
+                        RequestId = c.Guid(),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Request", t => t.RequestId)
+                .ForeignKey("dbo.Account", t => t.UserId)
+                .Index(t => t.UserId)
+                .Index(t => t.RequestId);
+            
+            CreateTable(
+                "dbo.VehicleRequest",
+                c => new
+                    {
+                        Id = c.Guid(nullable: false),
+                        RequestId = c.Guid(),
+                        DriverId = c.Guid(),
+                        DriverMobile = c.String(),
+                        DriverCarplate = c.String(),
+                        RotaionId = c.Int(),
+                        Reason = c.String(),
+                        Note = c.String(),
+                        Type = c.Boolean(nullable: false),
+                        IsDeleted = c.Boolean(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Request", t => t.RequestId)
+                .ForeignKey("dbo.Rotation", t => t.RotaionId)
+                .ForeignKey("dbo.Account", t => t.DriverId)
+                .Index(t => t.RequestId)
+                .Index(t => t.DriverId)
+                .Index(t => t.RotaionId);
+            
+            CreateTable(
+                "dbo.Rotation",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        Type = c.String(),
+                        IsDeleted = c.Boolean(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
                 "dbo.AccountRole",
                 c => new
                     {
                         Id = c.Guid(nullable: false),
                         IsDeleted = c.Boolean(nullable: false),
                         UserId = c.Guid(),
-                        RoleId = c.Guid(),
+                        RoleId = c.Int(),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.Role", t => t.RoleId)
+                .ForeignKey("dbo.RoleOfAccount", t => t.RoleId)
                 .ForeignKey("dbo.Account", t => t.UserId)
                 .Index(t => t.UserId)
                 .Index(t => t.RoleId);
             
             CreateTable(
-                "dbo.Role",
+                "dbo.RoleOfAccount",
                 c => new
                     {
-                        Id = c.Guid(nullable: false),
+                        Id = c.Int(nullable: false, identity: true),
                         Title = c.String(),
                         IsDeleted = c.Boolean(nullable: false),
                     })
@@ -237,48 +282,58 @@ namespace CarBookingBE.Migrations
         public override void Down()
         {
             DropForeignKey("dbo.AccountRole", "UserId", "dbo.Account");
-            DropForeignKey("dbo.AccountRole", "RoleId", "dbo.Role");
-            DropForeignKey("dbo.RequestShare", "UserId", "dbo.Account");
-            DropForeignKey("dbo.RequestShare", "RequestId", "dbo.Request");
+            DropForeignKey("dbo.AccountRole", "RoleId", "dbo.RoleOfAccount");
             DropForeignKey("dbo.Request", "Account_Id", "dbo.Account");
-            DropForeignKey("dbo.Request", "Share", "dbo.Account");
+            DropForeignKey("dbo.VehicleRequest", "DriverId", "dbo.Account");
+            DropForeignKey("dbo.VehicleRequest", "RotaionId", "dbo.Rotation");
+            DropForeignKey("dbo.VehicleRequest", "RequestId", "dbo.Request");
             DropForeignKey("dbo.Request", "SenderId", "dbo.Account");
             DropForeignKey("dbo.RequestWorkflow", "UserId", "dbo.Account");
             DropForeignKey("dbo.RequestWorkflow", "RequestId", "dbo.Request");
+            DropForeignKey("dbo.RequestShare", "UserId", "dbo.Account");
+            DropForeignKey("dbo.RequestShare", "RequestId", "dbo.Request");
+            DropForeignKey("dbo.RequestCommentAttachment", "RequestCommentId", "dbo.RequestComment");
             DropForeignKey("dbo.RequestComment", "RequestId", "dbo.Request");
             DropForeignKey("dbo.RequestComment", "UserId", "dbo.Account");
             DropForeignKey("dbo.RequestAttachment", "RequestId", "dbo.Request");
             DropForeignKey("dbo.Request", "ReceiverId", "dbo.Account");
             DropForeignKey("dbo.Request", "DepartmentId", "dbo.Department");
-            DropForeignKey("dbo.DepartmentMembers", "UserId", "dbo.Account");
-            DropForeignKey("dbo.DepartmentMembers", "DepartmentId", "dbo.Department");
+            DropForeignKey("dbo.DepartmentMember", "UserId", "dbo.Account");
+            DropForeignKey("dbo.DepartmentMember", "DepartmentId", "dbo.Department");
             DropIndex("dbo.AccountRole", new[] { "RoleId" });
             DropIndex("dbo.AccountRole", new[] { "UserId" });
-            DropIndex("dbo.RequestShare", new[] { "RequestId" });
-            DropIndex("dbo.RequestShare", new[] { "UserId" });
+            DropIndex("dbo.VehicleRequest", new[] { "RotaionId" });
+            DropIndex("dbo.VehicleRequest", new[] { "DriverId" });
+            DropIndex("dbo.VehicleRequest", new[] { "RequestId" });
             DropIndex("dbo.RequestWorkflow", new[] { "RequestId" });
             DropIndex("dbo.RequestWorkflow", new[] { "UserId" });
+            DropIndex("dbo.RequestShare", new[] { "RequestId" });
+            DropIndex("dbo.RequestShare", new[] { "UserId" });
+            DropIndex("dbo.RequestCommentAttachment", new[] { "RequestCommentId" });
             DropIndex("dbo.RequestComment", new[] { "RequestId" });
             DropIndex("dbo.RequestComment", new[] { "UserId" });
             DropIndex("dbo.RequestAttachment", new[] { "RequestId" });
             DropIndex("dbo.Request", new[] { "Account_Id" });
-            DropIndex("dbo.Request", new[] { "Share" });
             DropIndex("dbo.Request", new[] { "ReceiverId" });
             DropIndex("dbo.Request", new[] { "DepartmentId" });
             DropIndex("dbo.Request", new[] { "SenderId" });
             DropIndex("dbo.Account", new[] { "EmployeeNumber" });
+            DropIndex("dbo.Account", new[] { "Email" });
             DropIndex("dbo.Account", new[] { "Username" });
-            DropIndex("dbo.DepartmentMembers", new[] { "DepartmentId" });
-            DropIndex("dbo.DepartmentMembers", new[] { "UserId" });
-            DropTable("dbo.Role");
+            DropIndex("dbo.DepartmentMember", new[] { "DepartmentId" });
+            DropIndex("dbo.DepartmentMember", new[] { "UserId" });
+            DropTable("dbo.RoleOfAccount");
             DropTable("dbo.AccountRole");
-            DropTable("dbo.RequestShare");
+            DropTable("dbo.Rotation");
+            DropTable("dbo.VehicleRequest");
             DropTable("dbo.RequestWorkflow");
+            DropTable("dbo.RequestShare");
+            DropTable("dbo.RequestCommentAttachment");
             DropTable("dbo.RequestComment");
             DropTable("dbo.RequestAttachment");
             DropTable("dbo.Request");
             DropTable("dbo.Account");
-            DropTable("dbo.DepartmentMembers");
+            DropTable("dbo.DepartmentMember");
             DropTable("dbo.Department");
         }
     }

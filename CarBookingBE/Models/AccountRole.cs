@@ -16,7 +16,7 @@ namespace CarBookingTest.Models
         public Guid? UserId { get; set; }
         [ForeignKey("UserId")]
         public Account User { get; set; }
-        public Guid? RoleId { get; set; }
+        public int? RoleId { get; set; }
         [ForeignKey("RoleId")]
         public Role Role { get; set; }
     }

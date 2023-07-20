@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarBookingBE.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -21,5 +22,9 @@ namespace CarBookingTest.Models
         public virtual DbSet<RequestAttachment> RequestAttachments { get; set; }
         public virtual DbSet<RequestComment> RequestComments { get; set; }
         public virtual DbSet<RequestWorkflow> RequestWorkflows { get; set; }
+        public virtual DbSet<RequestShare> RequestShares { get; set; }
+        public virtual DbSet<RequestCommentAttachment> RequestCommentAttachments { get; set; }
+        public virtual DbSet<Rotation> Rotations { get; set; }
+        public virtual DbSet<VehicleRequest> VehicleRequests { get; set; }
     }
 }

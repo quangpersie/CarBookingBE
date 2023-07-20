@@ -129,9 +129,9 @@ namespace CarBookingBE.Services
         public Result<IQueryable<RequestDTO>> GetSharedWithMe(string userId, int page, int limit)
         {
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
-                .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
+                .Join(db.RequestShares, r => r.Id, rs => rs.RequestId, (r, rs) => new { r, rs })
                 .Where(request => request.r.IsDeleted == false)
-                .Where(request => request.r.ReceiverId.ToString() == userId || request.rwf.UserId.ToString() == userId)
+                .Where(request => request.rs.UserId.ToString() == userId)
                 .Select(req => new RequestDTO()
                 {
                     Id = req.r.Id,
@@ -226,14 +226,18 @@ namespace CarBookingBE.Services
         {
             var requestId = Guid.Parse(id);
             var req = db.Requests.SingleOrDefault(r => r.Id == requestId);
-            if (requestEdit.Status != "Draft" || requestEdit.Status == null)
+            if (req.Status != "Rejected")
+            {
+                return new Result<Request>(false, "Request can't Edit because Status not Rejected");
+            }
+            /*if (requestEdit.Status != "Draft" || requestEdit.Status == null)
             {
                 requestEdit.Status = "Waiting for approval";
             }
             else
             {
                 requestEdit.Status = "Draft";
-            }
+            }*/
             if (req == null || req.IsDeleted == true)
             {
                 return new Result<Request>(false, "Request Not Found");
@@ -256,6 +260,7 @@ namespace CarBookingBE.Services
             if (requestEdit.Destination != null) req.Destination = requestEdit.Destination;
             if (requestEdit.Reason != null) req.Reason = requestEdit.Reason;
             if (requestEdit.ApplyNote != null) req.ApplyNote = requestEdit.ApplyNote;
+            req.Status = "Waiting for approval";
             req.Created = DateTime.Now;
             db.SaveChanges();
 
@@ -347,7 +352,7 @@ namespace CarBookingBE.Services
             return new Result<Request>(true, "Delete Success Request has RequestCode = " + request.RequestCode);
         }
 
-        public Result<PaginationDTO<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public Result<PaginationDTO<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             
             if (requestCode != null)
@@ -382,6 +387,11 @@ namespace CarBookingBE.Services
             if (status != null)
             {
                 requestQueries = requestQueries.Where(req => req.Status == status);
+            }
+
+            if (search != null)
+            {
+                requestQueries = requestQueries.Where(req => req.RequestCode.Contains(search) || req.Department.Name.Contains(search));
             }
 
             

@@ -15,7 +15,7 @@
         protected override void Seed(CarBookingTest.Models.MyDbContext context)
         {
             //  This method will be called after migrating to the latest version.
-            context.Roles.AddOrUpdate(
+            /*context.Roles.AddOrUpdate(
                 new CarBookingTest.Models.Role { Title = "ADMIN" },
                 new CarBookingTest.Models.Role { Title = "ADMINISTRATIVE" },
                 new CarBookingTest.Models.Role { Title = "APPROVER" },
@@ -41,7 +41,12 @@
                 new Models.Rotation { Type = "Weekend" },
                 new Models.Rotation { Type = "RnD" },
                 new Models.Rotation { Type = "Letter" }
-            );
+            );*/
+
+            context.RequestShares.AddOrUpdate(
+                new CarBookingTest.Models.RequestShare { RequestId = Guid.Parse("3e93a300-f948-4a1d-8012-174aaa6c664b"), UserId = Guid.Parse("7320218c-9894-4b6f-a8ff-754fc7de0445")},
+                new CarBookingTest.Models.RequestShare { RequestId = Guid.Parse("badb7cdd-fa31-4330-906a-251e650918db"), UserId = Guid.Parse("7320218c-9894-4b6f-a8ff-754fc7de0445")}
+                );
 
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method
             //  to avoid creating duplicate seed data.

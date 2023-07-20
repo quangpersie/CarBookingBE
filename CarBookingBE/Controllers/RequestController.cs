@@ -29,14 +29,14 @@ namespace CarBookingBE.Controllers
         // GET: api/Request
         [Route("get-all")]
         [HttpGet]
-        public IHttpActionResult GetRequests(string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetRequests(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetAllRequests(page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
             }
-            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+            return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         // GET: api/Request/5
@@ -56,41 +56,41 @@ namespace CarBookingBE.Controllers
         [Route("sent-to-me/userId={userId}")]
         [HttpGet]
 
-        public IHttpActionResult GetSentToMe(string userId, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetSentToMe(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetSentToMe(userId, page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
             }
-            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+            return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         // GET: Sent to others
         [Route("sent-to-others/userId={userId}")]
         [HttpGet]
 
-        public IHttpActionResult GetSentToOthers(string userId, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetSentToOthers(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetSentToOthers(userId, page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
             }
-            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+            return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         //GET: Shared with me Not completed ------------------------
         [Route("shared-with-me/userId={userId}")]
         [HttpGet]
-        public IHttpActionResult GetSharedWithMe(string userId, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetSharedWithMe(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetSharedWithMe(userId, page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
             }
-            return Ok(requestService.FilterRequest(requestList.Data, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+            return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         // PUT: api/Request/5

@@ -12,7 +12,7 @@ namespace CarBookingTest.Utils
         public string secretKey = "carbookinggnikoobraccarbookingteamtwoowtmaetfaskjdfsdfkjasdfkjsdkjfdkjajue";
         public string issuer = "carbookingissuer";
         public string audience = "carbookingaudience";
-        public int expirationMinutes = 5;
+        public int expirationMinutes = 60 * 24;
         public string tokenForLogout;
         public string GenerateJwtToken(string secretKey, string issuer, string audience, int expirationMinutes, Claim[] claims)
         {

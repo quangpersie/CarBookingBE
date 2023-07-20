@@ -46,25 +46,5 @@ namespace CarBookingBE.Controllers
         {
             return Ok(departmentService.deleteDepartment(id));
         }
-
-        [HttpGet]
-        [Route("excel")]
-        public IHttpActionResult writeExcel()
-        {
-            UtilMethods util = new UtilMethods();
-            if(util.writeToExcel())
-            {
-                return Ok(new Result<string>(true, "Success"));
-            }
-            return Ok(new Result<string>(false, "Failed"));
-        }
-
-        [HttpGet]
-        [Route("download")]
-        public HttpResponseMessage downloadFile()
-        {
-            UtilMethods util = new UtilMethods();
-            return util.downloadFile();
-        }
     }
 }

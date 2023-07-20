@@ -230,6 +230,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\DepartmentController.cs" />
     <Compile Include="Controllers\DepartmentMemberController.cs" />
+    <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RequestAttachmentController.cs" />
     <Compile Include="Controllers\RequestShareController.cs" />
@@ -251,6 +252,7 @@
     <Compile Include="Migrations\202307200852348_DBv2.designer.cs">
       <DependentUpon>202307200852348_DBv2.cs</DependentUpon>
     </Compile>
+    <Compile Include="Services\FileService.cs" />
     <Compile Include="Utils\Pagination.cs" />
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestCommentDTO.cs" />
@@ -258,7 +260,7 @@
     <Compile Include="DTOs\RequestDetailDTO.cs" />
     <Compile Include="DTOs\RequestWorkflowDTO.cs" />
     <Compile Include="DTOs\RoleDTO.cs" />
-    <Compile Include="DTOs\RoleNameDTO.cs" />
+    <Compile Include="Utils\RoleConstants.cs" />
     <Compile Include="DTOs\UserRolesDTO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

@@ -47,7 +47,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Department>(false, "Missing parameter(s) !");
                 }
-                var reusable = _db.Departments
+                /*var reusable = _db.Departments
                     .Where(d => d.IsDeleted == true && d.Name == department.Name && d.ContactInfo == department.ContactInfo &&
                     d.Code == department.Code && d.Description == department.Description)
                     .FirstOrDefault();
@@ -56,7 +56,7 @@ namespace CarBookingBE.Services
                     reusable.IsDeleted = false;
                     _db.SaveChanges();
                     return new Result<Department>(true, "Add role for user successfully !", reusable);
-                }
+                }*/
                 _db.Departments.Add(department);
                 _db.SaveChanges();
                 return new Result<Department>(true, "Add department succesfully !", department);
@@ -91,7 +91,7 @@ namespace CarBookingBE.Services
                 var dTarget = _db.Departments.Find(Guid.Parse(id));
                 if(dTarget == null || dTarget.IsDeleted == true)
                 {
-                    return new Result<Department>(false, "Department do not exist !");
+                    return new Result<Department>(false, "Department does not exist !");
                 }
                 if(dUpdate.Name != null) dTarget.Name = dUpdate.Name;
                 if(dUpdate.ContactInfo != null) dTarget.ContactInfo = dUpdate.ContactInfo;
@@ -114,7 +114,7 @@ namespace CarBookingBE.Services
                 var del = _db.Departments.Find(Guid.Parse(id));
                 if(del != null || del.IsDeleted == true)
                 {
-                    return new Result<Department>(false, "Department do not exist !");
+                    return new Result<Department>(false, "Department does not exist !");
                 }
                 var deleteDepartmentMember = _db.DepartmentsMembers.Where(d => d.IsDeleted == false && d.DepartmentId == del.Id).ToList();
                 foreach (var item in deleteDepartmentMember)

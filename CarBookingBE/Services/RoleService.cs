@@ -66,15 +66,16 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Role>(false, "Missing parameter !");
                 }
-                var reusable = _db.Roles.Where(r => r.IsDeleted == true && r.Title == role.Title).FirstOrDefault();
+                /*var reusable = _db.Roles.Where(r => r.IsDeleted == true && r.Title == role.Title).FirstOrDefault();
                 if (reusable != null)
                 {
                     reusable.IsDeleted = false;
                     _db.SaveChanges();
                     return new Result<Role>(true, "Add role for user successfully !", reusable);
-                }
+                }*/
 
-                var checkExist = _db.Roles.FirstOrDefault(r => r.Title == role.Title);
+                //check duplicate
+                var checkExist = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Title == role.Title);
                 if (checkExist == null)
                 {
                     _db.Roles.Add(role);
@@ -98,12 +99,19 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Role>(false, "Missing parameter !");
                 }
-                var eRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
-                if (eRole != null)
+
+                //check duplicate role title
+                var isExisted = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Title == role.Title);
+                if (isExisted != null)
                 {
-                    eRole.Title = role.Title;
-                    _db.SaveChanges();
-                    return new Result<Role>(true, "Edit role title successfully !", eRole);
+                    var eRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
+                    if (eRole != null)
+                    {
+                        eRole.Title = role.Title;
+                        _db.SaveChanges();
+                        return new Result<Role>(true, "Edit role title successfully !", eRole);
+                    }
+                    return new Result<Role>(false, "This title's already existed !");
                 }
                 return new Result<Role>(false, "Data does not exist");
             }

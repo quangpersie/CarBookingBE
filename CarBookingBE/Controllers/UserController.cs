@@ -4,9 +4,12 @@ using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity.Core.Objects;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
@@ -18,7 +21,9 @@ namespace CarBookingTest.Controllers
     public class UserController : ApiController
     {
         UserService userService = new UserService();
+        FileService fileService = new FileService();
         UtilMethods util = new UtilMethods();
+        RoleConstants roleConstants;
 
         [HttpPost]
         [Route("login")]
@@ -29,26 +34,35 @@ namespace CarBookingTest.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IHttpActionResult registerUser()
+        [JwtAuthorize]
+        public HttpResponseMessage registerUser()
         {
+            roleConstants = new RoleConstants(true, false, false, false, false);
+            var isAuthorized = util.isAuthorized(roleConstants.Roles);
+            if (!isAuthorized.Success)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
+            }
+            var curId = isAuthorized.Data;
             var httpRequest = HttpContext.Current.Request;
             Account user = new Account();
-            user.Username = httpRequest.Form["Username"];
+            user.Email = httpRequest.Form["Email"];
             user.Password = httpRequest.Form["Password"];
             user.FirstName = httpRequest.Form["FirstName"];
             user.LastName = httpRequest.Form["LastName"];
-            user.Email = httpRequest.Form["Email"];
             user.Sex = bool.Parse(httpRequest.Form["Sex"]);
             user.EmployeeNumber = httpRequest.Form["EmployeeNumber"];
+            string roleId = httpRequest.Form["Role"];
             if (httpRequest.Files.Count == 1)
             {
-                return Ok(userService.registerService(httpRequest.Files[0], user));
+                return Request.CreateResponse(HttpStatusCode.OK, userService.registerService(curId, httpRequest.Files[0], user, roleId));
             }
-            return Ok(userService.registerService(null, user));
+            return Request.CreateResponse(HttpStatusCode.OK, userService.registerService(curId, null, user, roleId));
         }
 
         [HttpGet]
         [Route("all")]
+        [JwtAuthorize]
         public IHttpActionResult getAllUser(int page, int limit)
         {
             return Ok(userService.getUsersService(page, limit));
@@ -57,55 +71,66 @@ namespace CarBookingTest.Controllers
         [HttpGet]
         [Route("profile/{id}")]
         [JwtAuthorize]
-        public IHttpActionResult getProfile(string id)
+        public HttpResponseMessage getProfile(string id)
         {
-            var curIdObj = util.getCurId();
-            var curId = new Guid();
-            if (curIdObj.Success)
+            var requireRoles = new RoleConstants(true, false, false, false, false);
+            var isAuthorized = util.isAuthorized(requireRoles.Roles);
+            var curId = isAuthorized.Success ? isAuthorized.Data : new Guid();
+            // users can view profile of themselves
+            if (curId == Guid.Parse(id) || isAuthorized.Success)
             {
-                curId = curIdObj.Data;
+                return Request.CreateResponse(HttpStatusCode.OK, userService.getProfileService(id));
             }
-            if (curId == Guid.Parse(id))
-            {
-                return Ok(userService.getProfileService(id));
-            }
-            var requireRoles = new RoleNameDTO("ADMIN", "", "", "", "");
-            if (util.isAuthorized(requireRoles.Roles))
-            {
-                return Ok(userService.getProfileService(id));
-            }
-            return BadRequest();
+            return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
         }
 
-        [HttpPost]
+        /*[HttpPost]
         [Route("logout")]
+        [JwtAuthorize]
         public IHttpActionResult logoutUser([FromBody] TokenProps jwtToken)
         {
             //var token = jwt.UpdateTokenExpiration(jwtToken.tokenForLogout, jwt.secretKey, 0);
             return Ok(new { Success = true, Message = "Logout successfully !" });
-        }
+        }*/
 
         [HttpPut]
-        [Route("edit/{id}")]
-        public IHttpActionResult editProfile(string id)
+        [Route("edit/{idEdit}")]
+        [JwtAuthorize]
+        public HttpResponseMessage editProfile(string idEdit)
         {
-            var httpRequest = HttpContext.Current.Request;
-            var formData = httpRequest.Form;
-            if (httpRequest.Files.Count == 1)
+            var requireRoles = new RoleConstants(true, false, false, false, false);
+            var isAuthorized = util.isAuthorized(requireRoles.Roles);
+            var curId = isAuthorized.Success ? isAuthorized.Data : new Guid();
+
+            // users can edit profile of themselves or admin
+            if (curId == Guid.Parse(idEdit) || isAuthorized.Success)
             {
-                return Ok(userService.editProfileService(httpRequest.Files[0], id, formData));
+                var httpRequest = HttpContext.Current.Request;
+                var formData = httpRequest.Form;
+                if (httpRequest.Files.Count == 1)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, userService.editProfileService(curId, httpRequest.Files[0], idEdit, formData));
+                }
+                return Request.CreateResponse(HttpStatusCode.OK, userService.editProfileService(curId, null, idEdit, formData));
             }
-            return Ok(userService.editProfileService(null, id, formData));
+            return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
         }
 
         [HttpPost]
         [Route("testUpload")]
         public IHttpActionResult testUpload()
         {
-            var httpRequest = HttpContext.Current.Request;
-            if(httpRequest.Files.Count == 1)
+            var requireRoles = new RoleConstants(true, false, false, false, false);
+            var isAuthorized = util.isAuthorized(requireRoles.Roles);
+            if(!isAuthorized.Success)
             {
-                return Ok(userService.uploadAvatar(httpRequest.Files[0]));
+                return Unauthorized();
+            }
+            var curId = isAuthorized.Data;
+            var httpRequest = HttpContext.Current.Request;
+            if (httpRequest.Files.Count == 1)
+            {
+                return Ok(fileService.uploadAvatar(curId, httpRequest.Files[0]));
             }
             return BadRequest();
         }

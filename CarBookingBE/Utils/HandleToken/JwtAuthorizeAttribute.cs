@@ -51,7 +51,7 @@ namespace CarBookingTest.Utils
         protected override void HandleUnauthorizedRequest(HttpActionContext actionContext)
         {
             // Custom unauthorized response message
-            var unauthorizedMessage = "Unauthorized request !";
+            var unauthorizedMessage = "Login required !";
 
             // Set the response with the unauthorized message and status code
             actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, unauthorizedMessage);

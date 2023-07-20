@@ -11,6 +11,8 @@ namespace CarBookingTest.Models
     {
         [Key]
         public int Id { get; set; }
+        /*[Index(IsUnique = true)]
+        [MaxLength(30)]*/
         public string Title { get; set; }
         [JsonIgnore]
         public bool IsDeleted { get; set; }

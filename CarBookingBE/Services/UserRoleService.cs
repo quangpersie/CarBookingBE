@@ -84,14 +84,15 @@ namespace CarBookingBE.Services
                 var role = _db.Roles.Find(rId);
                 if (user != null && role != null)
                 {
-                    var reusable = _db.UserRoles.Where(r => r.IsDeleted == true && r.UserId == uId && r.RoleId == rId).FirstOrDefault();
+                    /*var reusable = _db.UserRoles.Where(r => r.IsDeleted == true && r.UserId == uId && r.RoleId == rId).FirstOrDefault();
                     if(reusable != null)
                     {
                         reusable.IsDeleted = false;
                         _db.SaveChanges();
                         return new Result<AccountRole>(true, "Add role for user successfully !", reusable);
-                    }
+                    }*/
 
+                    //check duplicate
                     var isExist = _db.UserRoles.Where(r => r.IsDeleted == false && r.UserId == uId && r.RoleId == rId).FirstOrDefault();
                     if (isExist == null)
                     {

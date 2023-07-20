@@ -346,7 +346,7 @@ namespace CarBookingBE.Services
             return new Result<Request>(true, "Delete Success Request has RequestCode = " + request.RequestCode);
         }
 
-        public Result<PageDTO<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public Result<PaginationDTO<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             
             if (requestCode != null)
@@ -370,7 +370,7 @@ namespace CarBookingBE.Services
             }
             else if ((createdFrom != null && createdTo == null) || (createdFrom == null && createdTo != null))
             { 
-                return new Result<PageDTO<RequestDTO>>(false, "createdFrom and createdTo are required!");
+                return new Result<PaginationDTO<RequestDTO>>(false, "createdFrom and createdTo are required!");
             }
 
             if (senderId != null)
@@ -386,15 +386,15 @@ namespace CarBookingBE.Services
             var TotalPage = requestQueries.ToList().Count / limit;
             var requestList = requestQueries.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
 
-            var Pagination = new PageDTO<RequestDTO>() {
-                Requests = requestList,
+            var Pagination = new PaginationDTO<RequestDTO>() {
+                ListData = requestList,
                 PerPage = limit,
                 CurrentPage = page,
                 TotalPage = TotalPage
             };
 
-            PageDTO<RequestDTO> result = Pagination;
-            return new Result<PageDTO<RequestDTO>>(true, "Filter Success", result);
+            PaginationDTO<RequestDTO> result = Pagination;
+            return new Result<PaginationDTO<RequestDTO>>(true, "Filter Success", result);
         }
 
         public Result<Request> ActionRequest(string Id, string Note,string UserId, string action)

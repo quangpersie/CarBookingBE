@@ -32,13 +32,13 @@ namespace CarBookingBE.Controllers
                 return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
             }
             var curId = isAuthorized.Data;
-            return Request.CreateResponse(HttpStatusCode.OK, fileService.writeToExcel(curId));
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.writeToExcelAndDownload(curId));
         }
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("download")]
         [JwtAuthorize]
-        public HttpResponseMessage downloadFile()
+        public HttpResponseMessage downloadFileExcel()
         {
             roleConstants = new RoleConstants(true, true, true, true, true);
             var isAuthorized = util.isAuthorized(roleConstants.Roles);
@@ -47,7 +47,7 @@ namespace CarBookingBE.Controllers
                 return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
             }
             //var curId = isAuthorized.Data;
-            return fileService.downloadFile();
-        }
+            return fileService.downloadFileExcel();
+        }*/
     }
 }

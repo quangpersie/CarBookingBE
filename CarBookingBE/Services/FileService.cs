@@ -51,7 +51,7 @@ namespace CarBookingBE.Services
                 return new Result<string>(false, "Internal error !");
             }
         }
-        public Result<bool> writeToExcel(Guid curId)
+        public Result<bool> writeToExcelAndDownload(Guid curId)
         {
             try
             {

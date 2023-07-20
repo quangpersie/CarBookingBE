@@ -21,17 +21,17 @@ namespace CarBookingBE.Services
         TokenProps jwt = new TokenProps();
         UtilMethods util = new UtilMethods();
         string curUserId = "quang";
-        /*public Result<LoginReturnDTO> loginService(LoginDTO user)
+        public Result<LoginReturnDTO> loginService(LoginDTO user)
         {
-            if(user == null || user.Username == null || user.Password == null)
+            if (user == null || user.Username == null || user.Password == null)
             {
                 return new Result<LoginReturnDTO>(false, "Missing required parameter !");
             }
-            else if(user.Username.Trim().Length == 0)
+            else if (user.Username.Trim().Length == 0)
             {
                 return new Result<LoginReturnDTO>(false, "Username is required !");
             }
-            else if(user.Password.Trim().Length == 0)
+            else if (user.Password.Trim().Length == 0)
             {
                 return new Result<LoginReturnDTO>(false, "Password is required !");
             }
@@ -51,7 +51,7 @@ namespace CarBookingBE.Services
                     })
                     .FirstOrDefault();
                 //var validUser = _db.Users.FirstOrDefault(u => u.Username == user.Username && u.Password == hash);
-                if(userInfo != null)
+                if (userInfo != null)
                 {
                     string secretKey = jwt.secretKey;
                     string issuer = jwt.issuer;
@@ -84,7 +84,7 @@ namespace CarBookingBE.Services
                     return new Result<LoginReturnDTO>(false, "Username or password is not correct !");
                 }
             }
-        }*/
+        }
         public Result<Account> registerService(HttpPostedFile file, Account user)
         {
             try

@@ -16,11 +16,11 @@
         {
             //  This method will be called after migrating to the latest version.
             context.Roles.AddOrUpdate(
-                new CarBookingTest.Models.Role { Title = "EMPLOYEE" },
-                new CarBookingTest.Models.Role { Title = "APPROVER" },
+                new CarBookingTest.Models.Role { Title = "ADMIN" },
                 new CarBookingTest.Models.Role { Title = "ADMINISTRATIVE" },
-                new CarBookingTest.Models.Role { Title = "SECURITY" },
-                new CarBookingTest.Models.Role { Title = "ADMIN" }
+                new CarBookingTest.Models.Role { Title = "APPROVER" },
+                new CarBookingTest.Models.Role { Title = "EMPLOYEE" },
+                new CarBookingTest.Models.Role { Title = "SECURITY" }
             );
 
             context.Departments.AddOrUpdate(

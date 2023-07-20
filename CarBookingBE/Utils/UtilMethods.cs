@@ -47,12 +47,12 @@ namespace CarBookingBE.Utils
                 return new Result<Guid>(false, "Internal error !");
             }
         }
-        /*public bool isAuthorized(List<string> requiredRoles)
+        public bool isAuthorized(List<string> requiredRoles)
         {
             try
             {
                 var curIdObj = getCurId();
-                if(curIdObj.Success == false)
+                if (curIdObj.Success == false)
                 {
                     return false;
                 }
@@ -72,9 +72,9 @@ namespace CarBookingBE.Utils
                 Trace.WriteLine(e.Message);
                 return false;
             }
-        }*/
+        }
 
-        /*public Result<List<string>> userRoles(Guid curId)
+        public Result<List<string>> userRoles(Guid curId)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace CarBookingBE.Utils
                 Trace.WriteLine(e.Message);
                 return new Result<List<string>>(false, "Internal error !");
             }
-        }*/
+        }
 
         public bool writeToExcel()
         {
@@ -167,29 +167,35 @@ namespace CarBookingBE.Utils
                 {
                     // tao row mới
                     var newRow = sheet.CreateRow(rowIndex);
+                    var vehicleRequest = _db.VehicleRequests.Where(v => v.IsDeleted == false && v.RequestId == item.Id).FirstOrDefault();
+
+                    if (vehicleRequest == null)
+                    {
+                        return false;
+                    }
 
                     // set giá trị
                     newRow.CreateCell(0).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.Created));
                     newRow.CreateCell(1).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.Created));
-                    newRow.CreateCell(2).SetCellValue("");
-                    newRow.CreateCell(3).SetCellValue("");
-                    newRow.CreateCell(3).SetCellValue(item.RequestCode);
-                    newRow.CreateCell(4).SetCellValue(item.Status);
-                    newRow.CreateCell(5).SetCellValue("item.vehicleType");
-                    newRow.CreateCell(6).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.UsageFrom));
-                    newRow.CreateCell(7).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.UsageTo));
-                    newRow.CreateCell(8).SetCellValue(string.Format("{0:HH:mm}", item.UsageFrom));
-                    newRow.CreateCell(9).SetCellValue(string.Format("{0:HH:mm}", item.UsageTo));
-                    newRow.CreateCell(10).SetCellValue(item.SenderUser.FirstName + " " + item.SenderUser.LastName);
-                    newRow.CreateCell(11).SetCellValue(item.SenderUser.Function);
-                    newRow.CreateCell(12).SetCellValue(item.CostCenter);
-                    newRow.CreateCell(13).SetCellValue(item.Mobile);
-                    newRow.CreateCell(14).SetCellValue(item.PickLocation);
-                    newRow.CreateCell(15).SetCellValue(item.Destination);
-                    newRow.CreateCell(16).SetCellValue("item.Driver");
-                    newRow.CreateCell(17).SetCellValue(item.Mobile);
-                    newRow.CreateCell(18).SetCellValue("item.carPlate");
-                    newRow.CreateCell(19).SetCellValue(item.Note);
+                    newRow.CreateCell(2).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.PickTime));
+                    newRow.CreateCell(3).SetCellValue(string.Format("{0:HH:mm}", item.PickTime));
+                    newRow.CreateCell(4).SetCellValue(item.RequestCode);
+                    newRow.CreateCell(5).SetCellValue(item.Status);
+                    newRow.CreateCell(6).SetCellValue("item.vehicleType");
+                    newRow.CreateCell(7).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.UsageFrom));
+                    newRow.CreateCell(8).SetCellValue(string.Format("{0:dd-MM-yyyy}", item.UsageTo));
+                    newRow.CreateCell(9).SetCellValue(string.Format("{0:HH:mm}", item.UsageFrom));
+                    newRow.CreateCell(10).SetCellValue(string.Format("{0:HH:mm}", item.UsageTo));
+                    newRow.CreateCell(11).SetCellValue(item.SenderUser.FirstName + " " + item.SenderUser.LastName);
+                    newRow.CreateCell(12).SetCellValue(item.SenderUser.Function);
+                    newRow.CreateCell(13).SetCellValue(item.CostCenter);
+                    newRow.CreateCell(14).SetCellValue(item.Mobile);
+                    newRow.CreateCell(15).SetCellValue(item.PickLocation);
+                    newRow.CreateCell(16).SetCellValue(item.Destination);
+                    newRow.CreateCell(17).SetCellValue(vehicleRequest.User.FirstName + " " + vehicleRequest.User.LastName);
+                    newRow.CreateCell(18).SetCellValue(item.Mobile);
+                    newRow.CreateCell(19).SetCellValue(vehicleRequest.DriverCarplate);
+                    newRow.CreateCell(20).SetCellValue(item.Note);
 
                     // tăng index
                     rowIndex++;

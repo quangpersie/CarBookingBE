@@ -14,6 +14,7 @@ namespace CarBookingTest.Models
         public string Title { get; set; }
         [JsonIgnore]
         public bool IsDeleted { get; set; }
+        [JsonIgnore]
         public virtual ICollection<AccountRole> UserRoles { get; set; }
     }
 }

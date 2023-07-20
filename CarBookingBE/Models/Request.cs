@@ -14,6 +14,8 @@ namespace CarBookingTest.Models
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+        [Index(IsUnique = true)]
+        [MaxLength(50)]
         public string RequestCode { get; set; }
         public Guid? SenderId { get; set; }
         [ForeignKey("SenderId")]

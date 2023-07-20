@@ -1,6 +1,7 @@
 ﻿using CarBookingBE.DTOs;
 using CarBookingBE.Utils;
 using CarBookingTest.Models;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -12,7 +13,7 @@ namespace CarBookingBE.Services
     public class DepartmentMemberService
     {
         MyDbContext _db = new MyDbContext();
-        public Result<List<DepartmentMemberDTO>> getAll(int page, int limit)
+        public Result<Pagination<DepartmentMemberDTO>> getAll(int page, int limit)
         {
             try
             {
@@ -43,23 +44,30 @@ namespace CarBookingBE.Services
                     .ToList();
                 if (!dmsList.Any())
                 {
-                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data !");
+                    return new Result<Pagination<DepartmentMemberDTO>>(false, "There's no data !", new Pagination<DepartmentMemberDTO>());
                 }
-                return new Result<List<DepartmentMemberDTO>>(true, "Get all data successfully !", dmsList);
+                var dPagination = new Pagination<DepartmentMemberDTO>
+                {
+                    PerPage = limit,
+                    CurrentPage = page,
+                    TotalPage = (dmsList.Count + limit - 1) / limit,
+                    ListData = dmsList
+                };
+                return new Result<Pagination<DepartmentMemberDTO>>(true, "Get all data successfully !", dPagination);
             }
             catch(Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !");
+                return new Result<Pagination<DepartmentMemberDTO>>(false, "Internal error !");
             }
         }
         public Result<List<DepartmentMemberDTO>> getByDepartmentId(string departmentId)
         {
             try
             {
-                if(departmentId == null)
+                if (departmentId == null)
                 {
-                    return new Result<List<DepartmentMemberDTO>>(false, "Missing id of department !");
+                    return new Result<List<DepartmentMemberDTO>>(false, "Missing id of department !", new List<DepartmentMemberDTO>());
                 }
                 var dId = Guid.Parse(departmentId);
                 var pList = _db.DepartmentsMembers
@@ -89,14 +97,14 @@ namespace CarBookingBE.Services
 
                 if (!pList.Any())
                 {
-                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data with this department !");
+                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data with this department !", new List<DepartmentMemberDTO>());
                 }
                 return new Result<List<DepartmentMemberDTO>>(true, $"Get all data in the department successfully)", pList);
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !");
+                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !", new List<DepartmentMemberDTO>());
             }
         }
         public Result<List<DepartmentMemberDTO>> getByPositionWithDeparmentId(string departmentId, string position)
@@ -105,11 +113,11 @@ namespace CarBookingBE.Services
             {
                 if (departmentId == null)
                 {
-                    return new Result<List<DepartmentMemberDTO>>(false, "Missing id of department !");
+                    return new Result<List<DepartmentMemberDTO>>(false, "Missing id of department !", new List<DepartmentMemberDTO>());
                 }
                 else if(position == null)
                 {
-                    return new Result<List<DepartmentMemberDTO>>(false, "Missing position field !");
+                    return new Result<List<DepartmentMemberDTO>>(false, "Missing position field !", new List<DepartmentMemberDTO>());
                 }
                 var dId = Guid.Parse(departmentId);
                 var pList = _db.DepartmentsMembers
@@ -139,14 +147,14 @@ namespace CarBookingBE.Services
 
                 if (!pList.Any())
                 {
-                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data with this position !");
+                    return new Result<List<DepartmentMemberDTO>>(false, "There's no data with this position !", new List<DepartmentMemberDTO>());
                 }
                 return new Result<List<DepartmentMemberDTO>>(true, $"Get all data in the department successfully (position = {position.ToLower()})", pList);
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !");
+                return new Result<List<DepartmentMemberDTO>>(false, "Internal error !", new List<DepartmentMemberDTO>());
             }
         }
         public Result<DepartmentMember> addDepartmentMember(DepartmentMember newDM)

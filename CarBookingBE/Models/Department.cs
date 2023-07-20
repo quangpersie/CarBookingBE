@@ -15,12 +15,16 @@ namespace CarBookingTest.Models
         [Required]
         public string Name { get; set; }
         public string ContactInfo { get; set; }
+        [Index(IsUnique = true)]
+        [MaxLength(20)]
         public string Code { get; set; }
         public Guid? UnderDepartment { get; set; }
         public string Description { get; set; }
         [JsonIgnore]
         public bool IsDeleted { get; set; }
+        [JsonIgnore]
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Request> Requests { get; set; }
 
         public static implicit operator Department(DepartmentDTO v)

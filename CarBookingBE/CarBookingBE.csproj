@@ -247,7 +247,11 @@
     <Compile Include="DTOs\LoginDTO.cs" />
     <Compile Include="DTOs\LoginReturnDTO.cs" />
     <Compile Include="DTOs\NewRequestDTO.cs" />
-    <Compile Include="DTOs\PaginationDTO.cs" />
+    <Compile Include="Migrations\202307200852348_DBv2.cs" />
+    <Compile Include="Migrations\202307200852348_DBv2.designer.cs">
+      <DependentUpon>202307200852348_DBv2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utils\Pagination.cs" />
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestCommentDTO.cs" />
     <Compile Include="DTOs\RequestDTO.cs" />
@@ -441,6 +445,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202307200445114_InitDb.resx">
       <DependentUpon>202307200445114_InitDb.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202307200852348_DBv2.resx">
+      <DependentUpon>202307200852348_DBv2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

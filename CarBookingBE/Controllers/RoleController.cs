@@ -9,7 +9,7 @@ namespace CarBookingBE.Controllers
     {
         RoleService roleService = new RoleService();
 
-        /*[HttpGet]
+        [HttpGet]
         [Route("all")]
         public IHttpActionResult getAllRole(int page, int limit)
         {
@@ -18,7 +18,7 @@ namespace CarBookingBE.Controllers
 
         [HttpGet]
         [Route("find/{id}")]
-        public IHttpActionResult getRoleById(string id)
+        public IHttpActionResult getRoleById(int id)
         {
             return Ok(roleService.getRoleById(id));
         }
@@ -32,16 +32,16 @@ namespace CarBookingBE.Controllers
 
         [HttpPut]
         [Route("edit/{id}")]
-        public IHttpActionResult editRole(string id, [FromBody] Role role)
+        public IHttpActionResult editRole(int id, [FromBody] Role role)
         {
             return Ok(roleService.editRole(id, role));
         }
 
         [HttpDelete]
         [Route("delete/{id}")]
-        public IHttpActionResult deleteRole(string id)
+        public IHttpActionResult deleteRole(int id)
         {
             return Ok(roleService.deleteRole(id));
-        }*/
+        }
     }
 }

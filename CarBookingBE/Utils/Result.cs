@@ -7,7 +7,6 @@ namespace CarBookingBE.Utils
 {
     public class Result<T>
     {
-        public Result() { }
         public Result(bool Success, string Message)
         {
             this.Success = Success;

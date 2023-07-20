@@ -352,7 +352,7 @@ namespace CarBookingBE.Services
             return new Result<Request>(true, "Delete Success Request has RequestCode = " + request.RequestCode);
         }
 
-        public Result<PaginationDTO<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public Result<Pagination<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             
             if (requestCode != null)
@@ -376,7 +376,7 @@ namespace CarBookingBE.Services
             }
             else if ((createdFrom != null && createdTo == null) || (createdFrom == null && createdTo != null))
             { 
-                return new Result<PaginationDTO<RequestDTO>>(false, "createdFrom and createdTo are required!");
+                return new Result<Pagination<RequestDTO>>(false, "createdFrom and createdTo are required!");
             }
 
             if (senderId != null)
@@ -398,15 +398,15 @@ namespace CarBookingBE.Services
             var totalPage = (requestQueries.ToList().Count + limit - 1) / limit;
 
             var requestList = requestQueries.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
-            var Pagination = new PaginationDTO<RequestDTO>() {
+            var Pagination = new Pagination<RequestDTO>() {
                 ListData = requestList,
                 PerPage = limit,
                 CurrentPage = page,
                 TotalPage = totalPage
             };
 
-            PaginationDTO<RequestDTO> result = Pagination;
-            return new Result<PaginationDTO<RequestDTO>>(true, "Filter Success", result);
+            Pagination<RequestDTO> result = Pagination;
+            return new Result<Pagination<RequestDTO>>(true, "Filter Success", result);
         }
 
         public Result<Request> ActionRequest(string Id, string Note,string UserId, string action)

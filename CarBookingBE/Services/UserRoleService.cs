@@ -1,7 +1,9 @@
-﻿using CarBookingBE.Utils;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 
@@ -11,11 +13,13 @@ namespace CarBookingBE.Services
     {
         MyDbContext _db = new MyDbContext();
 
-        public Result<List<AccountRole>> getAllUserRole(int page, int limit)
+        public Result<Pagination<AccountRole>> getAllUserRole(int page, int limit)
         {
             try
             {
                 var urList = _db.UserRoles
+                .Include(ur => ur.User)
+                .Include(ur => ur.Role)
                 .Where(r => r.IsDeleted == false)
                 .OrderByDescending(r => r.Id)
                 .Skip((page - 1) * limit)
@@ -23,14 +27,21 @@ namespace CarBookingBE.Services
                 .ToList();
                 if (urList.Any())
                 {
-                    return new Result<List<AccountRole>>(true, "Get all roles successfully !", urList);
+                    var userRolePagination = new Pagination<AccountRole>
+                    {
+                        PerPage = limit,
+                        CurrentPage = page,
+                        TotalPage = (urList.Count + limit - 1) / limit,
+                        ListData = urList
+                    };
+                    return new Result<Pagination<AccountRole>>(true, "Get all roles successfully !", userRolePagination);
                 }
-                return new Result<List<AccountRole>>(false, "There's no data !");
+                return new Result<Pagination<AccountRole>>(false, "There's no data !");
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<AccountRole>>(false, "Internal error !");
+                return new Result<Pagination<AccountRole>>(false, "Internal error !");
             }
         }
 
@@ -43,7 +54,10 @@ namespace CarBookingBE.Services
                     return new Result<AccountRole>(false, "Missing or Invalid id field !");
                 }
                 var arId = accRole.Id;
-                var existedUR = _db.UserRoles.FirstOrDefault(ur => ur.IsDeleted == false && ur.Id == arId);
+                var existedUR = _db.UserRoles
+                    .Include(r => r.User)
+                    .Include(r => r.Role)
+                    .FirstOrDefault(ur => ur.IsDeleted == false && ur.Id == arId);
                 if (existedUR != null)
                 {
                     return new Result<AccountRole>(true, "Get data by id successfully !", existedUR);

@@ -5,39 +5,45 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Data;
+using CarBookingBE.DTOs;
 
 namespace CarBookingBE.Services
 {
     public class RoleService
     {
         MyDbContext _db = new MyDbContext();
-        public Result<List<Role>> getAllRole(int page, int limit)
+        public Result<Pagination<Role>> getAllRole(int page, int limit)
         {
             try
             {
                 var rList = _db.Roles.Where(r => r.IsDeleted == false)
-                .OrderByDescending(r => r.Id)
+                .OrderBy(r => r.Id)
                 .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
                 if (rList.Any())
                 {
-                    return new Result<List<Role>>(true, "Get all roles successfully !", rList);
+                    var rolePagination = new Pagination<Role> {
+                        PerPage = limit,
+                        CurrentPage = page,
+                        TotalPage = (rList.Count + limit - 1) / limit,
+                        ListData = rList
+                    };
+                    return new Result<Pagination<Role>>(true, "Get all roles successfully !", rolePagination);
                 }
-                return new Result<List<Role>>(false, "There's no data !");
+                return new Result<Pagination<Role>>(false, "There's no data !");
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<Role>>(false, "Internal error !");
+                return new Result<Pagination<Role>>(false, "Internal error !");
             }
         }
 
-        /*public Result<Role> getRoleById(string id)
+        public Result<Role> getRoleById(int rId)
         {
             try
             {
-                var rId = Guid.Parse(id);
                 var gRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
                 if (gRole != null)
                 {
@@ -50,7 +56,7 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<Role>(false, "Internal error !");
             }
-        }*/
+        }
 
         public Result<Role> addRole(Role role)
         {
@@ -84,7 +90,7 @@ namespace CarBookingBE.Services
             }
         }
 
-        /*public Result<Role> editRole(string id, Role role)
+        public Result<Role> editRole(int rId, Role role)
         {
             try
             {
@@ -92,9 +98,8 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Role>(false, "Missing parameter !");
                 }
-                var rId = Guid.Parse(id);
                 var eRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
-                if(eRole != null)
+                if (eRole != null)
                 {
                     eRole.Title = role.Title;
                     _db.SaveChanges();
@@ -107,13 +112,12 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<Role>(false, "Internal error !");
             }
-        }*/
+        }
 
-        /*public Result<Role> deleteRole(string id)
+        public Result<Role> deleteRole(int rId)
         {
             try
             {
-                var rId = Guid.Parse(id);
                 var dRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
                 if (dRole != null)
                 {
@@ -133,6 +137,6 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<Role>(false, "Internal error !");
             }
-        }*/
+        }
     }
 }

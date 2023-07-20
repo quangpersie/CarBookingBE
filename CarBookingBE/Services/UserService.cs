@@ -171,7 +171,7 @@ namespace CarBookingBE.Services
                 return new Result<Account>(false, "Internal error !");
             }
         }
-        public Result<List<Account>> getUsersService(int page, int limit)
+        public Result<Pagination<Account>> getUsersService(int page, int limit)
         {
             try
             {
@@ -180,16 +180,23 @@ namespace CarBookingBE.Services
                 .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
+
+                var usersPagination = new Pagination<Account> { 
+                    PerPage = limit,
+                    CurrentPage = page,
+                    TotalPage = (users.Count + limit - 1) / limit,
+                    ListData = users
+                };
                 if(users == null)
                 {
-                    return new Result<List<Account>>(true, "There's no data !", new List<Account>());
+                    return new Result<Pagination<Account>>(true, "There's no data !", new Pagination<Account>());
                 }
-                return new Result<List<Account>>(true, "Get all users successfully !", users);
+                return new Result<Pagination<Account>>(true, "Get all users successfully !", usersPagination);
             }
             catch(Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<List<Account>>(false, "Internal error !");
+                return new Result<Pagination<Account>>(false, "Internal error !");
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using CarBookingBE.Utils;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace CarBookingBE.Services
     public class DepartmentService
     {
         MyDbContext _db = new MyDbContext();
-        public Result<List<Department>> getAll(int page, int limit)
+        public Result<Pagination<Department>> getAll(int page, int limit)
         {
             try
             {
@@ -21,14 +22,21 @@ namespace CarBookingBE.Services
                 .ToList();
                 if(!departments.Any())
                 {
-                    return new Result<List<Department>>(false, "There's no data !");
+                    return new Result<Pagination<Department>>(false, "There's no data !");
                 }
-                return new Result<List<Department>>(true, "Get all departments successfully !", departments);
+                var dPagination = new Pagination<Department>
+                {
+                    PerPage = limit,
+                    CurrentPage = page,
+                    TotalPage = (departments.Count + limit - 1) / limit,
+                    ListData = departments
+                };
+                return new Result<Pagination<Department>>(true, "Get all departments successfully !", dPagination);
             }
             catch(Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return new Result<List<Department>>(false, "Internal error !");
+                return new Result<Pagination<Department>>(false, "Internal error !");
             }
         }
         public Result<Department> addDepartment(Department department)

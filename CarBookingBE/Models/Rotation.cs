@@ -17,6 +17,7 @@ namespace CarBookingBE.Models
 
         [JsonIgnore]
         public bool IsDeleted { get; set; }
+        [JsonIgnore]
         public virtual ICollection<VehicleRequest> VehicleRequests { get; set; }
     }
 }

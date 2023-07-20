@@ -92,11 +92,17 @@ namespace CarBookingTest.Models
         public string CountryR { get; set; }
 
         public string Signature { get; set; }
+        [JsonIgnore]
         public virtual ICollection<AccountRole> UserRoles { get; set; }
+        [JsonIgnore]
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Request> Requests { get; set; }
+        [JsonIgnore]
         public virtual ICollection<RequestShare> RequestShares { get; set; }
+        [JsonIgnore]
         public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
+        [JsonIgnore]
         public virtual ICollection<VehicleRequest> VehicleRequests { get; set; }
 
         public static implicit operator Account(AccountDTO v)

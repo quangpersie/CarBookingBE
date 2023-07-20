@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Entity;
 using CarBookingBE.Utils;
 using System.Globalization;
+using CarBookingTest.Utils;
 
 namespace CarBookingBE.Services
 {
@@ -383,14 +384,15 @@ namespace CarBookingBE.Services
                 requestQueries = requestQueries.Where(req => req.Status == status);
             }
 
-            var TotalPage = requestQueries.ToList().Count / limit;
-            var requestList = requestQueries.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
+            
+            var totalPage = (requestQueries.ToList().Count + limit - 1) / limit;
 
+            var requestList = requestQueries.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
             var Pagination = new PaginationDTO<RequestDTO>() {
                 ListData = requestList,
                 PerPage = limit,
                 CurrentPage = page,
-                TotalPage = TotalPage
+                TotalPage = totalPage
             };
 
             PaginationDTO<RequestDTO> result = Pagination;

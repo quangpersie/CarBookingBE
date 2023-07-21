@@ -5,6 +5,7 @@ using CarBookingTest.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -222,8 +223,10 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var user = _db.Users.Find(Guid.Parse(id));
-                if (user == null || user.IsDeleted == true)
+                var userId = Guid.Parse(id);
+                var user = _db.Users.Include(u => u.UserRoles)
+                    .FirstOrDefault(u => u.IsDeleted == false && u.Id == userId);
+                if (user == null)
                 {
                     return new Result<Account>(false, "User does not exist");
                 }

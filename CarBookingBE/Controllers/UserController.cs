@@ -75,7 +75,7 @@ namespace CarBookingTest.Controllers
         {
             var requireRoles = new RoleConstants(true, false, false, false, false);
             var isAuthorized = util.isAuthorized(requireRoles.Roles);
-            var curId = isAuthorized.Success ? isAuthorized.Data : new Guid();
+            var curId = isAuthorized.Data != null ? isAuthorized.Data : new Guid();
             // users can view profile of themselves
             if (curId == Guid.Parse(id) || isAuthorized.Success)
             {
@@ -100,7 +100,7 @@ namespace CarBookingTest.Controllers
         {
             var requireRoles = new RoleConstants(true, false, false, false, false);
             var isAuthorized = util.isAuthorized(requireRoles.Roles);
-            var curId = isAuthorized.Success ? isAuthorized.Data : new Guid();
+            var curId = isAuthorized.Data != null ? isAuthorized.Data : new Guid();
 
             // users can edit profile of themselves or admin
             if (curId == Guid.Parse(idEdit) || isAuthorized.Success)

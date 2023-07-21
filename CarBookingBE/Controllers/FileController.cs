@@ -21,7 +21,7 @@ namespace CarBookingBE.Controllers
         UtilMethods util = new UtilMethods();
 
         [HttpGet]
-        [Route("excel-request")]
+        [Route("cd-xlxs-request")]
         [JwtAuthorize]
         public HttpResponseMessage writeExcel()
         {
@@ -33,6 +33,14 @@ namespace CarBookingBE.Controllers
             }
             var curId = isAuthorized.Data;
             return Request.CreateResponse(HttpStatusCode.OK, fileService.writeToExcelAndDownload(curId));
+        }
+
+        [HttpGet]
+        [Route("c-png-qrcode")]
+        public HttpResponseMessage createQRCode()
+        {
+            string link = "http://localhost:3000";
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.createQRCode(link));
         }
 
         /*[HttpGet]

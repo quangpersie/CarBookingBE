@@ -92,7 +92,7 @@ namespace CarBookingTest.Models
         public string CountryR { get; set; }
 
         public string Signature { get; set; }
-        [JsonIgnore]
+        //[JsonIgnore]
         public virtual ICollection<AccountRole> UserRoles { get; set; }
         [JsonIgnore]
         public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }

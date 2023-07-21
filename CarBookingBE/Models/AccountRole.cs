@@ -15,9 +15,11 @@ namespace CarBookingTest.Models
         public bool IsDeleted { get; set; }
         public Guid? UserId { get; set; }
         [ForeignKey("UserId")]
+        [JsonIgnore]
         public Account User { get; set; }
         public int? RoleId { get; set; }
         [ForeignKey("RoleId")]
+        [JsonIgnore]
         public Role Role { get; set; }
     }
 }

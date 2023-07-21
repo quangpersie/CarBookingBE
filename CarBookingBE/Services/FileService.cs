@@ -12,6 +12,8 @@ using System.Net.Http;
 using System.Net;
 using System.Web;
 using CarBookingTest.Models;
+using QRCoder;
+using System.Drawing;
 
 namespace CarBookingBE.Services
 {
@@ -188,6 +190,28 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
+        }
+
+        public Result<string> createQRCode(string link)
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(link, QRCodeGenerator.ECCLevel.Q);
+
+            // Create the QR code
+            QRCode qrCode = new QRCode(qrCodeData);
+
+            // Convert the QR code to a bitmap image
+            Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+            string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/QRCode"));
+            if (!Directory.Exists(pathToSave))
+            {
+                Directory.CreateDirectory(pathToSave);
+            }
+            // Save the QR code image to a local file
+            string imagePath = $"{pathToSave}/qrcode.png";
+            qrCodeImage.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
+            return new Result<string>(false, "QR code image saved to: " + imagePath);
         }
     }
 }

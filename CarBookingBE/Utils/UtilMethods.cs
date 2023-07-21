@@ -60,7 +60,7 @@ namespace CarBookingBE.Utils
                 var userRoleList = userRoles(curId);
                 if (userRoleList.Success == false)
                 {
-                    return new Result<Guid>(false, "Get list roles of current user failed !");
+                    return new Result<Guid>(false, "Get list roles of current user failed !", curId);
                 }
                 if (userRoleList.Data.Any())
                 {
@@ -72,7 +72,7 @@ namespace CarBookingBE.Utils
                         }
                     }
                 }
-                return new Result<Guid>(false, "User does not have required role !");
+                return new Result<Guid>(false, "User does not have required role !", curId);
             }
             catch (Exception e)
             {

@@ -17,42 +17,66 @@ namespace CarBookingBE.Services
     {
         private MyDbContext db = new MyDbContext();
 
+        UtilMethods utilMethods = new UtilMethods();
 
-        public Result<IQueryable<RequestDTO>> GetAllRequests(int page, int limit)
+
+        public Result<IQueryable<RequestDTO>> GetAllRequests(string userId, int page, int limit)
         {
             var queries = db.Requests.Include(r => r.SenderUser).Include(receiver => receiver.ReceiveUser)
-                .Where(request => request.IsDeleted == false)
-                .Select(req => new RequestDTO()
-                 {
-                     Id = req.Id,
-                     RequestCode = req.RequestCode,
-                     SenderUser = new AccountDTO()
-                     {
-                         Id = req.SenderUser.Id,
-                         FirstName = req.SenderUser.FirstName,
-                         LastName = req.SenderUser.LastName
-                     },
-                     Created = req.Created,
-                     Department = new DepartmentDTO()
-                     {
-                         Name = req.Department.Name
-                     },
-                     ReceiveUser = new AccountDTO()
-                     {
-                         Id = req.ReceiveUser.Id,
-                         FirstName = req.ReceiveUser.FirstName,
-                         LastName = req.ReceiveUser.LastName
-                     },
-                     UsageFrom = req.UsageFrom,
-                     UsageTo = req.UsageTo,
-                     Status = req.Status
+                        .Where(request => request.IsDeleted == false)
+                        .Select(req => new RequestDTO()
+                        {
+                            Id = req.Id,
+                            RequestCode = req.RequestCode,
+                            SenderUser = new AccountDTO()
+                            {
+                                Id = req.SenderUser.Id,
+                                FirstName = req.SenderUser.FirstName,
+                                LastName = req.SenderUser.LastName
+                            },
+                            Created = req.Created,
+                            Department = new DepartmentDTO()
+                            {
+                                Name = req.Department.Name
+                            },
+                            ReceiveUser = new AccountDTO()
+                            {
+                                Id = req.ReceiveUser.Id,
+                                FirstName = req.ReceiveUser.FirstName,
+                                LastName = req.ReceiveUser.LastName
+                            },
+                            UsageFrom = req.UsageFrom,
+                            UsageTo = req.UsageTo,
+                            Status = req.Status
 
-                 });
+                        });
+            var requireRoles = new RoleConstants(true, true, false, false, false);
+            var isAuthorized = utilMethods.isAuthorized(requireRoles.Roles);
+            var userLoginId = isAuthorized.Data;
+            if (!userLoginId.Equals(Guid.Parse(userId)))
+            {
+                return new Result<IQueryable<RequestDTO>>(false, "User Not Match");
+            }
+
+            if (isAuthorized.Success)
+            {
+                return new Result<IQueryable<RequestDTO>>(true, "Get Success", queries);
+            }
+            else
+            {
+                queries = queries.Where(request => request.SenderUser.Id.ToString() == userId || request.ReceiveUser.Id.ToString() == userId);
+            }
+            
             return new Result<IQueryable<RequestDTO>>(true, "Get Success", queries);
         }
 
         public Result<IQueryable<RequestDTO>> GetSentToMe(string userId, int page, int limit)
         {
+            var userLoginId = utilMethods.getCurId();
+            if (userLoginId.Data != Guid.Parse(userId))
+            {
+                return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
+            }
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
                 .Where(request => request.r.IsDeleted == false)
@@ -93,6 +117,11 @@ namespace CarBookingBE.Services
 
         public Result<IQueryable<RequestDTO>> GetSentToOthers(string userId, int page, int limit)
         {
+            var userLoginId = utilMethods.getCurId();
+            if (!userLoginId.Data.Equals(Guid.Parse(userId)))
+            {
+                return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
+            }
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                         .Where(request => request.IsDeleted == false)
                         .Where(request => request.SenderId.ToString() == userId)
@@ -128,6 +157,11 @@ namespace CarBookingBE.Services
 
         public Result<IQueryable<RequestDTO>> GetSharedWithMe(string userId, int page, int limit)
         {
+            var userLoginId = utilMethods.getCurId();
+            if (!userLoginId.Data.Equals(Guid.Parse(userId)))
+            {
+                return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
+            }
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Join(db.RequestShares, r => r.Id, rs => rs.RequestId, (r, rs) => new { r, rs })
                 .Where(request => request.r.IsDeleted == false)
@@ -228,7 +262,7 @@ namespace CarBookingBE.Services
             var req = db.Requests.SingleOrDefault(r => r.Id == requestId);
             if (req.Status != "Rejected")
             {
-                return new Result<Request>(false, "Request can't Edit because Status not Rejected");
+                return new Result<Request>(false, "Request can't Edit");
             }
             /*if (requestEdit.Status != "Draft" || requestEdit.Status == null)
             {
@@ -409,29 +443,79 @@ namespace CarBookingBE.Services
             return new Result<Pagination<RequestDTO>>(true, "Filter Success", result);
         }
 
-        public Result<Request> ActionRequest(string Id, string Note,string UserId, string action)
+        public Result<Request> ActionRequest(string Id, string Note,string userId, string action)
         {
-            var request = db.Requests.SingleOrDefault(r => r.Id.ToString() == Id && r.IsDeleted == false);
+            var listOfActions = new List<string>() { "Approved", "Rejected", "Canceled"};
 
+            if (!listOfActions.Contains(action))
+            {
+                return new Result<Request>(false, "Invalid Action Request!");
+            }
+
+            var request = db.Requests.SingleOrDefault(r => r.Id.ToString() == Id && r.IsDeleted == false);
             if (request == null)
             {
                 return new Result<Request>(false, "Request Not Found");
             }
+
+            if (request.Status != "Approved" && action == "Canceled")
+            {
+                return new Result<Request>(false, "Request Status: Approved is required for this action");
+            }
+
+            var userLoginId = utilMethods.getCurId();
+            if (!userLoginId.Equals(Guid.Parse(userId)))
+            {
+                return new Result<Request>(false, "ERROR: User not match");
+            }
+            var userRolesLogin = utilMethods.userRoles(Guid.Parse(userId));
+
+            if (request.Status == "Approved" && action == "Canceled")
+            {
+
+                if (userRolesLogin.Data.Contains("ADMIN") || userRolesLogin.Data.Contains("ADMINISTRATIVE"))
+                {
+                        request.Status = action;
+                        db.SaveChanges();
+                        return new Result<Request>(true, request.Status + " Request Success");
+                }
+                else
+                {
+                    return new Result<Request>(false, "Permission Failed!");
+                }
+            }
+
             if (request.Status != "Waiting for approval")
             {
                 return new Result<Request>(false, "Request Status: " + request.Status + " is required");
             }
-            /*if (request.Status == "Rejected" && action == "Draft")
-            {
-                return new Result<Request>(false, "Request is " + request.Status);
-            }*/
-            if (Note != null)
-            {
-                request.Note = Note;
-            }
 
-            request.Status = action;
-            db.SaveChanges();
+            if (userRolesLogin.Data.Contains("APPROVER"))
+            {
+                RequestWorkflow requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.UserId.ToString() == userId && rw.RequestId.ToString() == Id);
+                if (requestWorkflow == null)
+                {
+                    return new Result<Request>(false, "This User doesn't is approver for this Request");
+                }
+
+
+                /*if (request.Status == "Rejected" && action == "Draft")
+                {
+                    return new Result<Request>(false, "Request is " + request.Status);
+                }*/
+                if (Note != null)
+                {
+                    request.Note = Note;
+                }
+                request.Status = action;
+                db.SaveChanges();
+            } else
+            {
+                return new Result<Request>(false, "Permission Failed!");
+            }
+            
+
+            
 
             return new Result<Request>(true,request.Status + " Request Success");
         }

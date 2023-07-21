@@ -10,6 +10,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using CarBookingBE.Services;
 using CarBookingTest.Models;
+using CarBookingTest.Utils;
 
 namespace CarBookingBE.Controllers
 {
@@ -20,6 +21,7 @@ namespace CarBookingBE.Controllers
 
         [Route("requestId={requestId}")]
         [HttpGet]
+        [JwtAuthorize]
         public IHttpActionResult GetRequestWorkflowByRequestId (string requestId)
         {
             var requestWorkflows = requestWorkflowService.GetRequestWorkflowByRequestId(requestId);

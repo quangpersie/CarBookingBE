@@ -1,4 +1,5 @@
 ﻿using CarBookingBE.DTOs;
+using CarBookingBE.Models;
 using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using System;
@@ -40,50 +41,65 @@ namespace CarBookingBE.Services
             return new Result<List<RequestCommentDTO>>(true, "Get Success", requestComments);
         }
 
-        public Result<RequestComment> CreateComment (HttpPostedFile file, RequestComment requestComment, string requestId)
+        public Result<RequestComment> CreateComment (RequestComment requestComment, string requestId)
         {
             Request request = db.Requests.SingleOrDefault(r => r.Id.ToString() == requestId && r.IsDeleted == false);
             if (request == null)
             {
                 return new Result<RequestComment>(false, "Request Not Exist");
             }
-            if (file == null)
-            {
-                db.RequestComments.Add(requestComment);
-                db.SaveChanges();
-            }
-            /*if (file != null)
-            {
 
-                RequestAttachment requestAttachment = new RequestAttachment();
-                requestAttachment.IsDeleted = false;
-                requestAttachment.RequestId = Guid.Parse(requestId);
-                var rs = uploadFile(file, request.RequestCode, requestId);
+            db.RequestComments.Add(requestComment);
+            db.SaveChanges();
+
+            return new Result<RequestComment>(true, "Create Comment Success");
+        }
+
+        public Result<RequestCommentAttachment> CreateCommentAttachment(HttpPostedFile file, RequestComment requestComment, string userLoginId)
+        {
+            Request request = db.Requests.SingleOrDefault(r => r.Id == requestComment.RequestId && r.IsDeleted == false);
+            if (request == null)
+            {
+                return new Result<RequestCommentAttachment>(false, "Request Not Exist");
+            }
+            /*if (files.Length == 0)
+            {
+                return new Result<List<RequestAttachment>>(false, "Attachment is required");
+            }
+            foreach (HttpPostedFileBase file in files)*/
+            if (file != null)
+            {
+                List<RequestCommentAttachment> requestCommentAttachments = new List<RequestCommentAttachment>();
+                RequestCommentAttachment requestCommentAttachment = new RequestCommentAttachment();
+                requestCommentAttachment.IsDeleted = false;
+                requestCommentAttachment.RequestCommentId = requestComment.Id;
+                var rs = uploadFile(file, request.RequestCode, userLoginId);
                 if (!rs.Success)
                 {
-                    return new Result<RequestAttachment>(false, rs.Message);
+                    return new Result<RequestCommentAttachment>(false, rs.Message);
                 }
-                requestAttachment.Path = rs.Data;
-                db.RequestAttachments.Add(requestAttachment);
+                requestCommentAttachment.Path = rs.Data;
+                db.RequestCommentAttachments.Add(requestCommentAttachment);
+                requestCommentAttachments.Add(requestCommentAttachment);
                 db.SaveChanges();
-            }*/
+            }
 
-            return new Result<RequestComment>(true, "Create Success");
+            return new Result<RequestCommentAttachment>(true, "Create Comment Attachments Success");
         }
 
 
         //-----------------Function----------------------------
-        protected Result<string> uploadFile(HttpPostedFile postedFile, string requestCode, string requestId)
+        protected Result<string> uploadFile(HttpPostedFile postedFile, string requestCode, string userLoginId)
         {
-            string newPath = "Files/Comments/" + requestCode + "/" + postedFile.FileName;
-            List<RequestAttachment> requestAttachments = db.RequestAttachments.ToList();
-            foreach (RequestAttachment req in requestAttachments)
+            /*string newPath = "Files/Comments/" + requestCode + "/" + userLoginId + "/" + postedFile.FileName;
+            List<RequestCommentAttachment> requestCommentAttachments = db.RequestCommentAttachments.ToList();
+            foreach (RequestCommentAttachment req in requestCommentAttachments)
             {
                 if (req.Path == newPath && req.RequestId.ToString() == requestId)
                 {
                     return new Result<string>(false, "File: " + postedFile.FileName + " is exist in this Request");
                 }
-            }
+            }*/
             string[] acceptExtensionImg = { ".png", ".jpg", ".jpeg", ".pdf", ".csv", ".doc", ".docx", ".pptx", ".ppt", ".txt", "xls", "xlsx" };
             if (postedFile == null || postedFile.FileName.Length == 0)
             {
@@ -97,7 +113,7 @@ namespace CarBookingBE.Services
             {
                 return new Result<string>(false, "The maximum size of file is 20MB !");
             }
-            string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Comments"), requestCode);
+            string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Comments"), requestCode + "/" + userLoginId);
             if (!Directory.Exists(pathToSave))
             {
                 Directory.CreateDirectory(pathToSave);

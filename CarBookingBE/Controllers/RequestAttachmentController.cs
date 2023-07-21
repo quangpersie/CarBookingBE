@@ -11,6 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using CarBookingBE.Services;
 using CarBookingTest.Models;
+using CarBookingTest.Utils;
 
 namespace CarBookingBE.Controllers
 {
@@ -21,6 +22,7 @@ namespace CarBookingBE.Controllers
 
         [Route("get-all")]
         [HttpGet]
+        [JwtAuthorize]
         public IHttpActionResult GetAllRequestAttachment()
         {
             return Ok();
@@ -28,6 +30,7 @@ namespace CarBookingBE.Controllers
 
         [Route("requestId={requestId}")]
         [HttpGet]
+        [JwtAuthorize]
         public IHttpActionResult GetAttachmentsByRequestId(string requestId)
         {
             return Ok(requestAttachmentService.GetAttachmentByRequestId(requestId));

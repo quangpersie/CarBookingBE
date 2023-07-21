@@ -15,6 +15,7 @@ using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using Newtonsoft.Json;
 using CarBookingBE.Services;
+using CarBookingTest.Utils;
 
 namespace CarBookingBE.Controllers
 {
@@ -27,11 +28,12 @@ namespace CarBookingBE.Controllers
 
 
         // GET: api/Request
-        [Route("get-all")]
+        [Route("get-all/userId={userId}")]
         [HttpGet]
-        public IHttpActionResult GetRequests(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        [JwtAuthorize]
+        public IHttpActionResult GetRequests(string userId,string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetAllRequests(page, limit);
+            var requestList = requestService.GetAllRequests(userId,page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -42,6 +44,7 @@ namespace CarBookingBE.Controllers
         // GET: api/Request/5
         [Route("Id={id}")]
         [HttpGet]
+        [JwtAuthorize]
         public IHttpActionResult GetRequest(string id)
         {
             var request = requestService.GetRequestById(id);
@@ -55,7 +58,7 @@ namespace CarBookingBE.Controllers
         // GET: Sent to me
         [Route("sent-to-me/userId={userId}")]
         [HttpGet]
-
+        [JwtAuthorize]
         public IHttpActionResult GetSentToMe(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetSentToMe(userId, page, limit);
@@ -69,7 +72,7 @@ namespace CarBookingBE.Controllers
         // GET: Sent to others
         [Route("sent-to-others/userId={userId}")]
         [HttpGet]
-
+        [JwtAuthorize]
         public IHttpActionResult GetSentToOthers(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetSentToOthers(userId, page, limit);
@@ -83,6 +86,7 @@ namespace CarBookingBE.Controllers
         //GET: Shared with me Not completed ------------------------
         [Route("shared-with-me/userId={userId}")]
         [HttpGet]
+        [JwtAuthorize]
         public IHttpActionResult GetSharedWithMe(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
             var requestList = requestService.GetSharedWithMe(userId, page, limit);
@@ -96,6 +100,7 @@ namespace CarBookingBE.Controllers
         // PUT: api/Request/5
         [Route("Id={id}")]
         [HttpPut]
+        [JwtAuthorize]
         public IHttpActionResult EditRequest(string id)
         {
             var httpRequest = HttpContext.Current.Request;
@@ -155,17 +160,10 @@ namespace CarBookingBE.Controllers
             return Ok(requestEdit);
         }
 
-        /*// POST: api/Request
-        [Route("create")]
-        [HttpPost]
-        public IHttpActionResult CreateRequest(Request request)
-        {
-            return Ok(requestService.CreateRequest(request));
-        }*/
-
         // DELETE: api/Request/5
         [Route("{id}")]
         [HttpDelete]
+        [JwtAuthorize]
         public IHttpActionResult DeleteRequest(string id)
         {
             Guid requestId = Guid.Parse(id);
@@ -177,6 +175,7 @@ namespace CarBookingBE.Controllers
 
         [Route("create")]
         [HttpPost]
+        [JwtAuthorize]
         public IHttpActionResult CreateRequest()
         {
             var httpRequest = HttpContext.Current.Request;
@@ -245,6 +244,7 @@ namespace CarBookingBE.Controllers
 
         [Route("action/Id={Id}")]
         [HttpPut]
+        [JwtAuthorize]
         public IHttpActionResult ActionRequest(string Id)
         {
             var httpRequest = HttpContext.Current.Request;

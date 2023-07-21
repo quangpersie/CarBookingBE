@@ -10,7 +10,9 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using CarBookingBE.Services;
+using CarBookingBE.Utils;
 using CarBookingTest.Models;
+using CarBookingTest.Utils;
 
 namespace CarBookingBE.Controllers
 {
@@ -18,9 +20,11 @@ namespace CarBookingBE.Controllers
     public class RequestCommentController : ApiController
     {
         RequestCommentService requestCommentService = new RequestCommentService();
+        UtilMethods utilMethods = new UtilMethods();
 
         [Route("comment/requestId={requestId}")]
         [HttpGet]
+        [JwtAuthorize]
         public IHttpActionResult GetAllCommentByRequestId (string requestId)
         {
             var requestComments = requestCommentService.GetAllCommentByRequestId(requestId);
@@ -33,35 +37,36 @@ namespace CarBookingBE.Controllers
 
         [Route("comment/requestId={requestId}/create")]
         [HttpPost]
+        [JwtAuthorize]
         public IHttpActionResult CreateComment (string requestId)
         {
+            var userLoginId = utilMethods.getCurId();
             var httpRequest = HttpContext.Current.Request;
             RequestComment requestComment = new RequestComment();
-            requestComment.UserId = Guid.Parse(httpRequest.Form["UserId"]);
+            requestComment.UserId = userLoginId.Data;
             requestComment.Content = httpRequest.Form["Content"];
             requestComment.Created = DateTime.Now;
-            requestComment.RequestId = Guid.Parse(httpRequest.Form["requestId"]);
+            requestComment.RequestId = Guid.Parse(requestId);
             requestComment.IsDeleted = false;
+
+            var comments = requestCommentService.CreateComment(requestComment, requestId);
+            if (!comments.Success)
+            {
+                return BadRequest(comments.Message);
+            }
 
             if (httpRequest.Files.Count > 0)
             {
                 for (int i = 0; i < httpRequest.Files.Count; i++)
                 {
-                    var comments = requestCommentService.CreateComment(httpRequest.Files[i], requestComment, requestId);
-                    if (!comments.Success)
+                    var commentAttachments = requestCommentService.CreateCommentAttachment(httpRequest.Files[i], requestComment, userLoginId.Data.ToString());
+                    if (!commentAttachments.Success)
                     {
-                        return BadRequest(comments.Message);
-                    } 
+                        return BadRequest(commentAttachments.Message);
+                    }
                 }
             }
-            else
-            {
-                var comments = requestCommentService.CreateComment(null, requestComment, requestId);
-                if (!comments.Success)
-                {
-                    return BadRequest(comments.Message);
-                }
-            }
+
 
             return Ok("Create Comment Success");
         }

@@ -41,10 +41,27 @@ namespace CarBookingBE.Services
             List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
             foreach (var userId in listOfUserId)
             {
-                RequestWorkflow requestWorkflow = new RequestWorkflow();
-                requestWorkflow.UserId = Guid.Parse(userId.ToString());
-                requestWorkflow.RequestId = requestId;
-                requestWorkflows.Add(requestWorkflow);
+                var userRoles = db.UserRoles.Where(ur => ur.IsDeleted == false && ur.UserId.ToString() == userId).ToList();
+                var roles = new List<string>();
+                foreach (AccountRole accountRole in userRoles)
+                {
+                    var role = db.Roles.SingleOrDefault(r => r.Id == accountRole.RoleId);
+                    roles.Add(role.Title);
+                }
+                foreach (string checkRole in roles)
+                {
+                    if (checkRole == "ADMIN" || checkRole == "ADMINISTRATIVE" || checkRole == "APPROVER")
+                    {
+                        RequestWorkflow requestWorkflow = new RequestWorkflow();
+                        requestWorkflow.UserId = Guid.Parse(userId.ToString());
+                        requestWorkflow.RequestId = requestId;
+                        requestWorkflows.Add(requestWorkflow);
+                    } else
+                    {
+                        return new Result<List<RequestWorkflow>>(false, "User Permission Failed");
+                    }
+                }
+                
             }
             int level = 1;
             if (requestWorkflows.Count == 0)

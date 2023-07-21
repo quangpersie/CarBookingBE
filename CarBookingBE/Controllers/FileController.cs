@@ -43,6 +43,13 @@ namespace CarBookingBE.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, fileService.createQRCode(link));
         }
 
+        [HttpGet]
+        [Route("pdf-request")]
+        public HttpResponseMessage createPdfRequest()
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.writeRequestToPdf());
+        }
+
         /*[HttpGet]
         [Route("download")]
         [JwtAuthorize]

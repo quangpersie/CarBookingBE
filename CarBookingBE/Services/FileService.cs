@@ -3,7 +3,6 @@ using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,6 +13,7 @@ using System.Web;
 using CarBookingTest.Models;
 using QRCoder;
 using System.Drawing;
+using IronPdf;
 
 namespace CarBookingBE.Services
 {
@@ -212,6 +212,219 @@ namespace CarBookingBE.Services
             string imagePath = $"{pathToSave}/qrcode.png";
             qrCodeImage.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
             return new Result<string>(false, "QR code image saved to: " + imagePath);
+        }
+
+        public Result<string> writeRequestToPdf()
+        {
+            try
+            {
+                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Pdf"));
+                string pdfFilePath = Path.Combine(pathToSave, "test.pdf");
+                string htmlFilePath = Path.Combine(pathToSave, "minify.html");
+
+                var result = createHtmlFromRequest(new Request(), htmlFilePath);
+                if (!result) return new Result<string>(false, "Html content error !");
+                //string htmlContent = File.ReadAllText(htmlFilePath);
+
+                // Create a PDF renderer
+                var renderer = new ChromePdfRenderer();
+
+                // Convert the HTML file to PDF
+                var pdfDocument = renderer.RenderHtmlFileAsPdf(htmlFilePath);
+
+                // Save the PDF to a file
+                pdfDocument.SaveAs(pdfFilePath);
+
+                return new Result<string>(true, "write pdf ok !", pdfFilePath);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "write pdf fail !");
+            }
+        }
+
+        public bool createHtmlFromRequest(Request request, string htmlFilePath)
+        {
+            try
+            {
+                string htmlContent = @"
+                <!DOCTYPE html>
+                <html lang=""en"">
+                <style>.title{font-weight:700}.title-cbr{font-weight:700;font-size:20px}.m-top{margin-top:20px}.p-top{padding-top:10px}.text-center{text-align:center}.text-left{text-align:left}.flex-row{display:flex}.flex-col{display:flex;flex-direction:column}.align-center{align-items:center}.gap-12{gap:12px}.gap-36{gap:36px}.line{height:1.2px;width:60%;background-color:#000}.full-line{height:2px;background-color:#000}.full-line-grey{height:1.2px;background-color:grey}.col-3{flex:1}.col-4{flex:2}.p-16{padding:0 16px}.pt-8{padding-top:8px}.note{font-size:14px;margin-top:20px;text-align:justify}.label-radio{font-size:18px}.height-30{height:30px}.min-width{min-width:152px}.radio{border-radius:50%;border:1px solid black;height:14px;width:14px;display:flex;justify-content:center;align-items:center;}.radio-check{border-radius:50%;border:1px solid black;height:6px;width:6px;background-color:black;}.gap-8{gap:4px;}</style>
+                <body>
+                    <div>
+                        <img src=""https://drive.google.com/uc?export=view&id=1-ib3rZw6Dq_oaBMyJarHckgEfaIOmYjf"" alt=""qrCodeImage"">
+                    </div>
+                    <div class=""flex-row"" style=""justify-content: space-around;"">
+                        <div class=""flex-col align-center gap-12"">
+                            <span class=""title"">OPUS SOLUTION COMPANY</span>
+                            <div class=""line""></div>
+                            <span>No: 2023OPS-CAR-0710-004</span>
+                        </div>
+                        <div class=""flex-col align-center gap-12"">
+                            <span class=""title"">Status: Approved</span>
+                            <div class=""line""></div>
+                            <span>10/07/2023 15:48 PM</span>
+                        </div>
+                    </div>
+
+                    <div class=""p-16"">
+                        <div class=""title-cbr m-top text-center"">CAR BOOKING REQUEST</div>
+                        <div class=""flex-col gap-12 m-top"">
+                            <div class=""flex-row"">
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Applicant</div>
+                                    <span>Bang Nguyen Minh</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Department</div>
+                                    <span>IT/ Technical</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">User</div>
+                                    <span>Bang Nguyen Minh</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Mobile</div>
+                                    <span>0876839834</span>
+                                </div>
+                            </div>
+                            <div class=""flex-row"">
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Cost Center</div>
+                                    <span>12</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Total Passengers</div>
+                                    <span>2</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Usage time from</div>
+                                    <span>20/07/2023 11:29 AM - 20/07/2023 12:29 PM</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Pick time</div>
+                                    <span>20/07/2023 11:29 AM</span>
+                                </div>
+                            </div>
+                            <div class=""flex-row"">
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Pick Location</div>
+                                    <span>Ho Chi Minh</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Destination</div>
+                                    <span>Ha Noi</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title"">Reason</div>
+                                    <span>Delay</span>
+                                </div>
+                                <div class=""flex-col col-3"">
+                                    <div class=""title""></div>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class='note'>Note: In case the Administration Department does not have enough vehicles to meet the department's vehicle dispatching requirements, the Department The Administration proposes to arrange alternative means of transportation (hire a car, or use a taxi card, Grab,...) and Costs will be accounted for according to the required department.</p>
+                        <div class=""flex-row gap-12"">
+                            <div class=""flex-row align-center height-30 gap-8"">
+                                <div class=""radio"">
+                                    <div class=""radio-check""></div>
+                                </div>
+                                <label for=""yes"" class=""label-radio"">Yes</label>
+                            </div>
+                            <div class=""flex-row align-center height-30 gap-8"">
+                                <div class=""radio"">
+                                    <div class=""""></div>
+                                </div>
+                                <label for=""no"" class=""label-radio"">No</label>
+                            </div>
+                        </div>
+
+                        <!-- document signer -->
+                        <div class=""title-cbr text-left m-top"">Document Signers</div>
+                        <div class=""m-top"">
+                            <div class=""full-line m-top""></div>
+                            <div class=""flex-row align-center gap-12"">
+                                <div class=""col-3"">
+                                    <div>
+                                        <div class=""flex-row pt-8"">
+                                            <div class=""title min-width"">Title</div>
+                                            <div>Developer</div>
+                                        </div>
+                                    </div>
+                                    <div class=""p-top"">
+                                        <div class=""full-line-grey""></div>
+                                        <div class=""flex-row pt-8"">
+                                            <div class=""title min-width"">Email</div>
+                                            <div>bangnm@o365.vn</div>
+                                        </div>
+                                    </div>
+                                    <div class=""p-top"">
+                                        <div class=""full-line-grey""></div>
+                                        <div class=""flex-row pt-8"">
+                                            <div class=""title min-width"">Status</div>
+                                            <div>APPROVED at Mon, 10 Jul 2023 15:49:05 +07:00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style=""padding: 8px 8px 0 8px;"">
+                                    <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
+                                </div>
+                            </div>
+                            <div class=""p-top"">
+                                <div class=""full-line-grey""></div>
+                                <div class=""flex-row pt-8"">
+                                    <div class=""title min-width"">Name</div>
+                                    <div>Bang Nguyen Minh</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- related document -->
+                        <div>
+                            <div class=""title-cbr text-left m-top"">Related document</div>
+                            <div class=""full-line m-top""></div>
+
+                            <div class=""flex-col m-top"">
+                                <div class=""flex-row gap-36"">
+                                    <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                                    <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
+                                    <span class=""col-3"">Bang Nguyen Minh</span>
+                                </div>
+                                <div class=""flex-row gap-36"">
+                                    <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                                    <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
+                                    <span class=""col-3"">Bang Nguyen Minh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class=""title text-left m-top"">Discussion log</div>
+                            <div class=""full-line m-top""></div>
+
+                            <div class=""flex-col m-top"">
+                                <div class=""flex-row gap-36"">
+                                    <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                                    <div class=""col-4"">Submit the request 2023OPS-CAR-0720-001 for approval</div>
+                                    <span class=""col-3"">Bang Nguyen Minh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+                File.WriteAllText(htmlFilePath, htmlContent);
+                return true;
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return false;
+            }
         }
     }
 }

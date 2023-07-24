@@ -25,8 +25,7 @@ namespace CarBookingBE.Controllers
         [JwtAuthorize]
         public HttpResponseMessage writeExcel()
         {
-            roleConstants = new RoleConstants(true, true, true, true, true);
-            var isAuthorized = util.isAuthorized(roleConstants.Roles);
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, true, true, true, true));
             if (!isAuthorized.Success)
             {
                 return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });

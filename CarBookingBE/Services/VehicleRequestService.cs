@@ -15,8 +15,7 @@ namespace CarBookingBE.Services
         UtilMethods utilMethods = new UtilMethods();
         public Result<VehicleRequest> createVehicleRequest(VehicleRequest vehicleRequest)
         {
-            var requireRoles = new RoleConstants(true, true, false, false, false);
-            var isAuthorized = utilMethods.isAuthorized(requireRoles.Roles);
+            var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             if (isAuthorized.Success)
             {
                 if (vehicleRequest.RequestId == null || vehicleRequest.RotaionId == null || vehicleRequest.DriverId == null || vehicleRequest.DriverMobile == null || vehicleRequest.DriverCarplate == null || vehicleRequest.Reason == null)

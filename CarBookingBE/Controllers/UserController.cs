@@ -23,7 +23,6 @@ namespace CarBookingTest.Controllers
         UserService userService = new UserService();
         FileService fileService = new FileService();
         UtilMethods util = new UtilMethods();
-        RoleConstants roleConstants;
 
         [HttpPost]
         [Route("login")]

@@ -50,8 +50,7 @@ namespace CarBookingBE.Services
                             Status = req.Status
 
                         });
-            var requireRoles = new RoleConstants(true, true, false, false, false);
-            var isAuthorized = utilMethods.isAuthorized(requireRoles.Roles);
+            var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             var userLoginId = isAuthorized.Data;
             if (!userLoginId.Equals(Guid.Parse(userId)))
             {

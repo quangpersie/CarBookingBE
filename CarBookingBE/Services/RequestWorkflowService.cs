@@ -12,6 +12,7 @@ namespace CarBookingBE.Services
     public class RequestWorkflowService
     {
         private MyDbContext db = new MyDbContext();
+        UtilMethods utilMethods = new UtilMethods();
 
         public Result<List<RequestWorkflowDTO>> GetRequestWorkflowByRequestId (string requestId)
         {
@@ -173,9 +174,16 @@ namespace CarBookingBE.Services
             return new Result<string>(true, "Delete Request Workflow has Id = " + requestWorkflow.Id.ToString());
         }
 
-        public Result<RequestWorkflow> ActionRequest(Guid requestId, Guid userId, string action)
+        public Result<RequestWorkflow> ActionRequest(Guid requestId, string action)
         {
-            var requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.RequestId == requestId && rw.UserId == userId);
+            var userLogin = utilMethods.getCurId();
+            if (!userLogin.Success)
+            {
+                return new Result<RequestWorkflow>(false, userLogin.Message);
+            }
+
+            var userLoginId = userLogin.Data;
+            var requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.RequestId == requestId && rw.UserId == userLoginId);
             if (requestWorkflow == null)
             {
                 return new Result<RequestWorkflow>(false, "Request Workflow Not Found");

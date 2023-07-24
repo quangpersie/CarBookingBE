@@ -20,7 +20,7 @@ namespace CarBookingBE.Services
         UtilMethods utilMethods = new UtilMethods();
 
 
-        public Result<IQueryable<RequestDTO>> GetAllRequests(string userId, int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetAllRequests(int page, int limit)
         {
             var queries = db.Requests.Include(r => r.SenderUser).Include(receiver => receiver.ReceiveUser)
                         .Where(request => request.IsDeleted == false)
@@ -50,12 +50,17 @@ namespace CarBookingBE.Services
                             Status = req.Status
 
                         });
-            var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
+            var requireRoles = new RoleConstants(true, true, false, false, false);
+            var isAuthorized = utilMethods.isAuthorized(requireRoles);
             var userLoginId = isAuthorized.Data;
-            if (!userLoginId.Equals(Guid.Parse(userId)))
+            /*if (!isAuthorized.Success)
             {
-                return new Result<IQueryable<RequestDTO>>(false, "User Not Match");
-            }
+                return new Result<IQueryable<RequestDTO>>(false, isAuthorized.Message);
+            }*/
+            /*            if (!userLoginId.Equals(Guid.Parse(userId)))
+                        {
+                            return new Result<IQueryable<RequestDTO>>(false, "User Not Match");
+                        }*/
 
             if (isAuthorized.Success)
             {
@@ -63,23 +68,29 @@ namespace CarBookingBE.Services
             }
             else
             {
-                queries = queries.Where(request => request.SenderUser.Id.ToString() == userId || request.ReceiveUser.Id.ToString() == userId);
+                queries = queries.Where(request => request.SenderUser.Id == userLoginId || request.ReceiveUser.Id == userLoginId);
             }
-            
+
             return new Result<IQueryable<RequestDTO>>(true, "Get Success", queries);
         }
 
-        public Result<IQueryable<RequestDTO>> GetSentToMe(string userId, int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetSentToMe(int page, int limit)
         {
-            var userLoginId = utilMethods.getCurId();
-            if (userLoginId.Data != Guid.Parse(userId))
+            var userLogin = utilMethods.getCurId();
+            if (!userLogin.Success)
             {
-                return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
+                return new Result<IQueryable<RequestDTO>>(false, userLogin.Message);
             }
+
+            var userLoginId = userLogin.Data;
+            /* if (userLoginId.Data != Guid.Parse(userId))
+             {
+                 return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
+             }*/
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Join(db.RequestWorkflows, r => r.Id, rwf => rwf.RequestId, (r, rwf) => new { r, rwf })
                 .Where(request => request.r.IsDeleted == false)
-                .Where(request => request.r.ReceiverId.ToString() == userId || request.rwf.UserId.ToString() == userId)
+                .Where(request => request.r.ReceiverId == userLoginId || request.rwf.UserId == userLoginId)
                 .Select(req => new RequestDTO()
                 {
                     Id = req.r.Id,
@@ -107,23 +118,29 @@ namespace CarBookingBE.Services
                 });
 
 
-/*            if (queries.Count() == 0)
-            {
-                return new Result<List<RequestDTO>>(false, "Get Requests Failed");
-            }*/
-            return new Result<IQueryable<RequestDTO>>(true,"Get Requests Success",queries);
+            /*            if (queries.Count() == 0)
+                        {
+                            return new Result<List<RequestDTO>>(false, "Get Requests Failed");
+                        }*/
+            return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
         }
 
-        public Result<IQueryable<RequestDTO>> GetSentToOthers(string userId, int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetSentToOthers(int page, int limit)
         {
-            var userLoginId = utilMethods.getCurId();
-            if (!userLoginId.Data.Equals(Guid.Parse(userId)))
+            var userLogin = utilMethods.getCurId();
+            if (!userLogin.Success)
+            {
+                return new Result<IQueryable<RequestDTO>>(false, userLogin.Message);
+            }
+
+            var userLoginId = userLogin.Data;
+            /*if (!userLoginId.Data.Equals(Guid.Parse(userLoginId)))
             {
                 return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
-            }
+            }*/
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                         .Where(request => request.IsDeleted == false)
-                        .Where(request => request.SenderId.ToString() == userId)
+                        .Where(request => request.SenderId == userLoginId)
                         .Select(
                             req => new RequestDTO()
                             {
@@ -154,17 +171,23 @@ namespace CarBookingBE.Services
             return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
         }
 
-        public Result<IQueryable<RequestDTO>> GetSharedWithMe(string userId, int page, int limit)
+        public Result<IQueryable<RequestDTO>> GetSharedWithMe(int page, int limit)
         {
-            var userLoginId = utilMethods.getCurId();
-            if (!userLoginId.Data.Equals(Guid.Parse(userId)))
+            var userLogin = utilMethods.getCurId();
+            if (!userLogin.Success)
+            {
+                return new Result<IQueryable<RequestDTO>>(false, userLogin.Message);
+            }
+
+            var userLoginId = userLogin.Data;
+            /*if (!userLoginId.Data.Equals(Guid.Parse(userId)))
             {
                 return new Result<IQueryable<RequestDTO>>(false, "ERROR: User not match");
-            }
+            }*/
             var queries = db.Requests.Include(s => s.SenderUser).Include(r => r.ReceiveUser)
                 .Join(db.RequestShares, r => r.Id, rs => rs.RequestId, (r, rs) => new { r, rs })
                 .Where(request => request.r.IsDeleted == false)
-                .Where(request => request.rs.UserId.ToString() == userId)
+                .Where(request => request.rs.UserId == userLoginId)
                 .Select(req => new RequestDTO()
                 {
                     Id = req.r.Id,
@@ -315,7 +338,7 @@ namespace CarBookingBE.Services
             {
                 request.Status = "Draft";
             }
-            if (request.Mobile == null || request.CostCenter == null || request.TotalPassengers == null || request.UsageFrom == null 
+            if (request.Mobile == null || request.CostCenter == null || request.TotalPassengers == null || request.UsageFrom == null
                 || request.UsageTo == null || request.PickTime == null || request.PickLocation == null
                 || request.Destination == null || request.Reason == null || request.ApplyNote == null)
             {
@@ -330,7 +353,7 @@ namespace CarBookingBE.Services
             if (db.Departments.SingleOrDefault(d => d.Id == request.DepartmentId && d.IsDeleted == false) == null)
             {
                 return new Result<NewRequestDTO>(false, "Department Not Exist");
-            } 
+            }
 
             if (db.Users.SingleOrDefault(u => u.Id == request.ReceiverId && u.IsDeleted == false) == null)
             {
@@ -342,9 +365,9 @@ namespace CarBookingBE.Services
                 return new Result<NewRequestDTO>(false, "Usage From must earlier than Usage To");
             }
 
-            if (request.PickTime < request.UsageFrom || request.PickTime > request.UsageTo) 
+            if (request.PickTime < request.UsageFrom || request.PickTime > request.UsageTo)
             {
-                return new Result<NewRequestDTO>(false, "Pick Time must between Usage From and Usage To"); 
+                return new Result<NewRequestDTO>(false, "Pick Time must between Usage From and Usage To");
             }
 
             if (request.TotalPassengers <= 0)
@@ -387,7 +410,7 @@ namespace CarBookingBE.Services
 
         public Result<Pagination<RequestDTO>> FilterRequest(IQueryable<RequestDTO> requestQueries, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            
+
             if (requestCode != null)
             {
                 requestQueries = requestQueries.Where(req => req.RequestCode.Contains(requestCode));
@@ -408,7 +431,7 @@ namespace CarBookingBE.Services
                 }
             }
             else if ((createdFrom != null && createdTo == null) || (createdFrom == null && createdTo != null))
-            { 
+            {
                 return new Result<Pagination<RequestDTO>>(false, "createdFrom and createdTo are required!");
             }
 
@@ -427,11 +450,12 @@ namespace CarBookingBE.Services
                 requestQueries = requestQueries.Where(req => req.RequestCode.Contains(search) || req.Department.Name.Contains(search));
             }
 
-            
+
             var totalPage = (requestQueries.ToList().Count + limit - 1) / limit;
 
             var requestList = requestQueries.OrderByDescending(req => req.Created).Skip(getSkip(page, limit)).Take(limit).ToList();
-            var Pagination = new Pagination<RequestDTO>() {
+            var Pagination = new Pagination<RequestDTO>()
+            {
                 ListData = requestList,
                 PerPage = limit,
                 CurrentPage = page,
@@ -442,9 +466,9 @@ namespace CarBookingBE.Services
             return new Result<Pagination<RequestDTO>>(true, "Filter Success", result);
         }
 
-        public Result<Request> ActionRequest(string Id, string Note,string userId, string action)
+        public Result<Request> ActionRequest(string Id, string Note, string action)
         {
-            var listOfActions = new List<string>() { "Approved", "Rejected", "Canceled"};
+            var listOfActions = new List<string>() { "Approved", "Rejected", "Canceled" };
 
             if (!listOfActions.Contains(action))
             {
@@ -462,21 +486,24 @@ namespace CarBookingBE.Services
                 return new Result<Request>(false, "Request Status: Approved is required for this action");
             }
 
-            var userLoginId = utilMethods.getCurId();
-            if (!userLoginId.Equals(Guid.Parse(userId)))
+            var userLogin = utilMethods.getCurId();
+            if (!userLogin.Success)
             {
-                return new Result<Request>(false, "ERROR: User not match");
+                return new Result<Request>(false, userLogin.Message);
             }
-            var userRolesLogin = utilMethods.userRoles(Guid.Parse(userId));
+
+            var userLoginId = userLogin.Data;
+
+            var userRolesLogin = utilMethods.userRoles(userLoginId);
 
             if (request.Status == "Approved" && action == "Canceled")
             {
 
                 if (userRolesLogin.Data.Contains("ADMIN") || userRolesLogin.Data.Contains("ADMINISTRATIVE"))
                 {
-                        request.Status = action;
-                        db.SaveChanges();
-                        return new Result<Request>(true, request.Status + " Request Success");
+                    request.Status = action;
+                    db.SaveChanges();
+                    return new Result<Request>(true, request.Status + " Request Success");
                 }
                 else
                 {
@@ -491,7 +518,7 @@ namespace CarBookingBE.Services
 
             if (userRolesLogin.Data.Contains("APPROVER"))
             {
-                RequestWorkflow requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.UserId.ToString() == userId && rw.RequestId.ToString() == Id);
+                RequestWorkflow requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.UserId == userLoginId && rw.RequestId.ToString() == Id);
                 if (requestWorkflow == null)
                 {
                     return new Result<Request>(false, "This User doesn't is approver for this Request");
@@ -508,15 +535,16 @@ namespace CarBookingBE.Services
                 }
                 request.Status = action;
                 db.SaveChanges();
-            } else
+            }
+            else
             {
                 return new Result<Request>(false, "Permission Failed!");
             }
-            
 
-            
 
-            return new Result<Request>(true,request.Status + " Request Success");
+
+
+            return new Result<Request>(true, request.Status + " Request Success");
         }
 
         // ---------------------------Function----------------------------------------
@@ -581,7 +609,7 @@ namespace CarBookingBE.Services
             return (pageIndex - 1) * limit;
         }
 
-        
+
 
 
 

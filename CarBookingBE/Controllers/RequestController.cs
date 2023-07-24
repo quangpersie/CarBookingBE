@@ -28,12 +28,12 @@ namespace CarBookingBE.Controllers
 
 
         // GET: api/Request
-        [Route("get-all/userId={userId}")]
+        [Route("get-all")]
         [HttpGet]
         [JwtAuthorize]
-        public IHttpActionResult GetRequests(string userId,string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetRequests(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetAllRequests(userId,page, limit);
+            var requestList = requestService.GetAllRequests(page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -56,12 +56,12 @@ namespace CarBookingBE.Controllers
         }
 
         // GET: Sent to me
-        [Route("sent-to-me/userId={userId}")]
+        [Route("sent-to-me")]
         [HttpGet]
         [JwtAuthorize]
-        public IHttpActionResult GetSentToMe(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetSentToMe(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetSentToMe(userId, page, limit);
+            var requestList = requestService.GetSentToMe(page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -70,12 +70,12 @@ namespace CarBookingBE.Controllers
         }
 
         // GET: Sent to others
-        [Route("sent-to-others/userId={userId}")]
+        [Route("sent-to-others")]
         [HttpGet]
         [JwtAuthorize]
-        public IHttpActionResult GetSentToOthers(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetSentToOthers(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetSentToOthers(userId, page, limit);
+            var requestList = requestService.GetSentToOthers(page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -84,12 +84,12 @@ namespace CarBookingBE.Controllers
         }
 
         //GET: Shared with me Not completed ------------------------
-        [Route("shared-with-me/userId={userId}")]
+        [Route("shared-with-me")]
         [HttpGet]
         [JwtAuthorize]
-        public IHttpActionResult GetSharedWithMe(string userId, string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
+        public IHttpActionResult GetSharedWithMe(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetSharedWithMe(userId, page, limit);
+            var requestList = requestService.GetSharedWithMe(page, limit);
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -248,10 +248,9 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult ActionRequest(string Id)
         {
             var httpRequest = HttpContext.Current.Request;
-            string userId = httpRequest.Form["userId"];
             string action = httpRequest.Form["action"];
             string Note = httpRequest.Form["Note"];
-            var requestWorkflow = requestWorkflowService.ActionRequest(Guid.Parse(Id), Guid.Parse(userId), action);
+            var requestWorkflow = requestWorkflowService.ActionRequest(Guid.Parse(Id), action);
             if (!requestWorkflow.Success)
             {
                 return BadRequest(requestWorkflow.Message);
@@ -260,7 +259,7 @@ namespace CarBookingBE.Controllers
             var checkWorkflow = requestWorkflowService.CheckWorkflow(requestWorkflow.Data);
             if (checkWorkflow.Success)
             {
-                var actionRequest = requestService.ActionRequest(Id, Note, userId, action);
+                var actionRequest = requestService.ActionRequest(Id, Note, action);
                 if (!actionRequest.Success)
                 {
                     return BadRequest(actionRequest.Message);

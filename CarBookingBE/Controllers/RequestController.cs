@@ -33,12 +33,13 @@ namespace CarBookingBE.Controllers
         [JwtAuthorize]
         public IHttpActionResult GetRequests(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetAllRequests(page, limit);
+            var requestList = requestService.GetAllRequests();
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
             }
-            return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));
+            return Ok(requestList.Data.ToList());
+            /*return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));*/
         }
 
         // GET: api/Request/5
@@ -61,7 +62,7 @@ namespace CarBookingBE.Controllers
         [JwtAuthorize]
         public IHttpActionResult GetSentToMe(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetSentToMe(page, limit);
+            var requestList = requestService.GetSentToMe();
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -75,7 +76,7 @@ namespace CarBookingBE.Controllers
         [JwtAuthorize]
         public IHttpActionResult GetSentToOthers(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetSentToOthers(page, limit);
+            var requestList = requestService.GetSentToOthers();
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);
@@ -89,7 +90,7 @@ namespace CarBookingBE.Controllers
         [JwtAuthorize]
         public IHttpActionResult GetSharedWithMe(string search, string requestCode, string createdFrom, string createdTo, string senderId, string status, int page, int limit)
         {
-            var requestList = requestService.GetSharedWithMe(page, limit);
+            var requestList = requestService.GetSharedWithMe();
             if (!requestList.Success)
             {
                 return BadRequest(requestList.Message);

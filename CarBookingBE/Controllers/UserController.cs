@@ -37,8 +37,7 @@ namespace CarBookingTest.Controllers
         [JwtAuthorize]
         public HttpResponseMessage registerUser()
         {
-            roleConstants = new RoleConstants(true, false, false, false, false);
-            var isAuthorized = util.isAuthorized(roleConstants.Roles);
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
             if (!isAuthorized.Success)
             {
                 return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
@@ -73,8 +72,7 @@ namespace CarBookingTest.Controllers
         [JwtAuthorize]
         public HttpResponseMessage getProfile(string id)
         {
-            var requireRoles = new RoleConstants(true, false, false, false, false);
-            var isAuthorized = util.isAuthorized(requireRoles.Roles);
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
             var curId = isAuthorized.Data != null ? isAuthorized.Data : new Guid();
             // users can view profile of themselves
             if (curId == Guid.Parse(id) || isAuthorized.Success)
@@ -98,8 +96,7 @@ namespace CarBookingTest.Controllers
         [JwtAuthorize]
         public HttpResponseMessage editProfile(string idEdit)
         {
-            var requireRoles = new RoleConstants(true, false, false, false, false);
-            var isAuthorized = util.isAuthorized(requireRoles.Roles);
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
             var curId = isAuthorized.Data != null ? isAuthorized.Data : new Guid();
 
             // users can edit profile of themselves or admin
@@ -120,8 +117,7 @@ namespace CarBookingTest.Controllers
         [Route("testUpload")]
         public IHttpActionResult testUpload()
         {
-            var requireRoles = new RoleConstants(true, false, false, false, false);
-            var isAuthorized = util.isAuthorized(requireRoles.Roles);
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
             if(!isAuthorized.Success)
             {
                 return Unauthorized();

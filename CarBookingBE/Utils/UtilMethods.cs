@@ -47,8 +47,9 @@ namespace CarBookingBE.Utils
                 return new Result<Guid>(false, "Internal error !");
             }
         }
-        public Result<Guid> isAuthorized(List<string> requiredRoles)
+        public Result<Guid> isAuthorized(RoleConstants roles)
         {
+            List<string> requiredRoles = roles.Roles;
             try
             {
                 var curIdObj = getCurId();

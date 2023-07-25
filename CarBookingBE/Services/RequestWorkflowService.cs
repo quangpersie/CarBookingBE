@@ -32,6 +32,7 @@ namespace CarBookingBE.Services
                     Level = rwf.Level,
                     Status = rwf.Status
                 })
+                .OrderBy(rwf => rwf.Level)
                 .ToList();
 
             return new Result<List<RequestWorkflowDTO>>(true, "Get Success", requestWorkflows);

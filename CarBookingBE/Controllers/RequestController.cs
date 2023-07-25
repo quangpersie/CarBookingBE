@@ -205,24 +205,21 @@ namespace CarBookingBE.Controllers
             if (newRequest.Success)
             {
                 // Create RequestWorkflow
-                if (httpRequest.Form["ListOfUserId"] != null)
+                var requestId = newRequest.Data.Id;
+                var listOfUserId = httpRequest.Params.GetValues("ListOfUserId[]");
+                /*List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
+                foreach (var userId in httpRequest.Params.GetValues("ListOfUserId"))
                 {
-                    var requestId = newRequest.Data.Id;
-                    var listOfUserId = httpRequest.Params.GetValues("ListOfUserId");
-                    /*List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
-                    foreach (var userId in httpRequest.Params.GetValues("ListOfUserId"))
-                    {
-                        RequestWorkflow requestWorkflow = new RequestWorkflow();
-                        requestWorkflow.UserId = Guid.Parse(userId.ToString());
-                        requestWorkflow.RequestId = newRequest.Data.Id;
-                        requestWorkflows.Add(requestWorkflow);
-                    }
+                    RequestWorkflow requestWorkflow = new RequestWorkflow();
+                    requestWorkflow.UserId = Guid.Parse(userId.ToString());
+                    requestWorkflow.RequestId = newRequest.Data.Id;
+                    requestWorkflows.Add(requestWorkflow);
+                }
 */
-                    var createRequestWorkflow = requestWorkflowService.CreateRequestWorkflow(requestId, listOfUserId);
-                    if (!createRequestWorkflow.Success)
-                    {
-                        return BadRequest(createRequestWorkflow.Message);
-                    }
+                var createRequestWorkflow = requestWorkflowService.CreateRequestWorkflow(requestId, listOfUserId);
+                if (!createRequestWorkflow.Success)
+                {
+                    return BadRequest(createRequestWorkflow.Message);
                 }
 
                 // Create RequestAttachment

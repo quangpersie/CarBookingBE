@@ -637,7 +637,9 @@ namespace CarBookingBE.Services
             if (!allKeys.Contains("PickLocation")) return new Result<string>(false, "PickLocation is required!");
             if (!allKeys.Contains("Destination")) return new Result<string>(false, "Destination is required!");
             if (!allKeys.Contains("Reason")) return new Result<string>(false, "Reason is required!");
-            if (!allKeys.Contains("ApplyNote")) return new Result<string>(false, "ApplyNote is required!");
+            if (!allKeys.Contains("ApplyNote")) return new Result<string>(false, "ApplyNote is required!");/*
+            if (!allKeys.Contains("ListOfUserId")) return new Result<string>(false, "ListOfUserId is required");*/
+
 
             return new Result<string>(true, "Ok");
         }

@@ -280,6 +280,7 @@ namespace CarBookingBE.Services
                         FirstName = req.SenderUser.FirstName,
                         LastName = req.SenderUser.LastName,
                         Username = req.SenderUser.Username,
+                        Email = req.SenderUser.Email,
                         JobTitle = req.SenderUser.JobTitle
                     },
                     Created = req.Created,
@@ -293,6 +294,7 @@ namespace CarBookingBE.Services
                         FirstName = req.ReceiveUser.FirstName,
                         LastName = req.ReceiveUser.LastName,
                         Username = req.ReceiveUser.Username,
+                        Email = req.ReceiveUser.Email,
                         JobTitle = req.ReceiveUser.JobTitle
                     },/*
                     RequestWorkflow = requestWorkflow,*/

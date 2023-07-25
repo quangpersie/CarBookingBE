@@ -38,8 +38,7 @@ namespace CarBookingBE.Controllers
             {
                 return BadRequest(requestList.Message);
             }
-            return Ok(requestList.Data.ToList());
-            /*return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));*/
+            return Ok(requestService.FilterRequest(requestList.Data, search, requestCode, createdFrom, createdTo, senderId, status, page, limit));
         }
 
         // GET: api/Request/5

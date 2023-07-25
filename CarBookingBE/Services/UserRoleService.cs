@@ -1,6 +1,7 @@
 ﻿using CarBookingBE.DTOs;
 using CarBookingBE.Utils;
 using CarBookingTest.Models;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -112,6 +113,75 @@ namespace CarBookingBE.Services
             }
         }
 
+        public Result<string[]> addUserRoles(string strUserId, string[] addRolesList)
+        {
+            var userId = Guid.Parse(strUserId);
+            var checkExistUser = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Id == userId);
+            if (checkExistUser == null)
+            {
+                return new Result<string[]>(false, "User does not exist !");
+            }
+            if (addRolesList == null || addRolesList.Length == 0)
+            {
+                return new Result<string[]>(false, "Empty input roles list !");
+            }
+            var rs = getRolesByUserId(strUserId);
+            if(!rs.Success)
+            {
+                return new Result<string[]>(false, "Error happened when reset data !");
+            }
+            foreach (var strRoleId in rs.Data)
+            {
+                if(!addRolesList.Contains(strRoleId))
+                {
+                    deleteUserRoleById(strUserId, strRoleId);
+                }
+            }
+            foreach (var strRoleId in addRolesList)
+            {
+                var roleId = int.Parse(strRoleId);
+                var role = _db.UserRoles.FirstOrDefault(u => u.IsDeleted == false && u.RoleId == roleId && u.UserId == userId);
+                if (role == null)
+                {
+                    var addSuccess = addUserRole(new AccountRole { UserId = userId, RoleId = roleId });
+                    if (!addSuccess.Success) break;
+                }
+            }
+            return new Result<string[]>(true, "Add roles for user successfully !", addRolesList);
+        }
+
+        public Result<string> deleteUserRoleById(string strUserId, string strRoleId)
+        {
+            var uId = Guid.Parse(strUserId);
+            var rId = int.Parse(strRoleId);
+            if(uId == null)
+            {
+                return new Result<string>(false, "Missing or invalid id of user !");
+            }
+            if(rId == null)
+            {
+                return new Result<string>(false, "Missing or invalid id of role !");
+            }
+            var existUser = _db.Users.FirstOrDefault(u => u.Id == uId);
+            if (existUser == null)
+            {
+                return new Result<string>(false, "User with input id does not exist");
+            }
+            var existRole = _db.Roles.FirstOrDefault(r => r.Id == rId);
+            if(existRole == null)
+            {
+                return new Result<string>(false, "Role with input title does not exist !");
+            }
+            var delData = _db.UserRoles.FirstOrDefault(ur => ur.RoleId == rId && ur.UserId == uId && ur.IsDeleted == false);
+            if(delData != null)
+            {
+                _db.UserRoles.Remove(delData);
+                _db.SaveChanges();
+                return new Result<string>(true, "Delete a user role successfully !");
+            }
+            return new Result<string>(false, "Not found data to delete !");
+        }
+
         public Result<AccountRole> editUserRole(AccountRole accRole)
         {
             try
@@ -173,6 +243,26 @@ namespace CarBookingBE.Services
             {
                 Trace.WriteLine(e.Message);
                 return new Result<AccountRole>(false, "Internal error !");
+            }
+        }
+
+        public Result<List<string>> getRolesByUserId(string userId)
+        {
+            try
+            {
+                var uId = Guid.Parse(userId);
+                var rolesById = new List<string>();
+                var urs = _db.UserRoles.Where(ur => ur.UserId == uId).ToList();
+                foreach (var item in urs)
+                {
+                    rolesById.Add(item.RoleId.ToString());
+                }
+                return new Result<List<string>>(true, "Get roles by userId successfully !", rolesById);
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<List<string>>(false, "Get roles by userId failed !", new List<string>());
             }
         }
     }

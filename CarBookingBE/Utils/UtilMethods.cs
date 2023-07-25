@@ -20,6 +20,10 @@ namespace CarBookingBE.Utils
     public class UtilMethods
     {
         MyDbContext _db = new MyDbContext();
+        public bool stringValid(string value)
+        {
+            return value.Trim().Length > 0;
+        }
         public Result<Guid> getCurId()
         {
             try
@@ -27,6 +31,10 @@ namespace CarBookingBE.Utils
                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                 HttpContext httpContext = HttpContext.Current;
                 var jwt = httpContext.Request.Headers["Authorization"];
+                if (jwt == null)
+                {
+                    return new Result<Guid>(false, "Token not found in Headers !");
+                }
                 //Trace.WriteLine(jwt);
                 var jwtTokenObj = tokenHandler.ReadJwtToken(jwt.Substring(7)); //ignore "Bearer "
                 string curId = "";

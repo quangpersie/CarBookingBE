@@ -21,15 +21,20 @@ namespace CarBookingBE.Services
     {
         MyDbContext _db = new MyDbContext();
         UtilMethods _util = new UtilMethods();
-        public Result<string> uploadAvatar(Guid curId, HttpPostedFile postedFile)
+        public Result<string> uploadAvatar(string currentId, HttpPostedFile postedFile)
         {
             try
             {
+                var curId = Guid.Parse(currentId);
                 string curUserId = curId.ToString().ToLower();
                 string[] acceptExtensionImg = { ".png", ".jpg", ".jpeg" };
+                if(currentId == null)
+                {
+                    return new Result<string>(false, "Missing user id of the avatar !");
+                }
                 if (postedFile == null || postedFile.FileName.Length == 0)
                 {
-                    return new Result<string>(false, "Missing file !");
+                    return new Result<string>(false, "Missing file !", currentId);
                 }
                 if (!acceptExtensionImg.Contains(Path.GetExtension(postedFile.FileName)))
                 {
@@ -46,6 +51,72 @@ namespace CarBookingBE.Services
                 }
                 postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
                 return new Result<string>(true, "Upload file successfully !", $"Files/Avatar/{curUserId}/{postedFile.FileName}");
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "Internal error !");
+            }
+        }
+
+        public Result<string> copyAvatarFromTemp(string userId, string fileName)
+        {
+            try
+            {
+                if(userId == null || fileName == null)
+                {
+                    return new Result<string>(false, "Missing parameter(s) !");
+                }
+                //need initial
+                var userAvararFolder = HttpContext.Current.Server.MapPath($"~/Files/Avatar/{userId}");
+                var destPath = $"{userAvararFolder}/{fileName}";
+                if (!Directory.Exists(userAvararFolder))
+                {
+                    Directory.CreateDirectory(userAvararFolder);
+                }
+                var tempPath = HttpContext.Current.Server.MapPath($"~/Files/Avatar/temp/{fileName}");
+
+                if (File.Exists(tempPath))
+                {
+                    if(!File.Exists(destPath))
+                    {
+                        File.Copy(tempPath, destPath);
+                    }
+                    File.Delete(tempPath);
+                    return new Result<string>(true, "Finish uploading avatar !", $"Files/Avatar/{userId}/{fileName}");
+                }
+                return new Result<string>(false, "File by path does not exist !");
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "Internal error !");
+            }
+        }
+        public Result<string> uploadAvatarTemp(HttpPostedFile postedFile)
+        {
+            try
+            {
+                string[] acceptExtensionImg = { ".png", ".jpg", ".jpeg" };
+                if (postedFile == null || postedFile.FileName.Length == 0)
+                {
+                    return new Result<string>(false, "Missing file !");
+                }
+                if (!acceptExtensionImg.Contains(Path.GetExtension(postedFile.FileName)))
+                {
+                    return new Result<string>(false, "Not support file type ! Please provide image file(.png, .jpg, .jpeg)");
+                }
+                if (postedFile.ContentLength > (2 * 1024 * 1024))
+                {
+                    return new Result<string>(false, "The maximum size of file is 20MB !");
+                }
+                string pathToSave = HttpContext.Current.Server.MapPath($"~/Files/Avatar/temp");
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+                postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
+                return new Result<string>(true, "Upload file successfully !", $"{pathToSave}/{postedFile.FileName}");
             }
             catch (Exception e)
             {
@@ -424,6 +495,35 @@ namespace CarBookingBE.Services
             {
                 Trace.WriteLine(e.Message);
                 return false;
+            }
+        }
+
+        public Result<string> deleteAllFilesInFolder(string filePath)
+        {
+            try
+            {
+                if(filePath == null || filePath.Length == 0)
+                {
+                    return new Result<string>(false, "File path is empty !");
+                }
+                string pathToDel = HttpContext.Current.Server.MapPath($"~/{filePath}");
+                if (Directory.Exists(pathToDel))
+                {
+                    string[] files = Directory.GetFiles(pathToDel);
+
+                    foreach (string file in files)
+                    {
+                        File.Delete(file);
+                    }
+
+                    return new Result<string>(true, "Delete files successfully !");
+                }
+                return new Result<string>(false, "File path does not exist !");
+            }
+            catch(Exception e )
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "Internal error !");
             }
         }
     }

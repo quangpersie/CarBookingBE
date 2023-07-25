@@ -39,6 +39,23 @@ namespace CarBookingBE.Services
                 return new Result<Pagination<Department>>(false, "Internal error !");
             }
         }
+        public Result<List<Department>> getAll()
+        {
+            try
+            {
+                var departments = _db.Departments.Where(d => d.IsDeleted == false).ToList();
+                if (!departments.Any())
+                {
+                    return new Result<List<Department>>(false, "There's no data !");
+                }
+                return new Result<List<Department>>(true, "Get all departments successfully !", departments);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return new Result<List<Department>>(false, "Internal error !");
+            }
+        }
         public Result<Department> addDepartment(Department department)
         {
             try
@@ -96,7 +113,14 @@ namespace CarBookingBE.Services
                 if(dUpdate.Name != null) dTarget.Name = dUpdate.Name;
                 if(dUpdate.ContactInfo != null) dTarget.ContactInfo = dUpdate.ContactInfo;
                 if(dUpdate.Code != null) dTarget.Code = dUpdate.Code;
-                if(dUpdate.UnderDepartment != null) dTarget.UnderDepartment = dUpdate.UnderDepartment;
+                if(dUpdate.UnderDepartment != null)
+                {
+                    dTarget.UnderDepartment = dUpdate.UnderDepartment;
+                }
+                else
+                {
+                    dTarget.UnderDepartment = null;
+                }
                 if(dUpdate.Description != null) dTarget.Description = dUpdate.Description;
                 _db.SaveChanges();
                 return new Result<Department>(true, "Edit department successfully !");

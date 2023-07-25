@@ -56,5 +56,12 @@ namespace CarBookingBE.Controllers
         {
             return Ok(dms.deleteDepartmentMember(id));
         }
+        
+        [HttpGet]
+        [Route("departments-uid/{userId}")]
+        public IHttpActionResult getDepartmentsByUserId(string userId)
+        {
+            return Ok(dms.getDepartmentsByUserId(userId));
+        }
     }
 }

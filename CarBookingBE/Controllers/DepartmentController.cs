@@ -13,6 +13,13 @@ namespace CarBookingBE.Controllers
         DepartmentService departmentService = new DepartmentService();
 
         [HttpGet]
+        [Route("get-all")]
+        public IHttpActionResult getAll()
+        {
+            return Ok(departmentService.getAll());
+        }
+
+        [HttpGet]
         [Route("all")]
         public IHttpActionResult getAll(int page, int limit)
         {

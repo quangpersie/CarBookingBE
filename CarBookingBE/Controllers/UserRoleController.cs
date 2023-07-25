@@ -1,6 +1,7 @@
 ﻿using CarBookingBE.Services;
 using CarBookingTest.Models;
 using System.Web.Http;
+using System.Windows.Documents;
 
 namespace CarBookingBE.Controllers
 {
@@ -42,6 +43,20 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult deleteUserRole([FromBody] AccountRole accRole)
         {
             return Ok(userRoleService.deleteUserRole(accRole));
+        }
+
+        [HttpGet]
+        [Route("roles-uid/{userId}")]
+        public IHttpActionResult getRolesByUserId(string userId)
+        {
+            return Ok(userRoleService.getRolesByUserId(userId));
+        }
+
+        [HttpPost]
+        [Route("add-roles/{userId}")]
+        public IHttpActionResult addUserRoles(string userId, [FromBody] string[] roles, string[] departments)
+        {
+            return Ok(userRoleService.addUserRoles(userId, departments));
         }
     }
 }

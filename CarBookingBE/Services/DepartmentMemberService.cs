@@ -161,11 +161,11 @@ namespace CarBookingBE.Services
         {
             try
             {
-                if (newDM == null || newDM.UserId == null || newDM.DepartmentId == null || newDM.Position == null)
+                if (newDM == null || newDM.UserId == null || newDM.DepartmentId == null)
                 {
                     return new Result<DepartmentMember>(false, "Missing parameter(s) !");
                 }
-                var reusable = _db.DepartmentsMembers
+                /*var reusable = _db.DepartmentsMembers
                     .Where(d => d.IsDeleted == true && d.UserId == newDM.UserId &&
                     d.DepartmentId == newDM.DepartmentId && d.Position == newDM.Position)
                     .FirstOrDefault();
@@ -174,7 +174,7 @@ namespace CarBookingBE.Services
                     reusable.IsDeleted = false;
                     _db.SaveChanges();
                     return new Result<DepartmentMember>(true, "Add role for user successfully !", reusable);
-                }
+                }*/
                 var checkExist = _db.DepartmentsMembers
                     .Where(d => d.IsDeleted == false && d.UserId == newDM.UserId && d.DepartmentId == newDM.DepartmentId)
                     .FirstOrDefault();
@@ -248,6 +248,95 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e);
                 return new Result<DepartmentMember>(false, "Internal error !");
             }
+        }
+
+        public Result<List<string>> getDepartmentsByUserId(string userId)
+        {
+            try
+            {
+                var uId = Guid.Parse(userId);
+                var departmentsById = new List<string>();
+                var urs = _db.DepartmentsMembers.Where(ur => ur.UserId == uId).ToList();
+                foreach (var item in urs)
+                {
+                    departmentsById.Add(item.DepartmentId.ToString());
+                }
+                return new Result<List<string>>(true, "Get roles by userId successfully !", departmentsById);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<List<string>>(false, "Get roles by userId failed !", new List<string>());
+            }
+        }
+        //api for admin page
+        public Result<string[]> addDepartmentMembers(string strUserId, string[] addDMList)
+        {
+            var userId = Guid.Parse(strUserId);
+            var checkExistUser = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Id == userId);
+            if (checkExistUser == null)
+            {
+                return new Result<string[]>(false, "User does not exist !");
+            }
+            if (addDMList == null || addDMList.Length == 0)
+            {
+                return new Result<string[]>(false, "Empty input roles list !");
+            }
+            var rs = getDepartmentsByUserId(strUserId);
+            if (!rs.Success)
+            {
+                return new Result<string[]>(false, "Error happened when reset data !");
+            }
+            foreach (var strDepartmentId in rs.Data)
+            {
+                if (!addDMList.Contains(strDepartmentId))
+                {
+                    deleteDepartmentRoleById(strUserId, strDepartmentId);
+                }
+            }
+            foreach (var strDepartmentId in addDMList)
+            {
+                var departmentId = Guid.Parse(strDepartmentId);
+                var role = _db.DepartmentsMembers.FirstOrDefault(u => u.IsDeleted == false && u.DepartmentId == departmentId && u.UserId == userId);
+                if (role == null)
+                {
+                    var addSuccess = addDepartmentMember(new DepartmentMember { UserId = userId, DepartmentId = departmentId });
+                    if (!addSuccess.Success) break;
+                }
+            }
+            return new Result<string[]>(true, "Add roles for user successfully !", addDMList);
+        }
+
+        public Result<string> deleteDepartmentRoleById(string strUserId, string strDepartmentId)
+        {
+            var uId = Guid.Parse(strUserId);
+            var dId = Guid.Parse(strDepartmentId);
+            if (uId == null)
+            {
+                return new Result<string>(false, "Missing or invalid id of user !");
+            }
+            if (dId == null)
+            {
+                return new Result<string>(false, "Missing or invalid id of department !");
+            }
+            var existUser = _db.Users.FirstOrDefault(u => u.Id == uId);
+            if (existUser == null)
+            {
+                return new Result<string>(false, "User with input id does not exist");
+            }
+            var existRole = _db.Departments.FirstOrDefault(r => r.Id == dId);
+            if (existRole == null)
+            {
+                return new Result<string>(false, "Department with input title does not exist !");
+            }
+            var delData = _db.DepartmentsMembers.FirstOrDefault(ur => ur.DepartmentId == dId && ur.UserId == uId && ur.IsDeleted == false);
+            if (delData != null)
+            {
+                _db.DepartmentsMembers.Remove(delData);
+                _db.SaveChanges();
+                return new Result<string>(true, "Delete a department member successfully !");
+            }
+            return new Result<string>(false, "Not found data to delete !");
         }
     }
 }

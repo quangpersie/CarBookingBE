@@ -1,28 +1,20 @@
-﻿using Newtonsoft.Json;
-using CarBookingBE.DTOs;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CarBookingBE.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
 
-namespace CarBookingTest.Models
+namespace CarBookingBE.DTOs
 {
-    [Table("Account")]
-    public class Account
+    public class AccountForAddDTO
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-        [Index(IsUnique = true)]
-        [MaxLength(50)]
+        public Guid Id { get; set; }
+        public string[] Roles { get; set; }
+        public string[] Departments { get; set; }
         public string Username { get; set; }
-        [JsonIgnore]
         public string Password { get; set; }
-        [Index(IsUnique = true)]
-        [MaxLength(50)]
         public string Email { get; set; }
-        [Index(IsUnique = true)]
-        [MaxLength(30)]
         public string EmployeeNumber { get; set; }
         public string AvatarPath { get; set; }
         public string FirstName { get; set; }
@@ -42,9 +34,7 @@ namespace CarBookingTest.Models
         public string Rank { get; set; }
         public string EmployeeType { get; set; }
         public string Rights { get; set; }
-        [JsonIgnore]
         public bool IsDeleted { get; set; }
-        /* Additional */
         public string Nation { get; set; }
         public string Phone { get; set; }
         public string IdCardNumber { get; set; }
@@ -56,34 +46,26 @@ namespace CarBookingTest.Models
         public DateTime? LeavingDate { get; set; }
         public DateTime? StartDateMaternityLeave { get; set; }
         public string Note { get; set; }
-        // Literacy
         public string AcademicLevel { get; set; }
         public string Qualification { get; set; }
-        // ContactInfo
         public string BusinessPhone { get; set; }
         public string HomePhone { get; set; }
         public string PersonalEmail { get; set; }
-        // BankAccount
         public string BankName { get; set; }
         public string BankBranchNumber { get; set; }
         public string BankBranchName { get; set; }
         public string BankAccountNumber { get; set; }
         public string BankAccountName { get; set; }
-        // Address
         public string Street { get; set; }
         public string FlatNumber { get; set; }
         public string City { get; set; }
         public string Province { get; set; }
         public string PostalCode { get; set; }
         public string Country { get; set; }
-
-        /* Family */
         public string MartialStatus { get; set; }
-        // Emergency Contact
         public string ContactName { get; set; }
         public string Relationship { get; set; }
         public string PhoneR { get; set; }
-        // Permanent Address
         public string StreetR { get; set; }
         public string FlatNumberR { get; set; }
         public string CityR { get; set; }
@@ -92,22 +74,5 @@ namespace CarBookingTest.Models
         public string CountryR { get; set; }
 
         public string Signature { get; set; }
-        //[JsonIgnore]
-        public virtual ICollection<AccountRole> UserRoles { get; set; }
-        //[JsonIgnore]
-        public virtual ICollection<DepartmentMember> DepartmentMembers { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<Request> Requests { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<RequestShare> RequestShares { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<RequestWorkflow> RequestWorkflows { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<VehicleRequest> VehicleRequests { get; set; }
-
-        public static implicit operator Account(AccountDTO v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

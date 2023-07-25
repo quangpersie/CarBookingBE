@@ -104,14 +104,14 @@ namespace CarBookingBE.Services
                 var isExisted = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Title == role.Title);
                 if (isExisted != null)
                 {
-                    var eRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
-                    if (eRole != null)
-                    {
-                        eRole.Title = role.Title;
-                        _db.SaveChanges();
-                        return new Result<Role>(true, "Edit role title successfully !", eRole);
-                    }
                     return new Result<Role>(false, "This title's already existed !");
+                }
+                var eRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
+                if (eRole != null)
+                {
+                    eRole.Title = role.Title;
+                    _db.SaveChanges();
+                    return new Result<Role>(true, "Edit role title successfully !", eRole);
                 }
                 return new Result<Role>(false, "Data does not exist");
             }

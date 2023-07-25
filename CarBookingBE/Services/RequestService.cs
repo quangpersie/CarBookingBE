@@ -286,6 +286,7 @@ namespace CarBookingBE.Services
                     Created = req.Created,
                     Department = new DepartmentDTO()
                     {
+                        Id = req.Department.Id,
                         Name = req.Department.Name
                     },
                     ReceiveUser = new AccountDTO()
@@ -304,6 +305,7 @@ namespace CarBookingBE.Services
                     Mobile = req.Mobile,
                     CostCenter = req.CostCenter,
                     TotalPassengers = req.TotalPassengers,
+                    PickTime = req.PickTime,
                     PickLocation = req.PickLocation,
                     Destination = req.Destination,
                     Reason = req.Reason,
@@ -444,8 +446,18 @@ namespace CarBookingBE.Services
             {
                 return new Result<Request>(false, "Request Not Found");
             }
-            request.IsDeleted = true;
-            db.SaveChanges();
+
+            var requireRoles = new RoleConstants(true, true, false, false, false);
+            var isAuthorized = utilMethods.isAuthorized(requireRoles);
+            var userLoginId = isAuthorized.Data;
+            if (isAuthorized.Success || request.SenderId == userLoginId)
+            {
+                request.IsDeleted = true;
+                db.SaveChanges();
+            } else
+            {
+                return new Result<Request>(false, "Permission Failed");
+            }
 
             return new Result<Request>(true, "Delete Success Request has RequestCode = " + request.RequestCode);
         }
@@ -514,7 +526,7 @@ namespace CarBookingBE.Services
 
             if (!listOfActions.Contains(action))
             {
-                return new Result<Request>(false, "Invalid Action Request!");
+                return new Result<Request>(false, "Invalid Action Request! " + listOfActions);
             }
 
             var request = db.Requests.SingleOrDefault(r => r.Id.ToString() == Id && r.IsDeleted == false);
@@ -558,7 +570,7 @@ namespace CarBookingBE.Services
                 return new Result<Request>(false, "Request Status: " + request.Status + " is required");
             }
 
-            if (userRolesLogin.Data.Contains("APPROVER"))
+            if (userRolesLogin.Data.Contains("APPROVER") || userRolesLogin.Data.Contains("ADMIN") || userRolesLogin.Data.Contains("ADMINISTRATIVE"))
             {
                 RequestWorkflow requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.UserId == userLoginId && rw.RequestId.ToString() == Id);
                 if (requestWorkflow == null)

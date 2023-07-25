@@ -616,7 +616,7 @@ namespace CarBookingBE.Services
 
             foreach (Request request in db.Requests)
             {
-                if (request.RequestCode.Contains(requestCodeBase) && request.IsDeleted == false)
+                if (request.RequestCode.Contains(requestCodeBase))
                 {
                     requestCodeList.Add(request.RequestCode);
                 }

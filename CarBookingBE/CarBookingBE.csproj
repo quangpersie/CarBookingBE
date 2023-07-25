@@ -313,6 +313,7 @@
     <Compile Include="DTOs\LoginDTO.cs" />
     <Compile Include="DTOs\LoginReturnDTO.cs" />
     <Compile Include="DTOs\NewRequestDTO.cs" />
+    <Compile Include="DTOs\AccountApproversDTO.cs" />
     <Compile Include="Migrations\202307200852348_DBv2.cs" />
     <Compile Include="Migrations\202307200852348_DBv2.designer.cs">
       <DependentUpon>202307200852348_DBv2.cs</DependentUpon>

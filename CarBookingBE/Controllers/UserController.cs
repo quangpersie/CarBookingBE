@@ -148,12 +148,5 @@ namespace CarBookingTest.Controllers
             }
             return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
         }
-
-        [HttpGet]
-        [Route("all-approvers")]
-        public IHttpActionResult getApprovers()
-        {
-            return Ok(userService.getApprovers());
-        }
     }
 }

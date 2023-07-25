@@ -886,11 +886,5 @@ namespace CarBookingBE.Services
                 return new Result<Account>(false, "Internal error !");
             }
         }
-
-        public Result<List<AccountRole>> getApprovers()
-        {
-            var data = _db.UserRoles.Where(u => u.RoleId == 1 || u.RoleId == 2 || u.RoleId == 3).ToList();
-            return new Result<List<AccountRole>>(true, "Get all approvers successfully !", data);
-        }
     }
 }

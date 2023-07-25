@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.PeerToPeer;
 
 namespace CarBookingBE.Services
 {
@@ -158,7 +159,7 @@ namespace CarBookingBE.Services
             {
                 return new Result<string>(false, "Missing or invalid id of user !");
             }
-            if(rId == null)
+            if(strRoleId == null)
             {
                 return new Result<string>(false, "Missing or invalid id of role !");
             }
@@ -264,6 +265,57 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e.Message);
                 return new Result<List<string>>(false, "Get roles by userId failed !", new List<string>());
             }
+        }
+
+        public Result<List<UserRolesDTO>> getRolesDetaioByUserId(string userId)
+        {
+            var uId = Guid.Parse(userId);
+            var userRoles = _db.UserRoles
+                .Where(ur => ur.IsDeleted == false && ur.UserId == uId)
+                .Select(ur => new UserRolesDTO
+                {
+                    Role = new RoleDTO
+                    {
+                        Id = ur.Role.Id,
+                        Title = ur.Role.Title
+                    }
+                })
+                .ToList();
+            if(!userRoles.Any())
+            {
+                return new Result<List<UserRolesDTO>>(false, "There's no data !");
+            }
+            return new Result<List<UserRolesDTO>>(true, "Get roles detail by user id successfully !", userRoles);
+        }
+        public Result<List<AccountApproversDTO>> getApprovers()
+        {
+            var listApprover = _db.UserRoles
+                .Where(u => u.User.IsDeleted == false)
+                .Where(u => u.Role.Id == 1 || u.Role.Id == 2 || u.Role.Id == 3)
+                .Select(ur => ur.User.Id)
+                .Distinct()
+                .ToList();
+            if (!listApprover.Any())
+            {
+                return new Result<List<AccountApproversDTO>>(false, "There's no data to return !");
+            }
+            List<AccountApproversDTO> approvers = new List<AccountApproversDTO>();
+            foreach (var approverId in listApprover)
+            {
+                var approver = _db.Users.Where(u => u.Id == approverId).Select(u => new AccountApproversDTO
+                {
+                    Id = approverId,
+                    Email = u.Email,
+                    FullName = ((u.FirstName != null && u. LastName != null) || (u.FirstName.Trim().Length > 0 && u.LastName.Trim().Length > 0)) ? u.FirstName + " " + u.LastName : "",
+                    JobTitle = u.JobTitle,
+                }).FirstOrDefault();
+                if (approver != null)
+                {
+                    approvers.Add(approver);
+                }
+            }
+
+            return new Result<List<AccountApproversDTO>>(true, "Get all approvers successfully !", approvers);
         }
     }
 }

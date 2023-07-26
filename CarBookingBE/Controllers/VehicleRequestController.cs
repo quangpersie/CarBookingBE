@@ -11,6 +11,7 @@ using System.Web.Http.Description;
 using CarBookingBE.Models;
 using CarBookingBE.Services;
 using CarBookingTest.Models;
+using CarBookingTest.Utils;
 
 namespace CarBookingBE.Controllers
 {
@@ -22,6 +23,7 @@ namespace CarBookingBE.Controllers
 
         [Route("create")]
         [HttpPost]
+        [JwtAuthorize]
         public IHttpActionResult createVehicleRequest(VehicleRequest vehicleRequest)
         {
             var newVehicleRequest = vehicleRequestService.createVehicleRequest(vehicleRequest);
@@ -30,6 +32,19 @@ namespace CarBookingBE.Controllers
                 return BadRequest(newVehicleRequest.Message);
             }
             return Ok(vehicleRequest);
+        }
+
+        [Route("rotation")]
+        [HttpGet]
+        [JwtAuthorize]
+        public IHttpActionResult getAllRotations()
+        {
+            var rotations = vehicleRequestService.getAllRotation();
+            if (!rotations.Success)
+            {
+                return BadRequest(rotations.Message);
+            }
+            return Ok(rotations);
         }
     }
 }

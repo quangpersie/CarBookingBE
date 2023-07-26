@@ -55,5 +55,11 @@ namespace CarBookingBE.Services
             return new Result<VehicleRequest>(true, "Create Vehicle Request Success", vehicleRequest);
         }
 
+        public Result<List<Rotation>> getAllRotation()
+        {
+            var rotations = db.Rotations.Where(r => r.IsDeleted == false).OrderBy(r => r.Type).ToList();
+            return new Result<List<Rotation>>(true, "Get Success", rotations);
+        }
+
     }
 }

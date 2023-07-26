@@ -36,6 +36,7 @@ namespace CarBookingBE.Services
                     Content = rc.Content,
                     Created = rc.Created
                 })
+                .OrderByDescending(rc => rc.Created)
                 .ToList();
 
             return new Result<List<RequestCommentDTO>>(true, "Get Success", requestComments);

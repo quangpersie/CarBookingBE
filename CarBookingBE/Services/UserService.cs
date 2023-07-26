@@ -319,7 +319,7 @@ namespace CarBookingBE.Services
                         }
                     }
 
-                    if (updateUser["Username"] != null && util.stringValid(updateUser["Username"]))
+                    if (updateUser["Username"] != null && util.stringValid(updateUser["Username"]) && !user.Username.Equals(updateUser["Username"]))
                     {
                         var username = updateUser["Username"];
                         var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Username == username);
@@ -329,18 +329,25 @@ namespace CarBookingBE.Services
                         }
                         user.Username = updateUser["Username"];
                     }
-                    if (updateUser["Email"] != null && util.stringValid(updateUser["Email"]))
+                    if (updateUser["Email"] != null && util.stringValid(updateUser["Email"]) && !user.Email.Equals(updateUser["Email"]))
                     {
+                        var email = updateUser["Email"];
+                        var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Email == email);
+                        if (check != null)
+                        {
+                            return new Result<Account>(false, "This username's already existed !");
+                        }
                         if (!util.IsValidEmail(updateUser["Email"]))
                         {
                             return new Result<Account>(false, "Wrong format of email !");
                         }
                         user.Email = updateUser["Email"];
                     }
-                    if (updateUser["EmployeeNumber"] != null && util.stringValid(updateUser["EmployeeNumber"]))
+                    if (updateUser["EmployeeNumber"] != null && util.stringValid(updateUser["EmployeeNumber"]) && !user.Username.Equals(updateUser["EmployeeNumber"]))
                     {
                         var emNum = updateUser["EmployeeNumber"];
-                        if (_db.Users.FirstOrDefault(u => u.IsDeleted == false && u.EmployeeNumber == emNum) != null)
+                        var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.EmployeeNumber == emNum);
+                        if (check != null)
                         {
                             return new Result<Account>(false, "Duplicate employee number !");
                         }

@@ -343,7 +343,7 @@ namespace CarBookingBE.Services
                         }
                         user.Email = updateUser["Email"];
                     }
-                    if (updateUser["EmployeeNumber"] != null && util.stringValid(updateUser["EmployeeNumber"]) && !user.Username.Equals(updateUser["EmployeeNumber"]))
+                    if (updateUser["EmployeeNumber"] != null && util.stringValid(updateUser["EmployeeNumber"]) && !user.EmployeeNumber.Equals(updateUser["EmployeeNumber"]))
                     {
                         var emNum = updateUser["EmployeeNumber"];
                         var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.EmployeeNumber == emNum);
@@ -708,11 +708,11 @@ namespace CarBookingBE.Services
                 //Trace.WriteLine($"--AP: {user.AvatarPath}");
 
                 //start edit fields
-                if(editUser.Roles.Length > 0)
+                if(editUser != null && editUser.Roles.Length > 0)
                 {
                     urService.addUserRoles(idUserEdit, editUser.Roles);
                 }
-                if(editUser.Departments.Length > 0)
+                if(editUser != null && editUser.Departments.Length > 0)
                 {
                     dms.addDepartmentMembers(idUserEdit, editUser.Departments);
                 }

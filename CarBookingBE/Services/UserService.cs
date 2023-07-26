@@ -266,7 +266,7 @@ namespace CarBookingBE.Services
                 if (isAdmin)
                 {
                     //Password, IsDeleted
-                    if (updateUser["Birthday"] != null)
+                    if (updateUser["Birthday"] != null && util.stringValid(updateUser["Birthday"]))
                     {
                         try
                         {
@@ -282,7 +282,7 @@ namespace CarBookingBE.Services
                             return new Result<Account>(false, "Wrong format of Birthday");
                         }
                     }
-                    if (updateUser["StartingDateOfficial"] != null)
+                    if (updateUser["StartingDateOfficial"] != null && util.stringValid(updateUser["StartingDateOfficial"]))
                     {
                         try
                         {
@@ -294,7 +294,7 @@ namespace CarBookingBE.Services
                             return new Result<Account>(false, "Wrong format of Starting Date Official");
                         }
                     }
-                    if (updateUser["LeavingDate"] != null)
+                    if (updateUser["LeavingDate"] != null && util.stringValid(updateUser["LeavingDate"]))
                     {
                         try
                         {
@@ -306,7 +306,7 @@ namespace CarBookingBE.Services
                             return new Result<Account>(false, "Wrong format of Leaving Date");
                         }
                     }
-                    if (updateUser["StartDateMaternityLeave"] != null)
+                    if (updateUser["StartDateMaternityLeave"] != null && util.stringValid(updateUser["StartDateMaternityLeave"]))
                     {
                         try
                         {
@@ -319,15 +319,16 @@ namespace CarBookingBE.Services
                         }
                     }
 
-                    if (updateUser["Username"] != null)
+                    if (updateUser["Username"] != null && util.stringValid(updateUser["Username"]))
                     {
-                        if (_db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Username == updateUser["Username"]) != null)
+                        var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Username == updateUser["Username"]);
+                        if (check != null)
                         {
                             return new Result<Account>(false, "This username's already existed !");
                         }
                         user.Username = updateUser["Username"];
                     }
-                    if (updateUser["Email"] != null)
+                    if (updateUser["Email"] != null && util.stringValid(updateUser["Email"]))
                     {
                         if (!util.IsValidEmail(updateUser["Email"]))
                         {
@@ -335,7 +336,7 @@ namespace CarBookingBE.Services
                         }
                         user.Email = updateUser["Email"];
                     }
-                    if (updateUser["EmployeeNumber"] != null)
+                    if (updateUser["EmployeeNumber"] != null && util.stringValid(updateUser["EmployeeNumber"]))
                     {
                         if (_db.Users.FirstOrDefault(u => u.IsDeleted == false && u.EmployeeNumber == updateUser["EmployeeNumber"]) != null)
                         {
@@ -343,13 +344,13 @@ namespace CarBookingBE.Services
                         }
                         user.EmployeeNumber = updateUser["EmployeeNumber"];
                     }
-                    if (updateUser["AvatarPath"] != null)
+                    if (updateUser["AvatarPath"] != null && util.stringValid(updateUser["AvatarPath"]))
                     {
                         user.AvatarPath = updateUser["AvatarPath"];
                     }
-                    if (updateUser["FirstName"] != null) user.FirstName = updateUser["FirstName"];
-                    if (updateUser["LastName"] != null) user.LastName = updateUser["LastName"];
-                    if (updateUser["Sex"] != null)
+                    if (updateUser["FirstName"] != null && util.stringValid(updateUser["FirstName"])) user.FirstName = updateUser["FirstName"];
+                    if (updateUser["LastName"] != null && util.stringValid(updateUser["LastName"])) user.LastName = updateUser["LastName"];
+                    if (updateUser["Sex"] != null && util.stringValid(updateUser["Sex"]))
                     {
                         try
                         {
@@ -361,19 +362,19 @@ namespace CarBookingBE.Services
                             return new Result<Account>(false, "Type of sex is invalid !");
                         }
                     }
-                    if (updateUser["JobTitle"] != null) user.JobTitle = updateUser["JobTitle"];
-                    if (updateUser["Company"] != null) user.Company = updateUser["Company"];
-                    if (updateUser["Unit"] != null) user.Unit = updateUser["Unit"];
-                    if (updateUser["Function"] != null) user.Function = updateUser["Function"];
-                    if (updateUser["SectionsOrTeam"] != null) user.SectionsOrTeam = updateUser["SectionsOrTeam"];
-                    if (updateUser["Groups"] != null) user.Groups = updateUser["Groups"];
-                    if (updateUser["OfficeLocation"] != null) user.OfficeLocation = updateUser["OfficeLocation"];
-                    if (updateUser["LineManager"] != null) user.LineManager = updateUser["LineManager"];
-                    if (updateUser["BelongToDepartments"] != null) user.BelongToDepartments = updateUser["BelongToDepartments"];
+                    if (updateUser["JobTitle"] != null && util.stringValid(updateUser["JobTitle"])) user.JobTitle = updateUser["JobTitle"];
+                    if (updateUser["Company"] != null && util.stringValid(updateUser["Company"])) user.Company = updateUser["Company"];
+                    if (updateUser["Unit"] != null && util.stringValid(updateUser["Unit"])) user.Unit = updateUser["Unit"];
+                    if (updateUser["Function"] != null && util.stringValid(updateUser["Function"])) user.Function = updateUser["Function"];
+                    if (updateUser["SectionsOrTeam"] != null && util.stringValid(updateUser["SectionsOrTeam"])) user.SectionsOrTeam = updateUser["SectionsOrTeam"];
+                    if (updateUser["Groups"] != null && util.stringValid(updateUser["Groups"])) user.Groups = updateUser["Groups"];
+                    if (updateUser["OfficeLocation"] != null && util.stringValid(updateUser["OfficeLocation"])) user.OfficeLocation = updateUser["OfficeLocation"];
+                    if (updateUser["LineManager"] != null && util.stringValid(updateUser["LineManager"])) user.LineManager = updateUser["LineManager"];
+                    if (updateUser["BelongToDepartments"] != null && util.stringValid(updateUser["BelongToDepartments"])) user.BelongToDepartments = updateUser["BelongToDepartments"];
 
                 }
                 // user can edit
-                if (updateUser["DateOfIdCard"] != null)
+                if (updateUser["DateOfIdCard"] != null && util.stringValid(updateUser["DateOfIdCard"]))
                 {
                     try
                     {
@@ -390,7 +391,7 @@ namespace CarBookingBE.Services
                     }
                 }
 
-                if (updateUser["StartingDate"] != null)
+                if (updateUser["StartingDate"] != null && util.stringValid(updateUser["StartingDate"]))
                 {
                     try
                     {
@@ -406,41 +407,41 @@ namespace CarBookingBE.Services
                         return new Result<Account>(false, "Wrong format of Starting Date (Interviewed date)");
                     }
                 }
-                if (updateUser["Rank"] != null) user.Rank = updateUser["Rank"];
-                if (updateUser["EmployeeType"] != null) user.EmployeeType = updateUser["EmployeeType"];
-                if (updateUser["Rights"] != null) user.Rights = updateUser["Rights"];
-                if (updateUser["Nation"] != null) user.Nation = updateUser["Nation"];
-                if (updateUser["Phone"] != null) user.Phone = updateUser["Phone"];
-                if (updateUser["IdCardNumber"] != null) user.IdCardNumber = updateUser["IdCardNumber"];
-                if (updateUser["PlaceOfIdCard"] != null) user.PlaceOfIdCard = updateUser["PlaceOfIdCard"];
-                if (updateUser["HealthInsurance"] != null) user.HealthInsurance = updateUser["HealthInsurance"];
-                if (updateUser["Note"] != null) user.Note = updateUser["Note"];
-                if (updateUser["AcademicLevel"] != null) user.AcademicLevel = updateUser["AcademicLevel"];
-                if (updateUser["Qualification"] != null) user.Qualification = updateUser["Qualification"];
-                if (updateUser["BusinessPhone"] != null) user.BusinessPhone = updateUser["BusinessPhone"];
-                if (updateUser["HomePhone"] != null) user.HomePhone = updateUser["HomePhone"];
-                if (updateUser["PersonalEmail"] != null) user.PersonalEmail = updateUser["PersonalEmail"];
-                if (updateUser["BankName"] != null) user.BankName = updateUser["BankName"];
-                if (updateUser["BankBranchNumber"] != null) user.BankBranchNumber = updateUser["BankBranchNumber"];
-                if (updateUser["BankBranchName"] != null) user.BankBranchName = updateUser["BankBranchName"];
-                if (updateUser["BankAccountNumber"] != null) user.BankAccountNumber = updateUser["BankAccountNumber"];
-                if (updateUser["BankAccountName"] != null) user.BankAccountName = updateUser["BankAccountName"];
-                if (updateUser["Street"] != null) user.Street = updateUser["Street"];
-                if (updateUser["FlatNumber"] != null) user.FlatNumber = updateUser["FlatNumber"];
-                if (updateUser["City"] != null) user.City = updateUser["City"];
-                if (updateUser["Province"] != null) user.Province = updateUser["Province"];
-                if (updateUser["PostalCode"] != null) user.PostalCode = updateUser["PostalCode"];
-                if (updateUser["Country"] != null) user.Country = updateUser["Country"];
-                if (updateUser["MartialStatus"] != null) user.MartialStatus = updateUser["MartialStatus"];
-                if (updateUser["ContactName"] != null) user.ContactName = updateUser["ContactName"];
-                if (updateUser["Relationship"] != null) user.Relationship = updateUser["Relationship"];
-                if (updateUser["PhoneR"] != null) user.PhoneR = updateUser["PhoneR"];
-                if (updateUser["StreetR"] != null) user.StreetR = updateUser["StreetR"];
-                if (updateUser["FlatNumberR"] != null) user.FlatNumberR = updateUser["FlatNumberR"];
-                if (updateUser["CityR"] != null) user.CityR = updateUser["CityR"];
-                if (updateUser["ProvinceR"] != null) user.ProvinceR = updateUser["ProvinceR"];
-                if (updateUser["PostalCodeR"] != null) user.PostalCodeR = updateUser["PostalCodeR"];
-                if (updateUser["CountryR"] != null) user.CountryR = updateUser["CountryR"];
+                if (updateUser["Rank"] != null && util.stringValid(updateUser["Rank"])) user.Rank = updateUser["Rank"];
+                if (updateUser["EmployeeType"] != null && util.stringValid(updateUser["EmployeeType"])) user.EmployeeType = updateUser["EmployeeType"];
+                if (updateUser["Rights"] != null && util.stringValid(updateUser["Rights"])) user.Rights = updateUser["Rights"];
+                if (updateUser["Nation"] != null && util.stringValid(updateUser["Nation"])) user.Nation = updateUser["Nation"];
+                if (updateUser["Phone"] != null && util.stringValid(updateUser["Phone"])) user.Phone = updateUser["Phone"];
+                if (updateUser["IdCardNumber"] != null && util.stringValid(updateUser["IdCardNumber"])) user.IdCardNumber = updateUser["IdCardNumber"];
+                if (updateUser["PlaceOfIdCard"] != null && util.stringValid(updateUser["PlaceOfIdCard"])) user.PlaceOfIdCard = updateUser["PlaceOfIdCard"];
+                if (updateUser["HealthInsurance"] != null && util.stringValid(updateUser["HealthInsurance"])) user.HealthInsurance = updateUser["HealthInsurance"];
+                if (updateUser["Note"] != null && util.stringValid(updateUser["Note"])) user.Note = updateUser["Note"];
+                if (updateUser["AcademicLevel"] != null && util.stringValid(updateUser["AcademicLevel"])) user.AcademicLevel = updateUser["AcademicLevel"];
+                if (updateUser["Qualification"] != null && util.stringValid(updateUser["Qualification"])) user.Qualification = updateUser["Qualification"];
+                if (updateUser["BusinessPhone"] != null && util.stringValid(updateUser["BusinessPhone"])) user.BusinessPhone = updateUser["BusinessPhone"];
+                if (updateUser["HomePhone"] != null && util.stringValid(updateUser["HomePhone"])) user.HomePhone = updateUser["HomePhone"];
+                if (updateUser["PersonalEmail"] != null && util.stringValid(updateUser["PersonalEmail"])) user.PersonalEmail = updateUser["PersonalEmail"];
+                if (updateUser["BankName"] != null && util.stringValid(updateUser["BankName"])) user.BankName = updateUser["BankName"];
+                if (updateUser["BankBranchNumber"] != null && util.stringValid(updateUser["BankBranchNumber"])) user.BankBranchNumber = updateUser["BankBranchNumber"];
+                if (updateUser["BankBranchName"] != null && util.stringValid(updateUser["BankBranchName"])) user.BankBranchName = updateUser["BankBranchName"];
+                if (updateUser["BankAccountNumber"] != null && util.stringValid(updateUser["BankAccountNumber"])) user.BankAccountNumber = updateUser["BankAccountNumber"];
+                if (updateUser["BankAccountName"] != null && util.stringValid(updateUser["BankAccountName"])) user.BankAccountName = updateUser["BankAccountName"];
+                if (updateUser["Street"] != null && util.stringValid(updateUser["Street"])) user.Street = updateUser["Street"];
+                if (updateUser["FlatNumber"] != null && util.stringValid(updateUser["FlatNumber"])) user.FlatNumber = updateUser["FlatNumber"];
+                if (updateUser["City"] != null && util.stringValid(updateUser["City"])) user.City = updateUser["City"];
+                if (updateUser["Province"] != null && util.stringValid(updateUser["Province"])) user.Province = updateUser["Province"];
+                if (updateUser["PostalCode"] != null && util.stringValid(updateUser["PostalCode"])) user.PostalCode = updateUser["PostalCode"];
+                if (updateUser["Country"] != null && util.stringValid(updateUser["Country"])) user.Country = updateUser["Country"];
+                if (updateUser["MartialStatus"] != null && util.stringValid(updateUser["MartialStatus"])) user.MartialStatus = updateUser["MartialStatus"];
+                if (updateUser["ContactName"] != null && util.stringValid(updateUser["ContactName"])) user.ContactName = updateUser["ContactName"];
+                if (updateUser["Relationship"] != null && util.stringValid(updateUser["Relationship"])) user.Relationship = updateUser["Relationship"];
+                if (updateUser["PhoneR"] != null && util.stringValid(updateUser["PhoneR"])) user.PhoneR = updateUser["PhoneR"];
+                if (updateUser["StreetR"] != null && util.stringValid(updateUser["StreetR"])) user.StreetR = updateUser["StreetR"];
+                if (updateUser["FlatNumberR"] != null && util.stringValid(updateUser["FlatNumberR"])) user.FlatNumberR = updateUser["FlatNumberR"];
+                if (updateUser["CityR"] != null && util.stringValid(updateUser["CityR"])) user.CityR = updateUser["CityR"];
+                if (updateUser["ProvinceR"] != null && util.stringValid(updateUser["ProvinceR"])) user.ProvinceR = updateUser["ProvinceR"];
+                if (updateUser["PostalCodeR"] != null && util.stringValid(updateUser["PostalCodeR"])) user.PostalCodeR = updateUser["PostalCodeR"];
+                if (updateUser["CountryR"] != null && util.stringValid(updateUser["CountryR"])) user.CountryR = updateUser["CountryR"];
                 user.Created = DateTime.Now;
 
                 _db.SaveChanges();

@@ -14,6 +14,7 @@ using System.Web;
 using CarBookingBE.DTOs;
 using CarBookingTest.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace CarBookingBE.Utils
 {

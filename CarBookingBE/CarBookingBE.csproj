@@ -308,6 +308,7 @@
     <Compile Include="DTOs\AccountDTO.cs" />
     <Compile Include="DTOs\AccountForAddDTO.cs" />
     <Compile Include="DTOs\AccountLoginReturnDTO.cs" />
+    <Compile Include="DTOs\TokenBlacklistDTO.cs" />
     <Compile Include="DTOs\DepartmentDTO.cs" />
     <Compile Include="DTOs\DepartmentMemberDTO.cs" />
     <Compile Include="DTOs\LoginDTO.cs" />
@@ -319,6 +320,7 @@
       <DependentUpon>202307200852348_DBv2.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\FileService.cs" />
+    <Compile Include="Utils\HandleToken\TokenBlacklist.cs" />
     <Compile Include="Utils\Pagination.cs" />
     <Compile Include="DTOs\RequestAttachmentDTO.cs" />
     <Compile Include="DTOs\RequestCommentDTO.cs" />
@@ -419,6 +421,7 @@
     <Content Include="Scripts\jquery-3.4.1.slim.js" />
     <Content Include="Scripts\jquery-3.4.1.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Utils\HandleToken\TokenBacklist.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

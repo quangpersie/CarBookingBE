@@ -265,24 +265,32 @@ namespace CarBookingBE.Services
 
         public Result<string> createQRCode(string link)
         {
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(link, QRCodeGenerator.ECCLevel.Q);
-
-            // Create the QR code
-            QRCode qrCode = new QRCode(qrCodeData);
-
-            // Convert the QR code to a bitmap image
-            Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-            string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/QRCode"));
-            if (!Directory.Exists(pathToSave))
+            try
             {
-                Directory.CreateDirectory(pathToSave);
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(link, QRCodeGenerator.ECCLevel.Q);
+
+                // Create the QR code
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                // Convert the QR code to a bitmap image
+                Bitmap qrCodeImage = qrCode.GetGraphic(20);
+
+                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/QRCode"));
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+                // Save the QR code image to a local file
+                string imagePath = $"{pathToSave}/qrcode.png";
+                qrCodeImage.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
+                return new Result<string>(true, "QR code image saved to: " + imagePath);
             }
-            // Save the QR code image to a local file
-            string imagePath = $"{pathToSave}/qrcode.png";
-            qrCodeImage.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
-            return new Result<string>(false, "QR code image saved to: " + imagePath);
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "Internal error !");
+            }
         }
 
         public Result<string> writeRequestToPdf()

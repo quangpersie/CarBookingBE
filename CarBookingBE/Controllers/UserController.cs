@@ -1,6 +1,7 @@
 ﻿using CarBookingBE.DTOs;
 using CarBookingBE.Services;
 using CarBookingBE.Utils;
+using CarBookingBE.Utils.HandleToken;
 using CarBookingTest.Models;
 using CarBookingTest.Utils;
 using Newtonsoft.Json;
@@ -15,6 +16,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Security;
+using System.Windows;
 
 namespace CarBookingTest.Controllers
 {
@@ -45,7 +47,6 @@ namespace CarBookingTest.Controllers
             var curId = isAuthorized.Data;
             var httpRequest = HttpContext.Current.Request;
             Account user = new Account();
-            string[] roleIds = JsonConvert.DeserializeObject<string[]>(httpRequest.Form["Roles"]);
             user.Email = httpRequest.Form["Email"];
             user.Password = httpRequest.Form["Password"];
             user.FirstName = httpRequest.Form["FirstName"];
@@ -106,14 +107,29 @@ namespace CarBookingTest.Controllers
             return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
         }
 
-        /*[HttpPost]
+        [HttpGet]
         [Route("logout")]
         [JwtAuthorize]
-        public IHttpActionResult logoutUser([FromBody] TokenProps jwtToken)
+        public IHttpActionResult logoutUser()
         {
-            //var token = jwt.UpdateTokenExpiration(jwtToken.tokenForLogout, jwt.secretKey, 0);
-            return Ok(new { Success = true, Message = "Logout successfully !" });
-        }*/
+            try
+            {
+                var token = HttpContext.Current.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                var uid = util.getCurId();
+                if(!uid.Success)
+                {
+                    return Ok(new { Success = false, Message = "Do not have current user, log out failed !" });
+                }
+                var userId = uid.Data.ToString();
+                TokenBlacklist.BlacklistToken(userId, token);
+                return Ok(new { Success = true, Message = "Log out successfully !" });
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return Ok(new { Success = true, Message = "Internal error, log out failed !" });
+            }
+        }
 
         [HttpPost]
         [Route("add")]
@@ -147,6 +163,14 @@ namespace CarBookingTest.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK, userService.editProfileService(idEdit, user));
             }
             return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
+        }
+
+        [HttpGet]
+        [Route("check-jwt")]
+        [JwtAuthorize]
+        public IHttpActionResult checkToken()
+        {
+            return Ok("Token works !");
         }
     }
 }

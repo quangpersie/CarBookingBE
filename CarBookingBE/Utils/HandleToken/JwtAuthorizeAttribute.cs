@@ -3,8 +3,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
+using System.Windows;
+using CarBookingBE.Utils;
+using CarBookingBE.Utils.HandleToken;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CarBookingTest.Utils
@@ -39,8 +43,7 @@ namespace CarBookingTest.Utils
                 var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
 
                 // Perform additional authorization checks based on the claims in the token if needed
-
-                return true;
+                return !TokenBlacklist.IsTokenBlacklisted(token);
             }
             catch
             {
@@ -51,7 +54,7 @@ namespace CarBookingTest.Utils
         protected override void HandleUnauthorizedRequest(HttpActionContext actionContext)
         {
             // Custom unauthorized response message
-            var unauthorizedMessage = "Login required !";
+            var unauthorizedMessage = "Token needed, login required !";
 
             // Set the response with the unauthorized message and status code
             actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, unauthorizedMessage);

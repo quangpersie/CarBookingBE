@@ -321,7 +321,8 @@ namespace CarBookingBE.Services
 
                     if (updateUser["Username"] != null && util.stringValid(updateUser["Username"]))
                     {
-                        var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Username == updateUser["Username"]);
+                        var username = updateUser["Username"];
+                        var check = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Username == username);
                         if (check != null)
                         {
                             return new Result<Account>(false, "This username's already existed !");
@@ -338,7 +339,8 @@ namespace CarBookingBE.Services
                     }
                     if (updateUser["EmployeeNumber"] != null && util.stringValid(updateUser["EmployeeNumber"]))
                     {
-                        if (_db.Users.FirstOrDefault(u => u.IsDeleted == false && u.EmployeeNumber == updateUser["EmployeeNumber"]) != null)
+                        var emNum = updateUser["EmployeeNumber"];
+                        if (_db.Users.FirstOrDefault(u => u.IsDeleted == false && u.EmployeeNumber == emNum) != null)
                         {
                             return new Result<Account>(false, "Duplicate employee number !");
                         }

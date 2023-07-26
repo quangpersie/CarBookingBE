@@ -120,13 +120,15 @@ namespace CarBookingBE.Controllers
             if (httpRequest.Form["ApplyNote"] != null) request.ApplyNote = bool.Parse(httpRequest.Form["ApplyNote"]);
             if (httpRequest.Form["Note"] != null) request.Note = httpRequest.Form["Note"];
             var requestEdit = requestService.EditRequest(id, request);
-
-            var requestId = requestEdit.Data.Id;
-
-            // Edit RequestWorkflow
-            if (httpRequest.Form["ListOfUserId"] != null)
+            if (!requestEdit.Success)
             {
-                var listOfUserId = httpRequest.Params.GetValues("ListOfUserId");
+                return BadRequest(requestEdit.Message);
+            }
+            var requestId = requestEdit.Data.Id;
+            if (httpRequest.Form["ListOfUserId[]"] != null)
+            {
+                // Edit RequestWorkflow
+                var listOfUserId = httpRequest.Params.GetValues("ListOfUserId[]");
 
                 var createRequestWorkflow = requestWorkflowService.EditRequestWorkflow(requestId, listOfUserId);
                 if (!createRequestWorkflow.Success)
@@ -134,6 +136,7 @@ namespace CarBookingBE.Controllers
                     return BadRequest(createRequestWorkflow.Message);
                 }
             }
+            
 
             // Edit RequestAttachment
             if (httpRequest.Files.Count > 0)

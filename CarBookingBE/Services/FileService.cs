@@ -14,6 +14,7 @@ using CarBookingTest.Models;
 using QRCoder;
 using System.Drawing;
 using IronPdf;
+using System.Windows.Media.Animation;
 
 namespace CarBookingBE.Services
 {
@@ -323,8 +324,135 @@ namespace CarBookingBE.Services
             }
         }
 
+        public HttpResponseMessage downloadFilePdf(string fileName)
+        {
+            try
+            {
+                var fileUrl = $"http://localhost:63642/Files/Pdf/{fileName}";
+                using (WebClient client = new WebClient())
+                {
+                    byte[] fileData = client.DownloadData(fileUrl);
+
+                    HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new ByteArrayContent(fileData);
+                    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = fileName
+                    };
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                    return response;
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            }
+        }
+
         public bool createHtmlFromRequest(Request request, string htmlFilePath)
         {
+            var host = "http://localhost:63642";
+            string format = "dd/MM/yyyy hh:mm tt";
+            var wf = request.RequestWorkflows.FirstOrDefault(rw => rw.Level == 1);
+            var am = request.RequestAttachments.Where(a => a.IsDeleted == false && a.RequestId == request.Id).ToList();
+            var hasWf = wf != null;
+            var hasAm = am != null;
+
+            string documentSigners = @"
+                <!-- document signer -->
+                <div class=""title-cbr text-left m-top"">Document Signers</div>
+                <div class=""m-top"">
+                    <div class=""full-line m-top""></div>
+                    <div class=""flex-row align-center gap-12"">
+                        <div class=""col-3"">
+                            <div>
+                                <div class=""flex-row pt-8"">
+                                    <div class=""title min-width"">Title</div>
+                                    <div>"+ wf.User.JobTitle +@"</div>
+                                </div>
+                            </div>
+                            <div class=""p-top"">
+                                <div class=""full-line-grey""></div>
+                                <div class=""flex-row pt-8"">
+                                    <div class=""title min-width"">Email</div>
+                                    <div>"+ wf.User.Email +@"</div>
+                                </div>
+                            </div>
+                            <div class=""p-top"">
+                                <div class=""full-line-grey""></div>
+                                <div class=""flex-row pt-8"">
+                                    <div class=""title min-width"">Status</div>
+                                    <div>APPROVED</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style=""padding: 8px 8px 0 8px;"">
+                            <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
+                        </div>
+                    </div>
+                    <div class=""p-top"">
+                        <div class=""full-line-grey""></div>
+                        <div class=""flex-row pt-8"">
+                            <div class=""title min-width"">Name</div>
+                            <div>"+ $"{wf.User.FirstName} {wf.User.LastName}" +@"</div>
+                        </div>
+                    </div>
+                </div>
+            ";
+
+            string astring = "";
+            if(hasAm)
+            {
+                foreach (var a in am)
+                {
+                    astring += @"
+                    < div class=""flex-row gap-36"">
+                        <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                        <a class=""col-4"" href=" + $"{host}/{a.Path}" + @">" + $"{a.Path.Replace($"{host}/Files/Attachments/{request.RequestCode}", "")}" + @"</a>
+                        <span class=""col-3"">Bang Nguyen Minh</span>
+                    </div>
+                ";
+                }
+            }
+
+            string relatedDocument = @"
+                <!-- related document -->
+                <div>
+                    <div class=""title-cbr text-left m-top"">Related document</div>
+                    <div class=""full-line m-top""></div>
+
+                    <div class=""flex-col m-top"">
+                        <div class=""flex-row gap-36"">
+                            <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                            <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
+                            <span class=""col-3"">Bang Nguyen Minh</span>
+                        </div>
+                        <div class=""flex-row gap-36"">
+                            <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                            <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
+                            <span class=""col-3"">Bang Nguyen Minh</span>
+                        </div>
+                    </div>
+                </div>
+            ";
+
+            string discussionLog = @"
+                <!-- Discussion log -->
+                <div>
+                    <div class=""title text-left m-top"">Discussion log</div>
+                    <div class=""full-line m-top""></div>
+
+                    <div class=""flex-col m-top"">
+                        <div class=""flex-row gap-36"">
+                            <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
+                            <div class=""col-4"">Submit the request 2023OPS-CAR-0720-001 for approval</div>
+                            <span class=""col-3"">Bang Nguyen Minh</span>
+                        </div>
+                    </div>
+                </div>
+            ";
             try
             {
                 string htmlContent = @"
@@ -339,10 +467,10 @@ namespace CarBookingBE.Services
                         <div class=""flex-col align-center gap-12"">
                             <span class=""title"">OPUS SOLUTION COMPANY</span>
                             <div class=""line""></div>
-                            <span>No: 2023OPS-CAR-0710-004</span>
+                            <span>No: "+ request.RequestCode + @"</span>
                         </div>
                         <div class=""flex-col align-center gap-12"">
-                            <span class=""title"">Status: Approved</span>
+                            <span class=""title"">Status: "+ request.Status +@"</span>
                             <div class=""line""></div>
                             <span>10/07/2023 15:48 PM</span>
                         </div>
@@ -354,51 +482,51 @@ namespace CarBookingBE.Services
                             <div class=""flex-row"">
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Applicant</div>
-                                    <span>Bang Nguyen Minh</span>
+                                    <span>"+ $"{request.SenderUser.FirstName} {request.SenderUser.LastName}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Department</div>
-                                    <span>IT/ Technical</span>
+                                    <span>"+ $"{request.Department.Name}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">User</div>
-                                    <span>Bang Nguyen Minh</span>
+                                    <span>"+ $"{request.ReceiveUser.FirstName} {request.ReceiveUser.LastName}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Mobile</div>
-                                    <span>0876839834</span>
+                                    <span>"+ $"{request.Mobile}" +@"</span>
                                 </div>
                             </div>
                             <div class=""flex-row"">
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Cost Center</div>
-                                    <span>12</span>
+                                    <span>"+ $"{request.CostCenter}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Total Passengers</div>
-                                    <span>2</span>
+                                    <span>"+ $"{request.TotalPassengers}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Usage time from</div>
-                                    <span>20/07/2023 11:29 AM - 20/07/2023 12:29 PM</span>
+                                    <span>"+ $"{request.UsageFrom?.ToString(format)} - {request.UsageTo?.ToString(format)}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Pick time</div>
-                                    <span>20/07/2023 11:29 AM</span>
+                                    <span>"+ $"{request.PickTime?.ToString(format)}" +@"</span>
                                 </div>
                             </div>
                             <div class=""flex-row"">
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Pick Location</div>
-                                    <span>Ho Chi Minh</span>
+                                    <span>"+ $"{request.PickLocation}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Destination</div>
-                                    <span>Ha Noi</span>
+                                    <span>"+ $"{request.Destination}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Reason</div>
-                                    <span>Delay</span>
+                                    <span>"+ $"{request.Reason}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title""></div>
@@ -410,89 +538,17 @@ namespace CarBookingBE.Services
                         <div class=""flex-row gap-12"">
                             <div class=""flex-row align-center height-30 gap-8"">
                                 <div class=""radio"">
-                                    <div class=""radio-check""></div>
+                                    <div class="+ (request.ApplyNote == true ? "radio-check" : "") + @"></div>
                                 </div>
                                 <label for=""yes"" class=""label-radio"">Yes</label>
                             </div>
                             <div class=""flex-row align-center height-30 gap-8"">
                                 <div class=""radio"">
-                                    <div class=""""></div>
+                                    <div class=" + (request.ApplyNote == false ? "radio - check" : "") + @"></div>
                                 </div>
                                 <label for=""no"" class=""label-radio"">No</label>
                             </div>
-                        </div>
-
-                        <!-- document signer -->
-                        <div class=""title-cbr text-left m-top"">Document Signers</div>
-                        <div class=""m-top"">
-                            <div class=""full-line m-top""></div>
-                            <div class=""flex-row align-center gap-12"">
-                                <div class=""col-3"">
-                                    <div>
-                                        <div class=""flex-row pt-8"">
-                                            <div class=""title min-width"">Title</div>
-                                            <div>Developer</div>
-                                        </div>
-                                    </div>
-                                    <div class=""p-top"">
-                                        <div class=""full-line-grey""></div>
-                                        <div class=""flex-row pt-8"">
-                                            <div class=""title min-width"">Email</div>
-                                            <div>bangnm@o365.vn</div>
-                                        </div>
-                                    </div>
-                                    <div class=""p-top"">
-                                        <div class=""full-line-grey""></div>
-                                        <div class=""flex-row pt-8"">
-                                            <div class=""title min-width"">Status</div>
-                                            <div>APPROVED at Mon, 10 Jul 2023 15:49:05 +07:00</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style=""padding: 8px 8px 0 8px;"">
-                                    <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
-                                </div>
-                            </div>
-                            <div class=""p-top"">
-                                <div class=""full-line-grey""></div>
-                                <div class=""flex-row pt-8"">
-                                    <div class=""title min-width"">Name</div>
-                                    <div>Bang Nguyen Minh</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- related document -->
-                        <div>
-                            <div class=""title-cbr text-left m-top"">Related document</div>
-                            <div class=""full-line m-top""></div>
-
-                            <div class=""flex-col m-top"">
-                                <div class=""flex-row gap-36"">
-                                    <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                                    <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
-                                    <span class=""col-3"">Bang Nguyen Minh</span>
-                                </div>
-                                <div class=""flex-row gap-36"">
-                                    <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                                    <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
-                                    <span class=""col-3"">Bang Nguyen Minh</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class=""title text-left m-top"">Discussion log</div>
-                            <div class=""full-line m-top""></div>
-
-                            <div class=""flex-col m-top"">
-                                <div class=""flex-row gap-36"">
-                                    <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                                    <div class=""col-4"">Submit the request 2023OPS-CAR-0720-001 for approval</div>
-                                    <span class=""col-3"">Bang Nguyen Minh</span>
-                                </div>
-                            </div>
-                        </div>
+                        </div>"+ (hasWf ? documentSigners : "") + astring + @"
                     </div>
                 </body>
                 </html>";

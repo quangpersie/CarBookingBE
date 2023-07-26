@@ -21,21 +21,21 @@ namespace CarBookingBE.Controllers
         UtilMethods util = new UtilMethods();
 
         [HttpGet]
-        [Route("cd-xlxs-request")]
+        [Route("xlxs-requests")]
         [JwtAuthorize]
         public HttpResponseMessage writeExcel()
         {
-            var isAuthorized = util.isAuthorized(new RoleConstants(true, true, true, true, true));
-            if (!isAuthorized.Success)
+            var check = util.getCurId();
+            if(!check.Success)
             {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = false, Message = "Login required !" });
             }
-            var curId = isAuthorized.Data;
+            var curId = check.Data;
             return Request.CreateResponse(HttpStatusCode.OK, fileService.writeToExcelAndDownload(curId));
         }
 
         [HttpGet]
-        [Route("c-png-qrcode")]
+        [Route("create-qrcode")]
         public HttpResponseMessage createQRCode()
         {
             string link = "http://localhost:3000";
@@ -57,20 +57,13 @@ namespace CarBookingBE.Controllers
             return Ok(fileService.deleteAllFilesInFolder(filePath));
         }
 
-        /*[HttpGet]
+        [HttpGet]
         [Route("download")]
         [JwtAuthorize]
         public HttpResponseMessage downloadFileExcel()
         {
-            roleConstants = new RoleConstants(true, true, true, true, true);
-            var isAuthorized = util.isAuthorized(roleConstants.Roles);
-            if (!isAuthorized.Success)
-            {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
-            }
-            //var curId = isAuthorized.Data;
-            return fileService.downloadFileExcel();
-        }*/
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.downloadFileExcel("result.xlxs"));
+        }
 
         [HttpPost]
         [Route("upload")]

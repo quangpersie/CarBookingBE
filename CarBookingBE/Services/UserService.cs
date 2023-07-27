@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Web;
+using System.Web.Http;
 
 namespace CarBookingBE.Services
 {
@@ -695,7 +696,7 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<Account> editProfileService(string idUserEdit, AccountForAddDTO editUser)
+        public Result<Account> editProfileService(string idUserEdit, [FromBody] AccountForAddDTO editUser)
         {
             try
             {

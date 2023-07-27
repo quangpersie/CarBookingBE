@@ -47,9 +47,16 @@ namespace CarBookingBE.Controllers
 
         [HttpGet]
         [Route("roles-uid/{userId}")]
+        public IHttpActionResult getRolesDetailByUserId(string userId)
+        {
+            return Ok(userRoleService.getRolesDetailByUserId(userId));
+        }
+
+        [HttpGet]
+        [Route("roles-list/{userId}")]
         public IHttpActionResult getRolesByUserId(string userId)
         {
-            return Ok(userRoleService.getRolesDetaioByUserId(userId));
+            return Ok(userRoleService.getRolesByUserId(userId));
         }
 
         [HttpPost]

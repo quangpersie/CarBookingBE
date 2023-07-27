@@ -267,7 +267,7 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<List<UserRolesDTO>> getRolesDetaioByUserId(string userId)
+        public Result<List<UserRolesDTO>> getRolesDetailByUserId(string userId)
         {
             var uId = Guid.Parse(userId);
             var userRoles = _db.UserRoles

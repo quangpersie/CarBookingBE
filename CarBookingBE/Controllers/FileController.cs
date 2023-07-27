@@ -43,10 +43,10 @@ namespace CarBookingBE.Controllers
         }
 
         [HttpGet]
-        [Route("pdf-request")]
-        public HttpResponseMessage createPdfRequest()
+        [Route("pdf-request/{id}")]
+        public HttpResponseMessage createPdfRequest(string id)
         {
-            return Request.CreateResponse(HttpStatusCode.OK, fileService.writeRequestToPdf());
+            return fileService.writeDownPdf(id);
         }
 
         [HttpGet]
@@ -59,10 +59,22 @@ namespace CarBookingBE.Controllers
 
         [HttpGet]
         [Route("download")]
-        [JwtAuthorize]
         public HttpResponseMessage downloadFileExcel()
         {
-            return Request.CreateResponse(HttpStatusCode.OK, fileService.downloadFileExcel("result.xlxs"));
+            /*var id = util.getCurId();
+            if(!id.Success)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, new { Success = false, Message = "Login required !" });
+            }
+            var curId = id.Data;*/
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.downloadFileExcel("3f8ef640-4895-4f06-99e8-a829d25a35c1", "test"));
+        }
+
+        [HttpGet]
+        [Route("downloadpdf")]
+        public HttpResponseMessage downloadFilePdf()
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.downloadFilePdf("test"));
         }
 
         [HttpPost]

@@ -15,6 +15,8 @@ using QRCoder;
 using System.Drawing;
 using IronPdf;
 using System.Windows.Media.Animation;
+using CarBookingBE.DTOs;
+using System.Data.Entity;
 
 namespace CarBookingBE.Services
 {
@@ -22,6 +24,7 @@ namespace CarBookingBE.Services
     {
         MyDbContext _db = new MyDbContext();
         UtilMethods _util = new UtilMethods();
+        RequestService requestService = new RequestService();
         public Result<string> uploadAvatar(string currentId, HttpPostedFile postedFile)
         {
             try
@@ -125,15 +128,15 @@ namespace CarBookingBE.Services
                 return new Result<string>(false, "Internal error !");
             }
         }
-        public Result<bool> writeToExcelAndDownload(Guid curId)
+        public Result<HttpResponseMessage> writeToExcelAndDownload(Guid curId)
         {
             try
             {
                 //all requests
-                var lRequests = _db.Requests.Where(r => r.IsDeleted == false).ToList();
+                var lRequests = _db.Requests.Include(r => r.SenderUser).Where(r => r.IsDeleted == false).ToList();
                 if(!lRequests.Any())
                 {
-                    return new Result<bool>(false, "There's no data !");
+                    return new Result<HttpResponseMessage>(false, "There's no data !");
                 }
 
                 // khởi tạo wb rỗng
@@ -182,11 +185,21 @@ namespace CarBookingBE.Services
                 {
                     // tao row mới
                     var newRow = sheet.CreateRow(rowIndex);
-                    var vehicleRequest = _db.VehicleRequests.Where(v => v.IsDeleted == false && v.RequestId == item.Id).FirstOrDefault();
+                    var vehicleRequest = _db.VehicleRequests.Include(v => v.User).Where(v => v.IsDeleted == false && v.RequestId == item.Id).FirstOrDefault();
 
                     if (vehicleRequest == null)
                     {
-                        return new Result<bool>(false, "Fetch data fail !");
+                        //return new Result<bool>(false, "Fetch data fail !");
+                        vehicleRequest = new Models.VehicleRequest
+                        {
+                            User = new Account
+                            {
+                                FirstName = "",
+                                LastName = "",
+                            },
+                            Type = true,
+                            DriverCarplate = "",
+                        };
                     }
 
                     // set giá trị
@@ -227,21 +240,21 @@ namespace CarBookingBE.Services
                 //Create # CreateNew
                 FileStream fs = new FileStream($"{pathToSave}/{fileName}.xlsx", FileMode.Create);
                 wb.Write(fs);
-                downloadFileExcel(fileName);
-                return new Result<bool>(true, "Write to excel file successfully !");
+                return new Result<HttpResponseMessage>(true, "Write to excel file successfully !", downloadFileExcel(curId.ToString().ToLower(), fileName));
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message);
-                return new Result<bool>(false, "Internal error !");
+                return new Result<HttpResponseMessage>(false, "Internal error !");
             }
         }
 
-        public HttpResponseMessage downloadFileExcel(string fileName)
+        public HttpResponseMessage downloadFileExcel(string id, string fileName)
         {
             try
             {
-                var fileUrl = $"http://localhost:63642/Files/Excel/{fileName}";
+                var fileUrl = $"http://localhost:63642/Files/Excel/{id}/{fileName}.xlsx";
+                Trace.WriteLine(fileUrl);
                 using (WebClient client = new WebClient())
                 {
                     byte[] fileData = client.DownloadData(fileUrl);
@@ -294,15 +307,41 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<string> writeRequestToPdf()
+        public HttpResponseMessage writeDownPdf(string id)
         {
             try
             {
-                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Pdf"));
-                string pdfFilePath = Path.Combine(pathToSave, "test.pdf");
+                var check = writeRequestToPdf(id);
+                if (!check.Success)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                }
+                return downloadFilePdf(check.Data);
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public Result<string> writeRequestToPdf(string id)
+        {
+
+            try
+            {
+                if (id == null) return new Result<string>(false, "Missing id of current user !");
+                var requestData = requestService.GetRequestById(id);
+                if(!requestData.Success)
+                {
+                    return new Result<string>(false, "Request by id does not exist !");
+                }
+                var request = requestData.Data;
+                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Pdf/{id}"));
+                string pdfFilePath = Path.Combine(pathToSave, $"{request.RequestCode}.pdf");
                 string htmlFilePath = Path.Combine(pathToSave, "minify.html");
 
-                var result = createHtmlFromRequest(new Request(), htmlFilePath);
+                var result = createHtmlFromRequest(request, htmlFilePath);
                 if (!result) return new Result<string>(false, "Html content error !");
                 //string htmlContent = File.ReadAllText(htmlFilePath);
 
@@ -315,7 +354,9 @@ namespace CarBookingBE.Services
                 // Save the PDF to a file
                 pdfDocument.SaveAs(pdfFilePath);
 
-                return new Result<string>(true, "write pdf ok !", pdfFilePath);
+                downloadFilePdf(id, request.RequestCode);
+                Trace.WriteLine("download finish");
+                return new Result<string>(true, "write pdf ok !", request.RequestCode);
             }
             catch (Exception e)
             {
@@ -324,11 +365,11 @@ namespace CarBookingBE.Services
             }
         }
 
-        public HttpResponseMessage downloadFilePdf(string fileName)
+        public HttpResponseMessage downloadFilePdf(string id, string fileName)
         {
             try
             {
-                var fileUrl = $"http://localhost:63642/Files/Pdf/{fileName}";
+                /*var fileUrl = $"http://localhost:63642/Files/Pdf/{fileName}.pdf";
                 using (WebClient client = new WebClient())
                 {
                     byte[] fileData = client.DownloadData(fileUrl);
@@ -339,10 +380,23 @@ namespace CarBookingBE.Services
                     {
                         FileName = fileName
                     };
-                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+                }*/
+                var filePath = HttpContext.Current.Server.MapPath($"~/Files/Pdf/{id}/{fileName}.pdf");
+                byte[] fileContent = File.ReadAllBytes(filePath);
 
-                    return response;
-                }
+                // Set the Content-Disposition header to suggest a filename for the browser to use when saving the file
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                response.Content = new ByteArrayContent(fileContent);
+                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = $"{fileName}.pdf" // Replace "file.pdf" with the desired filename
+                };
+
+                // Set the appropriate content type for PDF files
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+                return response;
             }
             catch (Exception e)
             {
@@ -351,56 +405,64 @@ namespace CarBookingBE.Services
             }
         }
 
-        public bool createHtmlFromRequest(Request request, string htmlFilePath)
+        public bool createHtmlFromRequest(RequestDetailDTO r, string htmlFilePath)
         {
+            if(r == null)
+            {
+                return false;
+            }
             var host = "http://localhost:63642";
             string format = "dd/MM/yyyy hh:mm tt";
-            var wf = request.RequestWorkflows.FirstOrDefault(rw => rw.Level == 1);
-            var am = request.RequestAttachments.Where(a => a.IsDeleted == false && a.RequestId == request.Id).ToList();
-            var hasWf = wf != null;
-            var hasAm = am != null;
+            var wf = _db.RequestWorkflows.Include(w => w.User).FirstOrDefault(w => w.IsDeleted == false && w.RequestId == r.Id && w.Level == 1);
+            var hasWf = (wf != null && wf.User != null);
+            var am = _db.RequestAttachments.Where(a => a.IsDeleted == false && a.RequestId == r.Id).ToList();
+            var hasAm = am.Any();
 
-            string documentSigners = @"
-                <!-- document signer -->
-                <div class=""title-cbr text-left m-top"">Document Signers</div>
-                <div class=""m-top"">
-                    <div class=""full-line m-top""></div>
-                    <div class=""flex-row align-center gap-12"">
-                        <div class=""col-3"">
-                            <div>
-                                <div class=""flex-row pt-8"">
-                                    <div class=""title min-width"">Title</div>
-                                    <div>"+ wf.User.JobTitle +@"</div>
+            string documentSigners = "";
+            if(hasWf)
+            {
+                documentSigners = @"
+                    <!-- document signer -->
+                    <div class=""title-cbr text-left m-top"">Document Signers</div>
+                    <div class=""m-top"">
+                        <div class=""full-line m-top""></div>
+                        <div class=""flex-row align-center gap-12"">
+                            <div class=""col-3"">
+                                <div>
+                                    <div class=""flex-row pt-8"">
+                                        <div class=""title min-width"">Title</div>
+                                        <div>"+ (r.SenderUser.JobTitle == null ? r.SenderUser.JobTitle : "") +@"</div>
+                                    </div>
+                                </div>
+                                <div class=""p-top"">
+                                    <div class=""full-line-grey""></div>
+                                    <div class=""flex-row pt-8"">
+                                        <div class=""title min-width"">Email</div>
+                                        <div>"+ (r.SenderUser.Email == null ? r.SenderUser.Email : "") + @"</div>
+                                    </div>
+                                </div>
+                                <div class=""p-top"">
+                                    <div class=""full-line-grey""></div>
+                                    <div class=""flex-row pt-8"">
+                                        <div class=""title min-width"">Status</div>
+                                        <div>APPROVED</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class=""p-top"">
-                                <div class=""full-line-grey""></div>
-                                <div class=""flex-row pt-8"">
-                                    <div class=""title min-width"">Email</div>
-                                    <div>"+ wf.User.Email +@"</div>
-                                </div>
-                            </div>
-                            <div class=""p-top"">
-                                <div class=""full-line-grey""></div>
-                                <div class=""flex-row pt-8"">
-                                    <div class=""title min-width"">Status</div>
-                                    <div>APPROVED</div>
-                                </div>
+                            <div style=""padding: 8px 8px 0 8px;"">
+                                <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
                             </div>
                         </div>
-                        <div style=""padding: 8px 8px 0 8px;"">
-                            <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
+                        <div class=""p-top"">
+                            <div class=""full-line-grey""></div>
+                            <div class=""flex-row pt-8"">
+                                <div class=""title min-width"">Name</div>
+                                <div>"+ $"{(r.SenderUser.FirstName == null ? r.SenderUser.FirstName : "")} {(r.SenderUser.LastName == null ? r.SenderUser.LastName : "")}" +@"</div>
+                            </div>
                         </div>
                     </div>
-                    <div class=""p-top"">
-                        <div class=""full-line-grey""></div>
-                        <div class=""flex-row pt-8"">
-                            <div class=""title min-width"">Name</div>
-                            <div>"+ $"{wf.User.FirstName} {wf.User.LastName}" +@"</div>
-                        </div>
-                    </div>
-                </div>
-            ";
+                ";
+            }
 
             string astring = "";
             if(hasAm)
@@ -408,9 +470,9 @@ namespace CarBookingBE.Services
                 foreach (var a in am)
                 {
                     astring += @"
-                    < div class=""flex-row gap-36"">
+                    <div class=""flex-row gap-36"">
                         <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                        <a class=""col-4"" href=" + $"{host}/{a.Path}" + @">" + $"{a.Path.Replace($"{host}/Files/Attachments/{request.RequestCode}", "")}" + @"</a>
+                        <a class=""col-4"" href=" + $"{host}/{a.Path}" + @">" + $"{a.Path.Replace($"{host}/Files/Attachments/{r.RequestCode}", "")}" + @"</a>
                         <span class=""col-3"">Bang Nguyen Minh</span>
                     </div>
                 ";
@@ -424,21 +486,12 @@ namespace CarBookingBE.Services
                     <div class=""full-line m-top""></div>
 
                     <div class=""flex-col m-top"">
-                        <div class=""flex-row gap-36"">
-                            <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                            <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
-                            <span class=""col-3"">Bang Nguyen Minh</span>
-                        </div>
-                        <div class=""flex-row gap-36"">
-                            <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                            <a class=""col-4"" href=""https://www.youtube.com"">Car Booking API.postman_collection.json</a>
-                            <span class=""col-3"">Bang Nguyen Minh</span>
-                        </div>
+                        "+ astring +@"
                     </div>
                 </div>
             ";
 
-            string discussionLog = @"
+            /*string discussionLog = @"
                 <!-- Discussion log -->
                 <div>
                     <div class=""title text-left m-top"">Discussion log</div>
@@ -452,7 +505,7 @@ namespace CarBookingBE.Services
                         </div>
                     </div>
                 </div>
-            ";
+            ";*/
             try
             {
                 string htmlContent = @"
@@ -467,10 +520,10 @@ namespace CarBookingBE.Services
                         <div class=""flex-col align-center gap-12"">
                             <span class=""title"">OPUS SOLUTION COMPANY</span>
                             <div class=""line""></div>
-                            <span>No: "+ request.RequestCode + @"</span>
+                            <span>No: "+ r.RequestCode + @"</span>
                         </div>
                         <div class=""flex-col align-center gap-12"">
-                            <span class=""title"">Status: "+ request.Status +@"</span>
+                            <span class=""title"">Status: "+ r.Status +@"</span>
                             <div class=""line""></div>
                             <span>10/07/2023 15:48 PM</span>
                         </div>
@@ -482,51 +535,51 @@ namespace CarBookingBE.Services
                             <div class=""flex-row"">
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Applicant</div>
-                                    <span>"+ $"{request.SenderUser.FirstName} {request.SenderUser.LastName}" +@"</span>
+                                    <span>"+ $"{r.SenderUser.FirstName} {r.SenderUser.LastName}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Department</div>
-                                    <span>"+ $"{request.Department.Name}" +@"</span>
+                                    <span>"+ $"{r.Department.Name}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">User</div>
-                                    <span>"+ $"{request.ReceiveUser.FirstName} {request.ReceiveUser.LastName}" +@"</span>
+                                    <span>"+ $"{r.ReceiveUser.FirstName} {r.ReceiveUser.LastName}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Mobile</div>
-                                    <span>"+ $"{request.Mobile}" +@"</span>
+                                    <span>"+ $"{r.Mobile}" +@"</span>
                                 </div>
                             </div>
                             <div class=""flex-row"">
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Cost Center</div>
-                                    <span>"+ $"{request.CostCenter}" +@"</span>
+                                    <span>"+ $"{r.CostCenter}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Total Passengers</div>
-                                    <span>"+ $"{request.TotalPassengers}" +@"</span>
+                                    <span>"+ $"{r.TotalPassengers}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Usage time from</div>
-                                    <span>"+ $"{request.UsageFrom?.ToString(format)} - {request.UsageTo?.ToString(format)}" +@"</span>
+                                    <span>"+ $"{r.UsageFrom?.ToString(format)} - {r.UsageTo?.ToString(format)}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Pick time</div>
-                                    <span>"+ $"{request.PickTime?.ToString(format)}" +@"</span>
+                                    <span>"+ $"{r.PickTime?.ToString(format)}" +@"</span>
                                 </div>
                             </div>
                             <div class=""flex-row"">
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Pick Location</div>
-                                    <span>"+ $"{request.PickLocation}" +@"</span>
+                                    <span>"+ $"{r.PickLocation}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Destination</div>
-                                    <span>"+ $"{request.Destination}" +@"</span>
+                                    <span>"+ $"{r.Destination}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Reason</div>
-                                    <span>"+ $"{request.Reason}" +@"</span>
+                                    <span>"+ $"{r.Reason}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title""></div>
@@ -538,17 +591,17 @@ namespace CarBookingBE.Services
                         <div class=""flex-row gap-12"">
                             <div class=""flex-row align-center height-30 gap-8"">
                                 <div class=""radio"">
-                                    <div class="+ (request.ApplyNote == true ? "radio-check" : "") + @"></div>
+                                    <div class="+ (r.ApplyNote == true ? "radio-check" : "") + @"></div>
                                 </div>
                                 <label for=""yes"" class=""label-radio"">Yes</label>
                             </div>
                             <div class=""flex-row align-center height-30 gap-8"">
                                 <div class=""radio"">
-                                    <div class=" + (request.ApplyNote == false ? "radio - check" : "") + @"></div>
+                                    <div class=" + (r.ApplyNote == false ? "radio-check" : "") + @"></div>
                                 </div>
                                 <label for=""no"" class=""label-radio"">No</label>
                             </div>
-                        </div>"+ (hasWf ? documentSigners : "") + astring + @"
+                        </div>"+ documentSigners + relatedDocument + @"
                     </div>
                 </body>
                 </html>";

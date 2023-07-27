@@ -68,7 +68,7 @@ namespace CarBookingBE.Controllers
             }
 
 
-            return Ok("Create Comment Success");
+            return Ok(comments);
         }
     }
 }

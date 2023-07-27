@@ -429,6 +429,7 @@ namespace CarBookingBE.Services
                 SenderId = request.SenderId,
                 ReceiverId = request.ReceiverId,
                 DepartmentId = request.DepartmentId,
+                RequestCode = request.RequestCode,
                 Created = request.Created,
                 ApplyNote = request.ApplyNote,
                 Status = request.Status,

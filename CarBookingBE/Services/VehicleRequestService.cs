@@ -62,8 +62,19 @@ namespace CarBookingBE.Services
                 {
                     request.Status = "Done";
                 }
+                var newVehicleRequest = new VehicleRequest();
+                newVehicleRequest.DriverId = vehicleRequest.DriverId;
+                newVehicleRequest.RequestId = vehicleRequest.RequestId;
+                newVehicleRequest.DriverMobile = vehicleRequest.DriverMobile;
+                newVehicleRequest.DriverCarplate = vehicleRequest.DriverCarplate;
+                newVehicleRequest.RotaionId = vehicleRequest.RotaionId;
+                newVehicleRequest.Rotation = vehicleRequest.Rotation;
+                newVehicleRequest.Reason = vehicleRequest.Reason;
+                newVehicleRequest.Note = vehicleRequest.Note;
+                newVehicleRequest.Type = vehicleRequest.Type;
+                newVehicleRequest.IsDeleted = false;
 
-                db.VehicleRequests.Add(vehicleRequest);
+                db.VehicleRequests.Add(newVehicleRequest);
                 db.SaveChanges();
             }
             else

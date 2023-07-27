@@ -30,16 +30,14 @@ namespace CarBookingBE.Services
                     },
                     DriverCarplate = v.DriverCarplate,
                     DriverMobile = v.DriverMobile,
-                    Rotation = new Rotation()
-                    {
-                        Id = v.Rotation.Id,
-                        Type = v.Rotation.Type
-                    },
+                    Rotation = v.Rotation,
                     Reason = v.Reason,
                     Note = v.Note,
-                    Type = v.Type
+                    Type = v.Type,
+                    IsDeleted = v.IsDeleted,
+                    RequestId = v.RequestId
                 })
-                .SingleOrDefault(v => v.IsDeleted == false && v.RequestId == RequestId);
+                .FirstOrDefault(v => v.IsDeleted == false && v.RequestId == RequestId);
 
 
             if (vehicleRequest == null)

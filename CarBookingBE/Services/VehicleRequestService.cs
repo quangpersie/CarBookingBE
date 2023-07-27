@@ -28,6 +28,7 @@ namespace CarBookingBE.Services
         public Result<VehicleRequest> createVehicleRequest(VehicleRequest vehicleRequest)
         {
             var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
+            /*var newVehicleRequest = new VehicleRequest();*/
             if (isAuthorized.Success)
             {
                 if (vehicleRequest.RequestId == null)
@@ -62,8 +63,8 @@ namespace CarBookingBE.Services
                 {
                     request.Status = "Done";
                 }
-                var newVehicleRequest = new VehicleRequest();
-                newVehicleRequest.DriverId = vehicleRequest.DriverId;
+                
+                /*newVehicleRequest.DriverId = vehicleRequest.DriverId;
                 newVehicleRequest.RequestId = vehicleRequest.RequestId;
                 newVehicleRequest.DriverMobile = vehicleRequest.DriverMobile;
                 newVehicleRequest.DriverCarplate = vehicleRequest.DriverCarplate;
@@ -72,9 +73,9 @@ namespace CarBookingBE.Services
                 newVehicleRequest.Reason = vehicleRequest.Reason;
                 newVehicleRequest.Note = vehicleRequest.Note;
                 newVehicleRequest.Type = vehicleRequest.Type;
-                newVehicleRequest.IsDeleted = false;
+                newVehicleRequest.IsDeleted = false;*/
 
-                db.VehicleRequests.Add(newVehicleRequest);
+                db.VehicleRequests.Add(vehicleRequest);
                 db.SaveChanges();
             }
             else

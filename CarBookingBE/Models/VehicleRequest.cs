@@ -13,7 +13,7 @@ namespace CarBookingBE.Models
     public class VehicleRequest
     {
         [Key]
-        public Guid Id { get; set; } = new Guid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public Guid? RequestId { get; set; }
         [ForeignKey("RequestId")]
         public Request Request { get; set; }

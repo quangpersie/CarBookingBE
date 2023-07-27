@@ -25,6 +25,7 @@ namespace CarBookingBE.Controllers
         RequestService requestService = new RequestService();
         RequestAttachmentService requestAttachmentService = new RequestAttachmentService();
         RequestWorkflowService requestWorkflowService = new RequestWorkflowService();
+        VehicleRequestService vehicleRequestService = new VehicleRequestService();
 
 
         // GET: api/Request
@@ -172,6 +173,7 @@ namespace CarBookingBE.Controllers
             Guid requestId = Guid.Parse(id);
             requestWorkflowService.DeleteAllRequestWorkflows(requestId);
             requestAttachmentService.DeleteAllAttachments(requestId);
+            vehicleRequestService.deleteVehicleRequest(requestId);
             requestService.DeleteRequest(requestId);
             return Ok();
         }

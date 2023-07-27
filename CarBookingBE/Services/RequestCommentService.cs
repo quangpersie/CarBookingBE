@@ -53,7 +53,7 @@ namespace CarBookingBE.Services
             db.RequestComments.Add(requestComment);
             db.SaveChanges();
 
-            return new Result<RequestComment>(true, "Create Comment Success");
+            return new Result<RequestComment>(true, "Create Comment Success", requestComment);
         }
 
         public Result<RequestCommentAttachment> CreateCommentAttachment(HttpPostedFile file, RequestComment requestComment, string userLoginId)

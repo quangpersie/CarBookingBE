@@ -429,6 +429,7 @@ namespace CarBookingBE.Services
                 SenderId = request.SenderId,
                 ReceiverId = request.ReceiverId,
                 DepartmentId = request.DepartmentId,
+                RequestCode = request.RequestCode,
                 Created = request.Created,
                 ApplyNote = request.ApplyNote,
                 Status = request.Status,
@@ -526,7 +527,7 @@ namespace CarBookingBE.Services
 
             if (!listOfActions.Contains(action))
             {
-                return new Result<Request>(false, "Invalid Action Request! " + listOfActions);
+                return new Result<Request>(false, "Invalid Action Request! ");
             }
 
             var request = db.Requests.SingleOrDefault(r => r.Id.ToString() == Id && r.IsDeleted == false);

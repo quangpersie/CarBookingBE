@@ -16,8 +16,9 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var rList = _db.Roles.Where(r => r.IsDeleted == false)
-                .OrderBy(r => r.Id)
+                var initRList = _db.Roles.Where(r => r.IsDeleted == false)
+                .OrderBy(r => r.Id);
+                var rList = initRList
                 .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
@@ -26,7 +27,7 @@ namespace CarBookingBE.Services
                     var rolePagination = new Pagination<Role> {
                         PerPage = limit,
                         CurrentPage = page,
-                        TotalPage = (rList.Count + limit - 1) / limit,
+                        TotalPage = (initRList.ToList().Count + limit - 1) / limit,
                         ListData = rList
                     };
                     return new Result<Pagination<Role>>(true, "Get all roles successfully !", rolePagination);

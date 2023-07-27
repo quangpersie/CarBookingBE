@@ -18,11 +18,10 @@ namespace CarBookingBE.Services
             var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             if (isAuthorized.Success)
             {
-                if (vehicleRequest.RequestId == null || vehicleRequest.RotaionId == null || vehicleRequest.DriverId == null || vehicleRequest.Type)
+                if (vehicleRequest.RequestId != null || vehicleRequest.Type != null)
                 {
                     return new Result<VehicleRequest>(false, "Miss Parameters");
                 }
-
                 Request request = db.Requests.SingleOrDefault(r => r.IsDeleted == false
                     && r.Id == vehicleRequest.RequestId && r.Status == "Approved");
                 if (request == null)
@@ -30,20 +29,29 @@ namespace CarBookingBE.Services
                     return new Result<VehicleRequest>(false, "Request Not Found");
                 }
 
-                /*var user = db.DepartmentsMembers.SingleOrDefault(dm => dm.IsDeleted == false && dm.UserId == vehicleRequest.DriverId && dm.DepartmentId == );*/
-                var user = db.Users.SingleOrDefault(u => u.IsDeleted == false && u.Id == vehicleRequest.DriverId);
-                if (user == null)
+                if (vehicleRequest.Type == true)
                 {
-                    return new Result<VehicleRequest>(false, "User Not Found");
-                }
+                    /*var user = db.DepartmentsMembers.SingleOrDefault(dm => dm.IsDeleted == false && dm.UserId == vehicleRequest.DriverId && dm.DepartmentId == );*/
+                    var user = db.Users.SingleOrDefault(u => u.IsDeleted == false && u.Id == vehicleRequest.DriverId);
+                    if (user == null)
+                    {
+                        return new Result<VehicleRequest>(false, "User Not Found");
+                    }
 
-                var rotaion = db.Rotations.SingleOrDefault(ro => ro.IsDeleted == false && ro.Id== vehicleRequest.RotaionId);
-                if (rotaion == null)
+                    var rotaion = db.Rotations.SingleOrDefault(ro => ro.IsDeleted == false && ro.Id == vehicleRequest.RotaionId);
+                    if (rotaion == null)
+                    {
+                        return new Result<VehicleRequest>(false, "RotationId Not Found");
+                    }
+
+                    request.Status = "Done";
+                } else
                 {
-                    return new Result<VehicleRequest>(false, vehicleRequest.RotaionId.ToString());
+                    request.Status = "Done";
                 }
+                
 
-                request.Status = "Done";
+                
                 db.VehicleRequests.Add(vehicleRequest);
             }
             else

@@ -13,12 +13,24 @@ namespace CarBookingBE.Services
     {
         MyDbContext db = new MyDbContext();
         UtilMethods utilMethods = new UtilMethods();
+
+        public Result<List<VehicleRequest>> getAllVehicles(string requestId)
+        {
+            var RequestId = Guid.Parse(requestId);
+            var vehicleRequest = db.VehicleRequests.SingleOrDefault(v => v.IsDeleted == false && v.RequestId == RequestId);
+            if (vehicleRequest == null)
+            {
+                return new Result<List<VehicleRequest>>(false, "Vehicle Request Not Found");
+            }
+            return new Result<List<VehicleRequest>>(true, )
+        }
+       
         public Result<VehicleRequest> createVehicleRequest(VehicleRequest vehicleRequest)
         {
             var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             if (isAuthorized.Success)
             {
-                if (vehicleRequest.RequestId != null)
+                if (vehicleRequest.RequestId == null)
                 {
                     return new Result<VehicleRequest>(false, "Miss Parameters");
                 }

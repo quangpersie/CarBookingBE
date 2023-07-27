@@ -21,6 +21,20 @@ namespace CarBookingBE.Controllers
 
         VehicleRequestService vehicleRequestService = new VehicleRequestService();
 
+        [Route("requestId={requestId}")]
+        [HttpGet]
+        [JwtAuthorize]
+        public IHttpActionResult getVehicleRequest(string requestId)
+        {
+            var vehicleRequest = vehicleRequestService.getVehicleRequest(requestId);
+            if (!vehicleRequest.Success)
+            {
+                return BadRequest(vehicleRequest.Message);
+            }
+            return Ok(vehicleRequest);
+        }
+
+
         [Route("create")]
         [HttpPost]
         [JwtAuthorize]
@@ -31,7 +45,7 @@ namespace CarBookingBE.Controllers
             {
                 return BadRequest(newVehicleRequest.Message);
             }
-            return Ok(vehicleRequest);
+            return Ok(newVehicleRequest);
         }
 
         [Route("rotation")]

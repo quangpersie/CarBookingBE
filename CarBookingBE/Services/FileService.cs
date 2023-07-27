@@ -364,7 +364,7 @@ namespace CarBookingBE.Services
                 // Save the PDF to a file
                 pdfDocument.SaveAs(pdfFilePath);
 
-                downloadFilePdf(id, request.RequestCode);
+                downloadFilePdf(requestId, request.RequestCode);
                 Trace.WriteLine("download finish");
                 return new Result<string>(true, "write pdf ok !", request.RequestCode);
             }

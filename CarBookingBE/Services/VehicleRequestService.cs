@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Data.Entity;
 
 namespace CarBookingBE.Services
 {
@@ -14,15 +15,36 @@ namespace CarBookingBE.Services
         MyDbContext db = new MyDbContext();
         UtilMethods utilMethods = new UtilMethods();
 
-        public Result<VehicleRequest> getVehicleRequest(string requestId)
+        public Result<VehicleRequestDTO> getVehicleRequest(string requestId)
         {
             var RequestId = Guid.Parse(requestId);
-            var vehicleRequest = db.VehicleRequests.SingleOrDefault(v => v.IsDeleted == false && v.RequestId == RequestId);
+            var vehicleRequest = db.VehicleRequests
+                .Include(v => v.User)
+                .Include(v => v.Rotation)
+                .Select(v => new VehicleRequestDTO()
+                {
+                    User = new AccountDTO()
+                    {
+                        FirstName = v.User.FirstName,
+                        LastName = v.User.LastName
+                    },
+                    DriverCarplate = v.DriverCarplate,
+                    DriverMobile = v.DriverMobile,
+                    Rotation = new Rotation()
+                    {
+                        Id = v.Rotation.Id,
+                        Type = v.Rotation.Type
+                    },
+                    Reason = v.Reason,
+                    Note = v.Note,
+                    Type = v.Type
+                })
+                .SingleOrDefault(v => v.IsDeleted == false && v.RequestId == RequestId);
             if (vehicleRequest == null)
             {
-                return new Result<VehicleRequest>(false, "Vehicle Request Not Found");
+                return new Result<VehicleRequestDTO>(false, "Vehicle Request Not Found");
             }
-            return new Result<VehicleRequest>(true, "Get Success", vehicleRequest);
+            return new Result<VehicleRequestDTO>(true, "Get Success", vehicleRequest);
         }
        
         public Result<VehicleRequest> createVehicleRequest(VehicleRequest vehicleRequest)
@@ -93,6 +115,17 @@ namespace CarBookingBE.Services
             return new Result<List<Rotation>>(true, "Get Success", rotations);
         }
 
+        public Result<string> deleteVehicleRequest(Guid requestId)
+        {
+            var vehicleRequest = db.VehicleRequests.SingleOrDefault(v => v.IsDeleted == false && v.RequestId == requestId);
+            if (vehicleRequest == null)
+            {
+                return new Result<string>(false, "Vehicle Not Found");
+            }
+            db.VehicleRequests.Remove(vehicleRequest);
+            db.SaveChanges();
+            return new Result<string>(true, "Delete Success");
+        }
 
     }
 }

@@ -38,13 +38,13 @@ namespace CarBookingBE.Controllers
         [Route("comment/requestId={requestId}")]
         [HttpPost]
         [JwtAuthorize]
-        public IHttpActionResult CreateComment (string requestId,[FromBody] string comment)
+        public IHttpActionResult CreateComment (string requestId)
         {
             var userLoginId = utilMethods.getCurId();
             var httpRequest = HttpContext.Current.Request;
             RequestComment requestComment = new RequestComment();
             requestComment.UserId = userLoginId.Data;
-            requestComment.Content = comment;
+            requestComment.Content = httpRequest.Form["comment"];
             requestComment.Created = DateTime.Now;
             requestComment.RequestId = Guid.Parse(requestId);
             requestComment.IsDeleted = false;

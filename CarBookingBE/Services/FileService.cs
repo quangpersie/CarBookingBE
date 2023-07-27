@@ -316,7 +316,7 @@ namespace CarBookingBE.Services
                 {
                     return new HttpResponseMessage(HttpStatusCode.BadRequest);
                 }
-                return downloadFilePdf(check.Data);
+                return downloadFilePdf(id, check.Data);
             }
             catch(Exception e)
             {

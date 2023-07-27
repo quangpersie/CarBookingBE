@@ -338,6 +338,10 @@ namespace CarBookingBE.Services
                 }
                 var request = requestData.Data;
                 string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Pdf/{id}"));
+                if(!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
                 string pdfFilePath = Path.Combine(pathToSave, $"{request.RequestCode}.pdf");
                 string htmlFilePath = Path.Combine(pathToSave, "minify.html");
 

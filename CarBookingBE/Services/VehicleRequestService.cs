@@ -40,6 +40,8 @@ namespace CarBookingBE.Services
                     Type = v.Type
                 })
                 .SingleOrDefault(v => v.IsDeleted == false && v.RequestId == RequestId);
+
+
             if (vehicleRequest == null)
             {
                 return new Result<VehicleRequestDTO>(false, "Vehicle Request Not Found");

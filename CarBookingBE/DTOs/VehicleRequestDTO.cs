@@ -1,4 +1,5 @@
 ﻿using CarBookingBE.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace CarBookingBE.DTOs
     public class VehicleRequestDTO
     {
         public AccountDTO User { get; set; }
+        [JsonIgnore]
+        public Guid? RequestId { get; set; }
+        [JsonIgnore]
+        public bool IsDeleted { get; set; }
         public string DriverMobile { get; set; }
         public string DriverCarplate { get; set; }
         public Rotation Rotation { get; set; }

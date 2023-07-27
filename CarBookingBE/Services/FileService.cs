@@ -313,16 +313,16 @@ namespace CarBookingBE.Services
             }
         }
 
-        public HttpResponseMessage writeDownPdf(string id)
+        public HttpResponseMessage writeDownPdf(string requestId)
         {
             try
             {
-                var check = writeRequestToPdf(id);
+                var check = writeRequestToPdf(requestId);
                 if (!check.Success)
                 {
                     return new HttpResponseMessage(HttpStatusCode.BadRequest);
                 }
-                return downloadFilePdf(id, check.Data);
+                return downloadFilePdf(requestId, check.Data);
             }
             catch(Exception e)
             {
@@ -331,19 +331,19 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<string> writeRequestToPdf(string id)
+        public Result<string> writeRequestToPdf(string requestId)
         {
 
             try
             {
-                if (id == null) return new Result<string>(false, "Missing id of current user !");
-                var requestData = requestService.GetRequestById(id);
+                if (requestId == null) return new Result<string>(false, "Missing id of current user !");
+                var requestData = requestService.GetRequestById(requestId);
                 if(!requestData.Success)
                 {
                     return new Result<string>(false, "Request by id does not exist !");
                 }
                 var request = requestData.Data;
-                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Pdf/{id}"));
+                string pathToSave = Path.Combine(HttpContext.Current.Server.MapPath($"~/Files/Pdf"));
                 if(!Directory.Exists(pathToSave))
                 {
                     Directory.CreateDirectory(pathToSave);
@@ -351,7 +351,7 @@ namespace CarBookingBE.Services
                 string pdfFilePath = Path.Combine(pathToSave, $"{request.RequestCode}.pdf");
                 string htmlFilePath = Path.Combine(pathToSave, "minify.html");
 
-                var result = createHtmlFromRequest(id, request, htmlFilePath);
+                var result = createHtmlFromRequest(request, htmlFilePath);
                 if (!result) return new Result<string>(false, "Html content error !");
                 //string htmlContent = File.ReadAllText(htmlFilePath);
 
@@ -415,24 +415,26 @@ namespace CarBookingBE.Services
             }
         }
 
-        public bool createHtmlFromRequest(string curId, RequestDetailDTO r, string htmlFilePath)
+        public bool createHtmlFromRequest(RequestDetailDTO r, string htmlFilePath)
         {
             if(r == null)
             {
                 return false;
             }
-            var qrCode = createQRCode($"http://localhost:3000/setting/profile/{curId}");
-            if(!qrCode.Success)
-            {
-                return false;
-            }
-            var qrPath = qrCode.Data;
+            
             var host = "http://localhost:63642";
             string format = "dd/MM/yyyy hh:mm tt";
             var wf = _db.RequestWorkflows.Include(w => w.User).FirstOrDefault(w => w.IsDeleted == false && w.RequestId == r.Id && w.Level == 1);
             var hasWf = (wf != null && wf.User != null);
             var am = _db.RequestAttachments.Where(a => a.IsDeleted == false && a.RequestId == r.Id).ToList();
             var hasAm = am.Any();
+
+            var qrCode = createQRCode($"http://localhost:3000/setting/profile/{wf.UserId}");
+            if (!qrCode.Success)
+            {
+                return false;
+            }
+            var qrPath = qrCode.Data;
 
             string documentSigners = "";
             if(hasWf)

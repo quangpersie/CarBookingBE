@@ -43,10 +43,10 @@ namespace CarBookingBE.Controllers
         }
 
         [HttpGet]
-        [Route("pdf-request/{id}")]
-        public HttpResponseMessage createPdfRequest(string id)
+        [Route("pdf-request/{requestId}")]
+        public HttpResponseMessage createPdfRequest(string requestId)
         {
-            return fileService.writeDownPdf(id);
+            return fileService.writeDownPdf(requestId);
         }
 
         [HttpGet]

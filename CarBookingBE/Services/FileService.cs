@@ -281,6 +281,12 @@ namespace CarBookingBE.Services
         {
             try
             {
+                var curId = _util.getCurId();
+                if(!curId.Success)
+                {
+                    return new Result<string>(false, "Current user not found !");
+                }
+                string id = curId.Data.ToString();
                 QRCodeGenerator qrGenerator = new QRCodeGenerator();
                 QRCodeData qrCodeData = qrGenerator.CreateQrCode(link, QRCodeGenerator.ECCLevel.Q);
 
@@ -296,9 +302,9 @@ namespace CarBookingBE.Services
                     Directory.CreateDirectory(pathToSave);
                 }
                 // Save the QR code image to a local file
-                string imagePath = $"{pathToSave}/qrcode.png";
+                string imagePath = $"{pathToSave}/{id}.png";
                 qrCodeImage.Save(imagePath, System.Drawing.Imaging.ImageFormat.Png);
-                return new Result<string>(true, "QR code image saved to: " + imagePath);
+                return new Result<string>(true, $"Files/QRCode/{id}.png");
             }
             catch(Exception e)
             {
@@ -345,7 +351,7 @@ namespace CarBookingBE.Services
                 string pdfFilePath = Path.Combine(pathToSave, $"{request.RequestCode}.pdf");
                 string htmlFilePath = Path.Combine(pathToSave, "minify.html");
 
-                var result = createHtmlFromRequest(request, htmlFilePath);
+                var result = createHtmlFromRequest(id, request, htmlFilePath);
                 if (!result) return new Result<string>(false, "Html content error !");
                 //string htmlContent = File.ReadAllText(htmlFilePath);
 
@@ -409,12 +415,18 @@ namespace CarBookingBE.Services
             }
         }
 
-        public bool createHtmlFromRequest(RequestDetailDTO r, string htmlFilePath)
+        public bool createHtmlFromRequest(string curId, RequestDetailDTO r, string htmlFilePath)
         {
             if(r == null)
             {
                 return false;
             }
+            var qrCode = createQRCode($"http://localhost:3000/setting/profile/{curId}");
+            if(!qrCode.Success)
+            {
+                return false;
+            }
+            var qrPath = qrCode.Data;
             var host = "http://localhost:63642";
             string format = "dd/MM/yyyy hh:mm tt";
             var wf = _db.RequestWorkflows.Include(w => w.User).FirstOrDefault(w => w.IsDeleted == false && w.RequestId == r.Id && w.Level == 1);
@@ -454,7 +466,7 @@ namespace CarBookingBE.Services
                                 </div>
                             </div>
                             <div style=""padding: 8px 8px 0 8px;"">
-                                <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
+                                <img src="+ ($"{host}/{qrPath}") +@" alt=""qrCodeImage"" width=""120"" height=""120"">
                             </div>
                         </div>
                         <div class=""p-top"">
@@ -518,7 +530,7 @@ namespace CarBookingBE.Services
                 <style>.title{font-weight:700}.title-cbr{font-weight:700;font-size:20px}.m-top{margin-top:20px}.p-top{padding-top:10px}.text-center{text-align:center}.text-left{text-align:left}.flex-row{display:flex}.flex-col{display:flex;flex-direction:column}.align-center{align-items:center}.gap-12{gap:12px}.gap-36{gap:36px}.line{height:1.2px;width:60%;background-color:#000}.full-line{height:2px;background-color:#000}.full-line-grey{height:1.2px;background-color:grey}.col-3{flex:1}.col-4{flex:2}.p-16{padding:0 16px}.pt-8{padding-top:8px}.note{font-size:14px;margin-top:20px;text-align:justify}.label-radio{font-size:18px}.height-30{height:30px}.min-width{min-width:152px}.radio{border-radius:50%;border:1px solid black;height:14px;width:14px;display:flex;justify-content:center;align-items:center;}.radio-check{border-radius:50%;border:1px solid black;height:6px;width:6px;background-color:black;}.gap-8{gap:4px;}</style>
                 <body>
                     <div>
-                        <img src=""https://drive.google.com/uc?export=view&id=1-ib3rZw6Dq_oaBMyJarHckgEfaIOmYjf"" alt=""qrCodeImage"">
+                        <img src=""https://drive.google.com/uc?export=view&id=1-ib3rZw6Dq_oaBMyJarHckgEfaIOmYjf"" alt=""logoOpus"">
                     </div>
                     <div class=""flex-row"" style=""justify-content: space-around;"">
                         <div class=""flex-col align-center gap-12"">

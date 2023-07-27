@@ -195,12 +195,16 @@ namespace CarBookingBE.Services
                 var requestWorkflowPreLevel = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.RequestId == requestId && rw.Level == requestWorkflow.Level - 1);
                 if (requestWorkflowPreLevel != null)
                 {
-                    if (requestWorkflowPreLevel.Status == "Waiting for approval")
+                    if (requestWorkflowPreLevel.Status == "Waiting for approval" || requestWorkflow.Status == "Rejected")
                     {
                         return new Result<RequestWorkflow>(false, "Please waiting for approval of Previous Approver!");
                     }
                     else if (requestWorkflowPreLevel.Status == "Approved")
                     {
+                        if (requestWorkflow.Status == "Approved")
+                        {
+                            return new Result<RequestWorkflow>(false, "User approved!", requestWorkflow);
+                        }
                         requestWorkflow.Status = action;
                         db.SaveChanges();
                         return new Result<RequestWorkflow>(true, "Approved Success!", requestWorkflow);
@@ -210,6 +214,10 @@ namespace CarBookingBE.Services
                         return new Result<RequestWorkflow>(false, "Request is" + requestWorkflowPreLevel.Status);
                     }
                 }
+            }
+            if (requestWorkflow.Status == "Approved" || requestWorkflow.Status == "Rejected")
+            {
+                return new Result<RequestWorkflow>(false, "User approved!", requestWorkflow);
             }
             requestWorkflow.Status = action;
             db.SaveChanges();

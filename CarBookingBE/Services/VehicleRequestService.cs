@@ -18,10 +18,10 @@ namespace CarBookingBE.Services
             var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             if (isAuthorized.Success)
             {
-                if (vehicleRequest.RequestId == null || vehicleRequest.RotaionId == null || vehicleRequest.DriverId == null || vehicleRequest.DriverMobile == null || vehicleRequest.DriverCarplate == null || vehicleRequest.Reason == null)
+/*                if (vehicleRequest.RequestId == null || vehicleRequest.RotaionId == null || vehicleRequest.DriverId == null || vehicleRequest.DriverMobile == null || vehicleRequest.DriverCarplate == null || vehicleRequest.Reason == null)
                 {
                     return new Result<VehicleRequest>(false, "Miss Parameters");
-                }
+                }*/
 
                 Request request = db.Requests.SingleOrDefault(r => r.IsDeleted == false
                     && r.Id == vehicleRequest.RequestId && r.Status == "Approved");

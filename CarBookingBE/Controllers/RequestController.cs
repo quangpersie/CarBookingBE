@@ -272,5 +272,37 @@ namespace CarBookingBE.Controllers
             return Ok(requestWorkflow.Message);
         }
 
+        [Route("action/cancel/Id={Id}")]
+        [HttpPut]
+        [JwtAuthorize]
+        public IHttpActionResult ActionCancel(string Id)
+        {
+            var httpRequest = HttpContext.Current.Request;
+            string action = httpRequest.Form["action"];
+            string Note = httpRequest.Form["Note"];
+            var actionRequest = requestService.ActionRequest(Id, Note, action);
+            if (!actionRequest.Success)
+            {
+                return BadRequest(actionRequest.Message);
+            }
+            return Ok(actionRequest.Message);
+            /*var requestWorkflow = requestWorkflowService.ActionRequest(Guid.Parse(Id), action);
+            if (!requestWorkflow.Success)
+            {
+                return BadRequest(requestWorkflow.Message);
+            
+
+
+            var checkWorkflow = requestWorkflowService.CheckWorkflow(requestWorkflow.Data);
+            if (checkWorkflow.Success)
+            {
+                
+
+            }
+
+
+            return Ok(requestWorkflow.Message);*/
+        }
+
     }
 }

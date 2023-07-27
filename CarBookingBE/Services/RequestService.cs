@@ -540,24 +540,19 @@ namespace CarBookingBE.Services
                 return new Result<Request>(false, "Request Status: Approved is required for this action");
             }
 
-            var userLogin = utilMethods.getCurId();
-            if (!userLogin.Success)
-            {
-                return new Result<Request>(false, userLogin.Message);
-            }
+            var requireRolesCancel = new RoleConstants(true, true, false, false, false);
+            var isAuthorizedCancel = utilMethods.isAuthorized(requireRolesCancel);
 
-            var userLoginId = userLogin.Data;
-
-            var userRolesLogin = utilMethods.userRoles(userLoginId);
+            var userLoginId = isAuthorizedCancel.Data;
 
             if (request.Status == "Approved" && action == "Canceled")
             {
 
-                if (userRolesLogin.Data.Contains("ADMIN") || userRolesLogin.Data.Contains("ADMINISTRATIVE"))
+                if (isAuthorizedCancel.Success)
                 {
                     request.Status = action;
                     db.SaveChanges();
-                    return new Result<Request>(true, request.Status + " Request Success");
+                    return new Result<Request>(true, request.Status + " Request Success!");
                 }
                 else
                 {
@@ -569,8 +564,9 @@ namespace CarBookingBE.Services
             {
                 return new Result<Request>(false, "Request Status: " + request.Status + " is required");
             }
-
-            if (userRolesLogin.Data.Contains("APPROVER") || userRolesLogin.Data.Contains("ADMIN") || userRolesLogin.Data.Contains("ADMINISTRATIVE"))
+            var requireRolesApprover = new RoleConstants(true, true, true, false, false);
+            var isAuthorizedApprover = utilMethods.isAuthorized(requireRolesApprover);
+            if (isAuthorizedApprover.Success)
             {
                 RequestWorkflow requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.UserId == userLoginId && rw.RequestId.ToString() == Id);
                 if (requestWorkflow == null)

@@ -57,16 +57,16 @@ namespace CarBookingBE.Controllers
             return Ok(fileService.deleteAllFilesInFolder(filePath));
         }
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("download")]
         public HttpResponseMessage downloadFileExcel()
         {
-            /*var id = util.getCurId();
+            *//*var id = util.getCurId();
             if(!id.Success)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, new { Success = false, Message = "Login required !" });
             }
-            var curId = id.Data;*/
+            var curId = id.Data;*//*
             return Request.CreateResponse(HttpStatusCode.OK, fileService.downloadFileExcel("3f8ef640-4895-4f06-99e8-a829d25a35c1", "test"));
         }
 
@@ -75,7 +75,7 @@ namespace CarBookingBE.Controllers
         public HttpResponseMessage downloadFilePdf()
         {
             return Request.CreateResponse(HttpStatusCode.OK, fileService.downloadFilePdf("test"));
-        }
+        }*/
 
         [HttpPost]
         [Route("upload")]

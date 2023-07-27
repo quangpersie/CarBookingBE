@@ -57,21 +57,21 @@ namespace CarBookingBE.Services
                     }
 
                     request.Status = "Done";
+                    
                 } else
                 {
                     request.Status = "Done";
                 }
-                
 
-                
                 db.VehicleRequests.Add(vehicleRequest);
+                db.SaveChanges();
             }
             else
             {
                 return new Result<VehicleRequest>(false, "User Permission Failed!");
             }
 
-            db.SaveChanges();
+            
             return new Result<VehicleRequest>(true, "Create Vehicle Request Success", vehicleRequest);
         }
 

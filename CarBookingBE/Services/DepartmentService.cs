@@ -15,8 +15,9 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var departments = _db.Departments.Where(d => d.IsDeleted == false)
-                .OrderByDescending(user => user.Code)
+                var initDepartments = _db.Departments.Where(d => d.IsDeleted == false)
+                .OrderByDescending(user => user.Code);
+                var departments = initDepartments
                 .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
@@ -28,7 +29,7 @@ namespace CarBookingBE.Services
                 {
                     PerPage = limit,
                     CurrentPage = page,
-                    TotalPage = (departments.Count + limit - 1) / limit,
+                    TotalPage = (initDepartments.ToList().Count + limit - 1) / limit,
                     ListData = departments
                 };
                 return new Result<Pagination<Department>>(true, "Get all departments successfully !", dPagination);

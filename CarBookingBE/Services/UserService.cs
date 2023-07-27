@@ -196,8 +196,9 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var users = _db.Users.Where(u => u.IsDeleted == false)
-                .OrderByDescending(user => user.Created)
+                var initUsers = _db.Users.Where(u => u.IsDeleted == false)
+                .OrderByDescending(user => user.Created);
+                var users = initUsers
                 .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToList();
@@ -205,7 +206,7 @@ namespace CarBookingBE.Services
                 var usersPagination = new Pagination<Account> { 
                     PerPage = limit,
                     CurrentPage = page,
-                    TotalPage = (users.Count + limit - 1) / limit,
+                    TotalPage = (initUsers.ToList().Count + limit - 1) / limit,
                     ListData = users
                 };
                 if (users == null)

@@ -392,7 +392,7 @@ namespace CarBookingBE.Services
                     };
                     response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
                 }*/
-                var filePath = HttpContext.Current.Server.MapPath($"~/Files/Pdf/{id}/{fileName}.pdf");
+                var filePath = HttpContext.Current.Server.MapPath($"~/Files/Pdf/{fileName}.pdf");
                 byte[] fileContent = File.ReadAllBytes(filePath);
 
                 // Set the Content-Disposition header to suggest a filename for the browser to use when saving the file
@@ -429,12 +429,12 @@ namespace CarBookingBE.Services
             var am = _db.RequestAttachments.Where(a => a.IsDeleted == false && a.RequestId == r.Id).ToList();
             var hasAm = am.Any();
 
-            var qrCode = createQRCode($"http://localhost:3000/setting/profile/{wf.UserId}");
+            /*var qrCode = createQRCode($"http://localhost:3000/setting/profile/{wf.UserId}");
             if (!qrCode.Success)
             {
                 return false;
             }
-            var qrPath = qrCode.Data;
+            var qrPath = qrCode.Data;*/
 
             string documentSigners = "";
             if(hasWf)
@@ -468,14 +468,14 @@ namespace CarBookingBE.Services
                                 </div>
                             </div>
                             <div style=""padding: 8px 8px 0 8px;"">
-                                <img src="+ ($"{host}/{qrPath}") +@" alt=""qrCodeImage"" width=""120"" height=""120"">
+                                <img src=""https://drive.google.com/uc?export=view&id=1IKjLsNESdLfgbYFTDROq599dQd58ILlO"" alt=""qrCodeImage"" width=""120"" height=""120"">
                             </div>
                         </div>
                         <div class=""p-top"">
                             <div class=""full-line-grey""></div>
                             <div class=""flex-row pt-8"">
                                 <div class=""title min-width"">Name</div>
-                                <div>"+ $"{(r.SenderUser.FirstName == null ? r.SenderUser.FirstName : "")} {(r.SenderUser.LastName == null ? r.SenderUser.LastName : "")}" +@"</div>
+                                <div>" + $"{(r.SenderUser.FirstName == null ? r.SenderUser.FirstName : "")} {(r.SenderUser.LastName == null ? r.SenderUser.LastName : "")}" +@"</div>
                             </div>
                         </div>
                     </div>

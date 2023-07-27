@@ -18,10 +18,10 @@ namespace CarBookingBE.Services
             var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             if (isAuthorized.Success)
             {
-/*                if (vehicleRequest.RequestId == null || vehicleRequest.RotaionId == null || vehicleRequest.DriverId == null || vehicleRequest.DriverMobile == null || vehicleRequest.DriverCarplate == null || vehicleRequest.Reason == null)
+                if (vehicleRequest.RequestId == null || vehicleRequest.RotaionId == null || vehicleRequest.DriverId == null || vehicleRequest.Type)
                 {
                     return new Result<VehicleRequest>(false, "Miss Parameters");
-                }*/
+                }
 
                 Request request = db.Requests.SingleOrDefault(r => r.IsDeleted == false
                     && r.Id == vehicleRequest.RequestId && r.Status == "Approved");
@@ -37,10 +37,10 @@ namespace CarBookingBE.Services
                     return new Result<VehicleRequest>(false, "User Not Found");
                 }
 
-                var rotaion = db.Rotations.SingleOrDefault(r => r.IsDeleted == false && r.Id == vehicleRequest.RotaionId);
+                var rotaion = db.Rotations.SingleOrDefault(ro => ro.IsDeleted == false && ro.Id== vehicleRequest.RotaionId);
                 if (rotaion == null)
                 {
-                    return new Result<VehicleRequest>(false, "Rotaion Not Found");
+                    return new Result<VehicleRequest>(false, vehicleRequest.RotaionId.ToString());
                 }
 
                 request.Status = "Done";
@@ -60,6 +60,7 @@ namespace CarBookingBE.Services
             var rotations = db.Rotations.Where(r => r.IsDeleted == false).OrderBy(r => r.Type).ToList();
             return new Result<List<Rotation>>(true, "Get Success", rotations);
         }
+
 
     }
 }

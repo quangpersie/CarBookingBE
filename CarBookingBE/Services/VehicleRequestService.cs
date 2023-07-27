@@ -18,7 +18,7 @@ namespace CarBookingBE.Services
             var isAuthorized = utilMethods.isAuthorized(new RoleConstants(true, true, false, false, false));
             if (isAuthorized.Success)
             {
-                if (vehicleRequest.RequestId != null || vehicleRequest.Type != null)
+                if (vehicleRequest.RequestId != null)
                 {
                     return new Result<VehicleRequest>(false, "Miss Parameters");
                 }

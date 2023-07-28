@@ -128,5 +128,39 @@ namespace CarBookingBE.Controllers
             }
             return Request.CreateResponse(HttpStatusCode.OK, fileService.uploadAvatarTemp(null));
         }
+
+        [HttpPost]
+        [Route("signature-finish")]
+        public HttpResponseMessage finishUploadSignature()
+        {
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
+            if (!isAuthorized.Success)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
+            }
+            //var curId = isAuthorized.Data;
+            HttpRequest request = HttpContext.Current.Request;
+            var userId = request.Form["userId"];
+            var fileName = request.Form["fileName"];
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.copySignatureFromTemp(userId, fileName));
+        }
+
+        [HttpPost]
+        [Route("signature-temp")]
+        public HttpResponseMessage uploadSignatureTemp()
+        {
+            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
+            if (!isAuthorized.Success)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
+            }
+            //var curId = isAuthorized.Data;
+            var httpRequest = HttpContext.Current.Request;
+            if (httpRequest.Files.Count == 1)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, fileService.uploadSignatureTemp(httpRequest.Files[0]));
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, fileService.uploadSignatureTemp(null));
+        }
     }
 }

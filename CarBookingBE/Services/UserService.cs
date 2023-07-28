@@ -898,5 +898,34 @@ namespace CarBookingBE.Services
                 return new Result<Account>(false, "Internal error !");
             }
         }
+
+        public Result<string> setSignature(Account user)
+        {
+            try
+            {
+                if(user == null && user.Signature == null && user.Id == null)
+                {
+                    return new Result<string>(false, "Missing parameter(s) or invalid id user !");
+                }
+                if(util.stringValid(user.Signature))
+                {
+                    return new Result<string>(false, "Signature cannot be empty !");
+                }
+                var userId = user.Id;
+                var signature = user.Signature;
+                var exist = _db.Users.FirstOrDefault(u => u.Id == userId && u.IsDeleted == false);
+                if(exist == null)
+                {
+                    return new Result<string>(false, "User does not exist !");
+                }
+                exist.Signature = signature;
+                return new Result<string>(true, "Set signature successfully !");
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "");
+            }
+        }
     }
 }

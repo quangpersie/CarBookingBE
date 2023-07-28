@@ -172,5 +172,13 @@ namespace CarBookingTest.Controllers
         {
             return Ok("Token works !");
         }
+
+        [HttpPost]
+        [Route("signature")]
+        [JwtAuthorize]
+        public IHttpActionResult setSignature(Account user)
+        {
+            return Ok(userService.setSignature(user));
+        }
     }
 }

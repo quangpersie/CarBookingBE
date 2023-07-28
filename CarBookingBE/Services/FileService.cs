@@ -128,6 +128,79 @@ namespace CarBookingBE.Services
                 return new Result<string>(false, "Internal error !");
             }
         }
+        public Result<string> uploadSignatureTemp(HttpPostedFile postedFile)
+        {
+            try
+            {
+                string[] acceptExtensionImg = { ".png", ".jpg", ".jpeg" };
+                if (postedFile == null || postedFile.FileName.Length == 0)
+                {
+                    return new Result<string>(false, "Missing file !");
+                }
+                if (!acceptExtensionImg.Contains(Path.GetExtension(postedFile.FileName)))
+                {
+                    return new Result<string>(false, "Not support file type ! Please provide image file(.png, .jpg, .jpeg)");
+                }
+                if (postedFile.ContentLength > (2 * 1024 * 1024))
+                {
+                    return new Result<string>(false, "The maximum size of file is 20MB !");
+                }
+                string pathToSave = HttpContext.Current.Server.MapPath($"~/Files/Signature/temp");
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+                postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
+                return new Result<string>(true, "Upload file successfully !", $"{pathToSave}/{postedFile.FileName}");
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "Internal error !");
+            }
+        }
+        public Result<string> copySignatureFromTemp(string userId, string fileName)
+        {
+            try
+            {
+                if (userId == null || fileName == null)
+                {
+                    return new Result<string>(false, "Missing parameter(s) !");
+                }
+                //need initial
+                var userAvararFolder = HttpContext.Current.Server.MapPath($"~/Files/Signature/{userId}");
+                var destPath = $"{userAvararFolder}/{fileName}";
+                if (!Directory.Exists(userAvararFolder))
+                {
+                    Directory.CreateDirectory(userAvararFolder);
+                }
+                var tempPath = HttpContext.Current.Server.MapPath($"~/Files/Signature/temp/{fileName}");
+
+                if (File.Exists(tempPath))
+                {
+                    if (!File.Exists(destPath))
+                    {
+                        File.Copy(tempPath, destPath);
+                    }
+                    File.Delete(tempPath);
+                    var storePath = $"Files/Signature/{userId}/{fileName}";
+                    /*var uid = Guid.Parse(userId);
+                    var user = _db.Users.FirstOrDefault(u => u.Id == uid && u.IsDeleted == false);
+                    if(user == null)
+                    {
+                        return new Result<string>(false, "User does not exist !");
+                    }
+                    user.AvatarPath = storePath;*/
+                    return new Result<string>(true, "Finish uploading avatar !", storePath);
+                }
+                return new Result<string>(false, "File by path does not exist !");
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<string>(false, "Internal error !");
+            }
+        }
         public Result<HttpResponseMessage> writeToExcelAndDownload(Guid curId)
         {
             try

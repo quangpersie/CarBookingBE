@@ -270,6 +270,7 @@ namespace CarBookingBE.Services
             RequestDetailDTO request = db.Requests
                 .Include(s => s.SenderUser)
                 .Include(r => r.ReceiveUser)
+                .Where(r => r.Id.ToString() == id && r.IsDeleted == false)
                 .Select(req => new RequestDetailDTO()
                 {
                     Id = req.Id,
@@ -310,12 +311,11 @@ namespace CarBookingBE.Services
                     Destination = req.Destination,
                     Reason = req.Reason,
                     Note = req.Note,
-                    IsDeleted = req.IsDeleted,
                     ApplyNote = req.ApplyNote
 
                 })
-                .SingleOrDefault(r => r.Id.ToString() == id);
-            if (request == null || request.IsDeleted == true)
+                .SingleOrDefault();
+            if (request == null)
             {
                 return new Result<RequestDetailDTO>(false, "Failed");
             }
@@ -326,8 +326,8 @@ namespace CarBookingBE.Services
         public Result<Request> EditRequest(string id, Request requestEdit)
         {
             var requestId = Guid.Parse(id);
-            var req = db.Requests.SingleOrDefault(r => r.Id == requestId);
-            if (req.Status != "Draft")
+            var req = db.Requests.SingleOrDefault(r => r.Id == requestId && r.IsDeleted == false);
+            if (req.Status != "Draft")  
             {
                 if (req.Status != "Rejected")
                 {

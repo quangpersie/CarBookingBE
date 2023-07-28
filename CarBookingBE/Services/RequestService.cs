@@ -310,6 +310,7 @@ namespace CarBookingBE.Services
                     Destination = req.Destination,
                     Reason = req.Reason,
                     Note = req.Note,
+                    IsDeleted = req.IsDeleted,
                     ApplyNote = req.ApplyNote
 
                 })

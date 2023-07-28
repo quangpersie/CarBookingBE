@@ -453,7 +453,7 @@ namespace CarBookingBE.Services
                 if (updateUser["ProvinceR"] != null && util.stringValid(updateUser["ProvinceR"])) user.ProvinceR = updateUser["ProvinceR"];
                 if (updateUser["PostalCodeR"] != null && util.stringValid(updateUser["PostalCodeR"])) user.PostalCodeR = updateUser["PostalCodeR"];
                 if (updateUser["CountryR"] != null && util.stringValid(updateUser["CountryR"])) user.CountryR = updateUser["CountryR"];
-                if (updateUser["Signature"] != null && util.stringValid(updateUser["Signature"])) user.CountryR = updateUser["Signature"];
+                if (updateUser["Signature"] != null && util.stringValid(updateUser["Signature"])) user.Signature = updateUser["Signature"];
                 user.Created = DateTime.Now;
 
                 _db.SaveChanges();

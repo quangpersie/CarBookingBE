@@ -326,10 +326,14 @@ namespace CarBookingBE.Services
         {
             var requestId = Guid.Parse(id);
             var req = db.Requests.SingleOrDefault(r => r.Id == requestId);
-            if (req.Status != "Rejected")
+            if (req.Status != "Draft")
             {
-                return new Result<Request>(false, "Request can't Edit");
+                if (req.Status != "Rejected")
+                {
+                    return new Result<Request>(false, "Request can't Edit");
+                }
             }
+            
             /*if (requestEdit.Status != "Draft" || requestEdit.Status == null)
             {
                 requestEdit.Status = "Waiting for approval";

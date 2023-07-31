@@ -38,18 +38,19 @@ namespace CarBookingBE.Controllers
         [Route("comment/requestId={requestId}")]
         [HttpPost]
         [JwtAuthorize]
+        /*[System.Web.Mvc.ValidateInput(false)]*/
         public IHttpActionResult CreateComment (string requestId)
         {
             var userLoginId = utilMethods.getCurId();
             var httpRequest = HttpContext.Current.Request;
             RequestComment requestComment = new RequestComment();
             requestComment.UserId = userLoginId.Data;
-            requestComment.Content = httpRequest.Form["comment"];
+            requestComment.Content = httpRequest.Unvalidated.Form["comment"];
             requestComment.Created = DateTime.Now;
             requestComment.RequestId = Guid.Parse(requestId);
             requestComment.IsDeleted = false;
 
-            var comments = requestCommentService.CreateComment(requestComment, requestId);
+            var comments = requestCommentService.CreateComment(requestComment, requestId);  
             if (!comments.Success)
             {
                 return BadRequest(comments.Message);

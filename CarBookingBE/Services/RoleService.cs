@@ -123,19 +123,25 @@ namespace CarBookingBE.Services
             }
         }
 
-        public Result<Role> deleteRole(int rId)
+        public Result<Role> deleteRole(string strRoleId)
         {
             try
             {
+                var rId = int.Parse(strRoleId);
                 var dRole = _db.Roles.FirstOrDefault(r => r.IsDeleted == false && r.Id == rId);
                 if (dRole != null)
                 {
                     var deleteUserRole = _db.UserRoles.Where(ur => ur.IsDeleted == false && ur.RoleId == rId).ToList();
-                    foreach (var item in deleteUserRole)
+                    if(deleteUserRole.Any())
+                    {
+                        return new Result<Role>(false, "Cannot delete, this role has some related data in other places !");
+                    }
+                    /*foreach (var item in deleteUserRole)
                     {
                         item.IsDeleted = true;
                     }
-                    dRole.IsDeleted = true;
+                    dRole.IsDeleted = true;*/
+                    _db.Roles.Remove(dRole);
                     _db.SaveChanges();
                     return new Result<Role>(true, "Delete role successfully !");
                 }

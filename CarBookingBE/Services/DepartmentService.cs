@@ -136,17 +136,23 @@ namespace CarBookingBE.Services
         {
             try
             {
-                var del = _db.Departments.Find(Guid.Parse(id));
-                if(del != null || del.IsDeleted == true)
+                var did = Guid.Parse(id);
+                var del = _db.Departments.FirstOrDefault(d => d.Id == did && d.IsDeleted == false);
+                if(del == null)
                 {
                     return new Result<Department>(false, "Department does not exist !");
                 }
                 var deleteDepartmentMember = _db.DepartmentsMembers.Where(d => d.IsDeleted == false && d.DepartmentId == del.Id).ToList();
-                foreach (var item in deleteDepartmentMember)
+                if(deleteDepartmentMember.Any() )
+                {
+                    return new Result<Department>(false, "Cannot delete, this department has some related data in other places !");
+                }
+                /*foreach (var item in deleteDepartmentMember)
                 {
                     item.IsDeleted = true;
-                }
-                del.IsDeleted = true;
+                }*/
+                //del.IsDeleted = true;
+                _db.Departments.Remove(del);
                 _db.SaveChanges();
                 return new Result<Department>(true, "Delete department successfully !");
             }

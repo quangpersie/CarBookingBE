@@ -280,12 +280,12 @@ namespace CarBookingBE.Services
             }
             if (addDMList == null || addDMList.Length == 0)
             {
-                return new Result<string[]>(false, "Empty input roles list !");
+                return new Result<string[]>(false, "Empty input departments list !");
             }
             var rs = getDepartmentsByUserId(strUserId);
             if (!rs.Success)
             {
-                return new Result<string[]>(false, "Error happened when reset data !");
+                return new Result<string[]>(false, rs.Message);
             }
             foreach (var strDepartmentId in rs.Data)
             {

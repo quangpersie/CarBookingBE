@@ -165,6 +165,13 @@ namespace CarBookingTest.Controllers
             return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
         }
 
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public IHttpActionResult deleteUser(string id)
+        {
+            return Ok(userService.deleteUser(id));
+        }
+
         [HttpGet]
         [Route("check-jwt")]
         [JwtAuthorize]

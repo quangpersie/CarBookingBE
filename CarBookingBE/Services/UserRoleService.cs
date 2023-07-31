@@ -129,7 +129,7 @@ namespace CarBookingBE.Services
             var rs = getRolesByUserId(strUserId);
             if(!rs.Success)
             {
-                return new Result<string[]>(false, "Error happened when reset data !");
+                return new Result<string[]>(false, rs.Message);
             }
             foreach (var strRoleId in rs.Data)
             {

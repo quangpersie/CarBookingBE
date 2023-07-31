@@ -6,11 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Http;
 
@@ -453,7 +455,7 @@ namespace CarBookingBE.Services
                 if (updateUser["ProvinceR"] != null && util.stringValid(updateUser["ProvinceR"])) user.ProvinceR = updateUser["ProvinceR"];
                 if (updateUser["PostalCodeR"] != null && util.stringValid(updateUser["PostalCodeR"])) user.PostalCodeR = updateUser["PostalCodeR"];
                 if (updateUser["CountryR"] != null && util.stringValid(updateUser["CountryR"])) user.CountryR = updateUser["CountryR"];
-                if (updateUser["Signature"] != null && util.stringValid(updateUser["Signature"])) user.Signature = updateUser["Signature"];
+                //if (updateUser["Signature"] != null && util.stringValid(updateUser["Signature"])) user.Signature = updateUser["Signature"];
                 user.Created = DateTime.Now;
 
                 _db.SaveChanges();
@@ -536,6 +538,14 @@ namespace CarBookingBE.Services
                         newUser.AvatarPath = "Files/Avatar/default-user-profile.png";
                     }
                     //Optional
+                    if(user.Roles == null && user.Roles.Length == 0)
+                    {
+                        return new Result<Account>(false, "User roles list is empty !");
+                    }
+                    if (user.Departments == null && user.Departments.Length == 0)
+                    {
+                        return new Result<Account>(false, "User departments list is empty !");
+                    }
                     if (user.Birthday != null)
                     {
                         try
@@ -706,18 +716,30 @@ namespace CarBookingBE.Services
                 var user = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Id == userId);
                 if (user == null)
                 {
-                    return new Result<Account>(false, "User do not exist !");
+                    return new Result<Account>(false, "User does not exist !");
                 }
                 //Trace.WriteLine($"--AP: {user.AvatarPath}");
+                if(editUser == null)
+                {
+                    return new Result<Account>(false, "Missing parameter(s) !");
+                }
 
                 //start edit fields
-                if(editUser != null && editUser.Roles.Length > 0)
+                if(editUser.Roles != null)
                 {
-                    urService.addUserRoles(idUserEdit, editUser.Roles);
+                    var rs = urService.addUserRoles(idUserEdit, editUser.Roles);
+                    if (!rs.Success)
+                    {
+                        return new Result<Account>(false, rs.Message);
+                    }
                 }
-                if(editUser != null && editUser.Departments.Length > 0)
+                if(editUser.Departments != null)
                 {
-                    dms.addDepartmentMembers(idUserEdit, editUser.Departments);
+                    var rs = dms.addDepartmentMembers(idUserEdit, editUser.Departments);
+                    if (!rs.Success)
+                    {
+                        return new Result<Account>(false, rs.Message);
+                    }
                 }
                 if (editUser.Birthday != null)
                 {
@@ -857,8 +879,22 @@ namespace CarBookingBE.Services
                 if (editUser.EmployeeType != null && util.stringValid(editUser.EmployeeType)) user.EmployeeType = editUser.EmployeeType;
                 if (editUser.Rights != null && util.stringValid(editUser.Rights)) user.Rights = editUser.Rights;
                 if (editUser.Nation != null && util.stringValid(editUser.Nation)) user.Nation = editUser.Nation;
-                if (editUser.Phone != null && util.stringValid(editUser.Phone)) user.Phone = editUser.Phone;
-                if (editUser.IdCardNumber != null && util.stringValid(editUser.IdCardNumber)) user.IdCardNumber = editUser.IdCardNumber;
+                if (editUser.IdCardNumber != null && util.stringValid(editUser.IdCardNumber))
+                {
+                    if (!Regex.IsMatch(editUser.IdCardNumber, @"^\d+$"))
+                    {
+                        return new Result<Account>(false, "Id card number cannot contain characters which is not number !");
+                    }
+                    user.IdCardNumber = editUser.IdCardNumber;
+                }
+                if (editUser.Phone != null && util.stringValid(editUser.Phone))
+                {
+                    if (!Regex.IsMatch(editUser.Phone, @"^\d+$"))
+                    {
+                        return new Result<Account>(false, "Phone number cannot contain characters which is not number !");
+                    }
+                    user.Phone = editUser.Phone;
+                }
                 if (editUser.PlaceOfIdCard != null && util.stringValid(editUser.PlaceOfIdCard)) user.PlaceOfIdCard = editUser.PlaceOfIdCard;
                 if (editUser.HealthInsurance != null && util.stringValid(editUser.HealthInsurance)) user.HealthInsurance = editUser.HealthInsurance;
                 if (editUser.Note != null && util.stringValid(editUser.Note)) user.Note = editUser.Note;
@@ -868,9 +904,23 @@ namespace CarBookingBE.Services
                 if (editUser.HomePhone != null && util.stringValid(editUser.HomePhone)) user.HomePhone = editUser.HomePhone;
                 if (editUser.PersonalEmail != null && util.stringValid(editUser.PersonalEmail)) user.PersonalEmail = editUser.PersonalEmail;
                 if (editUser.BankName != null && util.stringValid(editUser.BankName)) user.BankName = editUser.BankName;
-                if (editUser.BankBranchNumber != null && util.stringValid(editUser.BankBranchNumber)) user.BankBranchNumber = editUser.BankBranchNumber;
+                if (editUser.BankBranchNumber != null && util.stringValid(editUser.BankBranchNumber))
+                {
+                    if (!Regex.IsMatch(editUser.BankBranchNumber, @"^\d+$"))
+                    {
+                        return new Result<Account>(false, "Bank branch number cannot contain characters which is not number !");
+                    }
+                    user.BankBranchNumber = editUser.BankBranchNumber;
+                }
                 if (editUser.BankBranchName != null && util.stringValid(editUser.BankBranchName)) user.BankBranchName = editUser.BankBranchName;
-                if (editUser.BankAccountNumber != null && util.stringValid(editUser.BankAccountNumber)) user.BankAccountNumber = editUser.BankAccountNumber;
+                if (editUser.BankAccountNumber != null && util.stringValid(editUser.BankAccountNumber))
+                {
+                    if (!Regex.IsMatch(editUser.BankAccountNumber, @"^\d+$"))
+                    {
+                        return new Result<Account>(false, "Bank account number cannot contain characters which is not number !");
+                    }
+                    user.BankAccountNumber = editUser.BankAccountNumber;
+                } 
                 if (editUser.BankAccountName != null && util.stringValid(editUser.BankAccountName)) user.BankAccountName = editUser.BankAccountName;
                 if (editUser.Street != null && util.stringValid(editUser.Street)) user.Street = editUser.Street;
                 if (editUser.FlatNumber != null && util.stringValid(editUser.FlatNumber)) user.FlatNumber = editUser.FlatNumber;
@@ -881,7 +931,14 @@ namespace CarBookingBE.Services
                 if (editUser.MartialStatus != null && util.stringValid(editUser.MartialStatus)) user.MartialStatus = editUser.MartialStatus;
                 if (editUser.ContactName != null && util.stringValid(editUser.ContactName)) user.ContactName = editUser.ContactName;
                 if (editUser.Relationship != null && util.stringValid(editUser.Relationship)) user.Relationship = editUser.Relationship;
-                if (editUser.PhoneR != null && util.stringValid(editUser.PhoneR)) user.PhoneR = editUser.PhoneR;
+                if (editUser.PhoneR != null && util.stringValid(editUser.PhoneR))
+                {
+                    if (!int.TryParse(editUser.PhoneR, out _))
+                    {
+                        return new Result<Account>(false, "Phone number of family member cannot contain characters which is not number !");
+                    }
+                    user.PhoneR = editUser.PhoneR;
+                }
                 if (editUser.StreetR != null && util.stringValid(editUser.StreetR)) user.StreetR = editUser.StreetR;
                 if (editUser.FlatNumberR != null && util.stringValid(editUser.FlatNumberR)) user.FlatNumberR = editUser.FlatNumberR;
                 if (editUser.CityR != null && util.stringValid(editUser.CityR)) user.CityR = editUser.CityR;
@@ -908,7 +965,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<string>(false, "Missing parameter(s) or invalid id user !");
                 }
-                if(util.stringValid(user.Signature))
+                if(!util.stringValid(user.Signature))
                 {
                     return new Result<string>(false, "Signature cannot be empty !");
                 }
@@ -920,12 +977,44 @@ namespace CarBookingBE.Services
                     return new Result<string>(false, "User does not exist !");
                 }
                 exist.Signature = signature;
+                _db.SaveChanges();
                 return new Result<string>(true, "Set signature successfully !");
             }
             catch(Exception e)
             {
                 Trace.WriteLine(e.Message);
                 return new Result<string>(false, "");
+            }
+        }
+
+        public Result<string> deleteUser(string id)
+        {
+            try
+            {
+                if(id == null)
+                {
+                    return new Result<string>(false, "Missing id of user !");
+                }
+                var userId = Guid.Parse(id);
+                var user = _db.Users.FirstOrDefault(u => u.IsDeleted == false && u.Id == userId);
+                var userRole = _db.UserRoles.FirstOrDefault(u => u.IsDeleted == false && u.UserId == userId);
+                var departmentMember = _db.DepartmentsMembers.FirstOrDefault(u => u.IsDeleted == false && u.UserId == userId);
+                if (user == null)
+                {
+                    return new Result<string>(false, "User with input id does not exist !");
+                }
+                if(userRole != null || departmentMember != null)
+                {
+                    return new Result<string>(false, "Cannot delete, this user has some related data in other places !");
+                }
+                _db.Users.Remove(user);
+                _db.SaveChanges();
+                return new Result<string>(true, "Delete user successfully !");
+            }
+            catch(DbUpdateException e)
+            {
+                Trace.WriteLine(e.InnerException);
+                return new Result<string>(false, "Internal error !");
             }
         }
     }

@@ -39,7 +39,7 @@ namespace CarBookingBE.Controllers
 
         [HttpDelete]
         [Route("delete/{id}")]
-        public IHttpActionResult deleteRole(int id)
+        public IHttpActionResult deleteRole(string id)
         {
             return Ok(roleService.deleteRole(id));
         }

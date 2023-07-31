@@ -132,14 +132,13 @@ namespace CarBookingBE.Services
         {
             try
             {
-                string[] acceptExtensionImg = { ".png", ".jpg", ".jpeg" };
                 if (postedFile == null || postedFile.FileName.Length == 0)
                 {
                     return new Result<string>(false, "Missing file !");
                 }
-                if (!acceptExtensionImg.Contains(Path.GetExtension(postedFile.FileName)))
+                if (!postedFile.ContentType.StartsWith("image/"))
                 {
-                    return new Result<string>(false, "Not support file type ! Please provide image file(.png, .jpg, .jpeg)");
+                    return new Result<string>(false, "Not support file type ! Please provide image file (.png, .jpg, .jpeg, ...)");
                 }
                 if (postedFile.ContentLength > (2 * 1024 * 1024))
                 {

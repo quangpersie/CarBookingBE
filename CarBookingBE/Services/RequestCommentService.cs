@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Data.Entity;
 
 namespace CarBookingBE.Services
 {
@@ -23,7 +24,9 @@ namespace CarBookingBE.Services
             }
 
             List<RequestCommentDTO> requestComments =
-                db.RequestComments.Where(rc => rc.RequestId.ToString() == requestId)
+                db.RequestComments
+                .Include(requestComment => requestComment.RequestCommentAttachments)
+                .Where(rc => rc.RequestId.ToString() == requestId)
                 .Select(rc => new RequestCommentDTO()
                 {
                     Id = rc.Id,
@@ -34,7 +37,8 @@ namespace CarBookingBE.Services
                         LastName = rc.Account.LastName
                     },
                     Content = rc.Content,
-                    Created = rc.Created
+                    Created = rc.Created,
+                    RequestCommentAttachment = rc.RequestCommentAttachments
                 })
                 .OrderByDescending(rc => rc.Created)
                 .ToList();
@@ -120,7 +124,7 @@ namespace CarBookingBE.Services
                 Directory.CreateDirectory(pathToSave);
             }
             postedFile.SaveAs($"{pathToSave}/{postedFile.FileName}");
-            return new Result<string>(true, "Upload file successfully !", $"Files/Comments/{requestCode}/{postedFile.FileName}");
+            return new Result<string>(true, "Upload file successfully !", $"Files/Comments/{requestCode}/{userLoginId}/{postedFile.FileName}");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CarBookingBE.DTOs;
+using CarBookingBE.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace CarBookingBE.DTOs
         public AccountDTO Account { get; set; }
         public string Content { get; set; }
         public DateTime Created { get; set; }
+
+        public ICollection<RequestCommentAttachment> RequestCommentAttachment { get; set; }
         /*public RequestDTO Request { get; set; }*/
     }
 }

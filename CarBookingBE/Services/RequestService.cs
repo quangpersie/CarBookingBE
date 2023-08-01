@@ -290,7 +290,7 @@ namespace CarBookingBE.Services
                         Id = req.Department.Id,
                         Name = req.Department.Name
                     },
-                    ReceiveUser = new AccountDTO()
+                    ReceiverUser = new AccountDTO()
                     {
                         Id = req.ReceiveUser.Id,
                         FirstName = req.ReceiveUser.FirstName,

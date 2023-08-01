@@ -14,7 +14,7 @@ namespace CarBookingBE.DTOs
         public string RequestCode { get; set; }
         public AccountDTO SenderUser { get; set; }
         public DepartmentDTO Department { get; set; }
-        public AccountDTO ReceiveUser { get; set; }
+        public AccountDTO ReceiverUser { get; set; }
         public DateTime? Created { get; set; }
         public string Mobile { get; set; }
         public string CostCenter { get; set; }

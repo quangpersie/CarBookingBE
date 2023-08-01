@@ -633,7 +633,7 @@ namespace CarBookingBE.Services
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">User</div>
-                                    <span>"+ $"{r.ReceiveUser.FirstName} {r.ReceiveUser.LastName}" +@"</span>
+                                    <span>"+ $"{r.ReceiverUser.FirstName} {r.ReceiverUser.LastName}" +@"</span>
                                 </div>
                                 <div class=""flex-col col-3"">
                                     <div class=""title"">Mobile</div>

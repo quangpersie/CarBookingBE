@@ -47,13 +47,13 @@ namespace CarBookingTest.Controllers
             var curId = isAuthorized.Data;
             var httpRequest = HttpContext.Current.Request;
             Account user = new Account();
-            user.Email = httpRequest.Form["Email"];
-            user.Password = httpRequest.Form["Password"];
-            user.FirstName = httpRequest.Form["FirstName"];
-            user.LastName = httpRequest.Form["LastName"];
-            user.Sex = bool.Parse(httpRequest.Form["Sex"]);
-            user.EmployeeNumber = httpRequest.Form["EmployeeNumber"];
-            string roleId = httpRequest.Form["Role"];
+            user.Email = httpRequest.Unvalidated.Form["Email"];
+            user.Password = httpRequest.Unvalidated.Form["Password"];
+            user.FirstName = httpRequest.Unvalidated.Form["FirstName"];
+            user.LastName = httpRequest.Unvalidated.Form["LastName"];
+            user.Sex = bool.Parse(httpRequest.Unvalidated.Form["Sex"]);
+            user.EmployeeNumber = httpRequest.Unvalidated.Form["EmployeeNumber"];
+            string roleId = httpRequest.Unvalidated.Form["Role"];
             if (httpRequest.Files.Count == 1)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, userService.registerService(curId, httpRequest.Files[0], user, roleId));
@@ -97,7 +97,7 @@ namespace CarBookingTest.Controllers
             if (curId == Guid.Parse(idEdit) || isAuthorized.Success)
             {
                 var httpRequest = HttpContext.Current.Request;
-                var formData = httpRequest.Form;
+                var formData = httpRequest.Unvalidated.Form;
                 if (httpRequest.Files.Count == 1)
                 {
                     return Request.CreateResponse(HttpStatusCode.OK, userService.editProfileWithPostFile(curId, httpRequest.Files[0], idEdit, formData));

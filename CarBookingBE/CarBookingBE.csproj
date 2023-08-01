@@ -308,6 +308,7 @@
     <Compile Include="DTOs\AccountDTO.cs" />
     <Compile Include="DTOs\AccountForAddDTO.cs" />
     <Compile Include="DTOs\AccountLoginReturnDTO.cs" />
+    <Compile Include="DTOs\PositionDepartmentDTO.cs" />
     <Compile Include="DTOs\TokenBlacklistDTO.cs" />
     <Compile Include="DTOs\DepartmentDTO.cs" />
     <Compile Include="DTOs\DepartmentMemberDTO.cs" />

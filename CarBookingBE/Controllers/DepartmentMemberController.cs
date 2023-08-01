@@ -1,4 +1,5 @@
-﻿using CarBookingBE.Services;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Services;
 using CarBookingTest.Models;
 using System.Web.Http;
 
@@ -62,6 +63,20 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult getDepartmentsByUserId(string userId)
         {
             return Ok(dms.getDepartmentsByUserId(userId));
+        }
+
+        [HttpGet]
+        [Route("manager/{departmentId}")]
+        public IHttpActionResult getManagerByDepartment(string departmentId)
+        {
+            return Ok(dms.getManagerByDepartment(departmentId));
+        }
+
+        [HttpGet]
+        [Route("supervisors/{departmentId}")]
+        public IHttpActionResult getAllSupervisors(string departmentId)
+        {
+            return Ok(dms.getAllSupervisors(departmentId));
         }
     }
 }

@@ -122,7 +122,7 @@ namespace CarBookingBE.Services
                 var dId = Guid.Parse(departmentId);
                 var pList = _db.DepartmentsMembers
                     .Include(d => d.User).Include(d => d.Department)
-                    .Where(d => d.IsDeleted == false && d.Position.Equals(position))
+                    .Where(d => d.IsDeleted == false && d.Position.Contains(position))
                     .Select(d => new DepartmentMemberDTO
                     {
                         Id = d.Id,
@@ -182,6 +182,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<DepartmentMember>(false, "This employee's already existed in the department !");
                 }
+                newDM.Position = "Employee";
                 _db.DepartmentsMembers.Add(newDM);
                 _db.SaveChanges();
                 return new Result<DepartmentMember>(true, "Add data successfully !", newDM);
@@ -220,7 +221,8 @@ namespace CarBookingBE.Services
                 }
                 if (dmUpdate.UserId != null) dmUpdate.UserId = dmUpdate.UserId;
                 if (dmUpdate.DepartmentId != null) dmUpdate.DepartmentId = dmUpdate.DepartmentId;
-                if (dmUpdate.Position != null) dmUpdate.Position = dmUpdate.Position;
+                //if (dmUpdate.Position != null) dmUpdate.Position = dmUpdate.Position;
+                
                 _db.SaveChanges();
                 return new Result<DepartmentMember>(true, "Edit data successfully !");
             }
@@ -229,6 +231,35 @@ namespace CarBookingBE.Services
                 Trace.WriteLine(e);
                 return new Result<DepartmentMember>(false, "Internal error !");
             }
+        }
+        public Result<List<string>> getAllSupervisors(string did)
+        {
+            try
+            {
+                var dId = Guid.Parse(did);
+                var data = _db.DepartmentsMembers.Where(d => d.Position.Contains("Supervisor") && d.DepartmentId == dId && d.IsDeleted == false)
+                    .Select(d => d.UserId.ToString()).ToList();
+                if (!data.Any())
+                {
+                    return new Result<List<string>>(false, "There's no data !");
+                }
+                return new Result<List<string>>(true, "Get supervisors successfully !", data);
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine(e.Message);
+                return new Result<List<string>>(false, "Internal error !");
+            }
+        }
+        public Result<string> getManagerByDepartment(string did)
+        {
+            var dId = Guid.Parse(did);
+            var data = _db.DepartmentsMembers.FirstOrDefault(d => d.DepartmentId == dId && d.IsDeleted == false && d.Position.Contains("Manager"));
+            if(data == null)
+            {
+                return new Result<string>(false, "There's no data !");
+            }
+            return new Result<string>(false, "Get manager successfully !", data.UserId.ToString());
         }
         public Result<DepartmentMember> deleteDepartmentMember(string id)
         {

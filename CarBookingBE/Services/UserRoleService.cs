@@ -287,8 +287,9 @@ namespace CarBookingBE.Services
             }
             return new Result<List<UserRolesDTO>>(true, "Get roles detail by user id successfully !", userRoles);
         }
-        public Result<List<AccountApproversDTO>> getApprovers()
+        public Result<List<AccountApproversDTO>> getApprovers(string did)
         {
+            var departmentId = Guid.Parse(did);
             var listApprover = _db.UserRoles
                 .Where(u => u.User.IsDeleted == false)
                 .Where(u => u.Role.Id == 1 || u.Role.Id == 2 || u.Role.Id == 3)
@@ -302,7 +303,7 @@ namespace CarBookingBE.Services
             List<AccountApproversDTO> approvers = new List<AccountApproversDTO>();
             foreach (var approverId in listApprover)
             {
-                var approver = _db.Users.Where(u => u.Id == approverId).Select(u => new AccountApproversDTO
+                var approver = _db.Users.Where(u => u.Id == approverId && u.DepartmentMembers.Any(us => us.DepartmentId == departmentId)).Select(u => new AccountApproversDTO
                 {
                     Id = approverId,
                     Email = u.Email,

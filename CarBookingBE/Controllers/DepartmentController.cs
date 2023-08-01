@@ -1,4 +1,5 @@
-﻿using CarBookingBE.Services;
+﻿using CarBookingBE.DTOs;
+using CarBookingBE.Services;
 using CarBookingBE.Utils;
 using CarBookingTest.Models;
 using System.Net.Http;
@@ -42,7 +43,7 @@ namespace CarBookingBE.Controllers
 
         [HttpPut]
         [Route("edit/{id}")]
-        public IHttpActionResult editDepartment(string id, [FromBody] Department department)
+        public IHttpActionResult editDepartment(string id, [FromBody] PositionDepartmentDTO department)
         {
             return Ok(departmentService.editDepartment(id, department));
         }

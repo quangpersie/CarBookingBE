@@ -67,10 +67,10 @@ namespace CarBookingBE.Controllers
         }
 
         [HttpGet]
-        [Route("all-approvers")]
-        public IHttpActionResult getApprovers()
+        [Route("all-approvers/{did}")]
+        public IHttpActionResult getApprovers(string did)
         {
-            return Ok(userRoleService.getApprovers());
+            return Ok(userRoleService.getApprovers(did));
         }
     }
 }

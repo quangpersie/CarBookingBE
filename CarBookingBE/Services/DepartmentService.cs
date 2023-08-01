@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static System.Data.Entity.Infrastructure.Design.Executor;
 
 namespace CarBookingBE.Services
 {
@@ -102,15 +103,17 @@ namespace CarBookingBE.Services
                 return new Result<Department>(false, "Internal error !");
             }
         }
-        public Result<Department> editDepartment(string id, Department dUpdate)
+        public Result<Department> editDepartment(string id, PositionDepartmentDTO dUpdate)
         {
             try
             {
-                var dTarget = _db.Departments.Find(Guid.Parse(id));
-                if(dTarget == null || dTarget.IsDeleted == true)
+                var did = Guid.Parse(id);
+                var dTarget = _db.Departments.FirstOrDefault(d => d.IsDeleted == false && d.Id == did);
+                if(dTarget == null)
                 {
                     return new Result<Department>(false, "Department does not exist !");
                 }
+                
                 if(dUpdate.Name != null) dTarget.Name = dUpdate.Name;
                 if(dUpdate.ContactInfo != null) dTarget.ContactInfo = dUpdate.ContactInfo;
                 if(dUpdate.Code != null) dTarget.Code = dUpdate.Code;
@@ -123,6 +126,69 @@ namespace CarBookingBE.Services
                     dTarget.UnderDepartment = null;
                 }
                 if(dUpdate.Description != null) dTarget.Description = dUpdate.Description;
+
+                var allEmployees = _db.DepartmentsMembers.Where(m => m.DepartmentId == dUpdate.Id).ToList();
+                if (dUpdate.Manager != null)
+                {
+                    //check and remove old manager
+                    var hasNewManager = Guid.TryParse(dUpdate.Manager, out _);
+                    if (hasNewManager)
+                    {
+                        foreach (var item in allEmployees)
+                        {
+                            var emPos = item.Position.Split(',').ToList();
+                            if (emPos.Count > 0 && emPos.Contains("Manager"))
+                            {
+                                emPos.Remove("Manager");
+                                item.Position = string.Join(",", emPos);
+                            }
+                        }
+                    }
+                
+                    var mid = Guid.Parse(dUpdate.Manager);
+                    var manager = allEmployees.FirstOrDefault(e => e.UserId == mid);
+                    if (manager != null)
+                    {
+                        var listPos = manager.Position.Split(',').ToList();
+                        if (listPos.Count != 0 && !listPos.Contains("Manager"))
+                        {
+                            listPos.Add("Manager");
+                            manager.Position = string.Join(",", listPos);
+                        }
+                        else
+                        {
+                            manager.Position = "Manager";
+                        }
+                    }
+                }
+                if(dUpdate.Supervisors != null)
+                {
+                    //remove all old supervisors
+                    foreach (var em in allEmployees)
+                    {
+                        var listPosRemove = em.Position.Split(',').ToList();
+                        if(listPosRemove.Count != 0 && listPosRemove.Contains("Supervisor"))
+                        {
+                            listPosRemove.Remove("Supervisor");
+                            em.Position = listPosRemove.Count > 0 ? string.Join(",", listPosRemove) : "Employee";
+                        }
+                    }
+                    //edit new
+                    foreach (var item in dUpdate.Supervisors)
+                    {
+                        var uid = Guid.Parse(item);
+                        var supervisor = allEmployees.FirstOrDefault(s => s.UserId == uid);
+                        if (supervisor != null)
+                        {
+                            var listPos = supervisor.Position.Split(',').ToList();
+                            if (listPos.Count != 0 && !listPos.Contains("Supervisor"))
+                            {
+                                listPos.Add("Supervisor");
+                                supervisor.Position = string.Join(",", listPos);
+                            }
+                        }
+                    }
+                }
                 _db.SaveChanges();
                 return new Result<Department>(true, "Edit department successfully !");
             }

@@ -44,7 +44,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<string>(false, "Not support file type ! Please provide image file(.png, .jpg, .jpeg)");
                 }
-                if (postedFile.ContentLength > (2 * 1024 * 1024))
+                if (postedFile.ContentLength > (5 * 1024 * 1024))
                 {
                     return new Result<string>(false, "The maximum size of file is 20MB !");
                 }
@@ -110,7 +110,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<string>(false, "Not support file type ! Please provide image file(.png, .jpg, .jpeg)");
                 }
-                if (postedFile.ContentLength > (2 * 1024 * 1024))
+                if (postedFile.ContentLength > (5 * 1024 * 1024))
                 {
                     return new Result<string>(false, "The maximum size of file is 20MB !");
                 }
@@ -140,7 +140,7 @@ namespace CarBookingBE.Services
                 {
                     return new Result<string>(false, "Not support file type ! Please provide image file (.png, .jpg, .jpeg, ...)");
                 }
-                if (postedFile.ContentLength > (2 * 1024 * 1024))
+                if (postedFile.ContentLength > (5 * 1024 * 1024))
                 {
                     return new Result<string>(false, "The maximum size of file is 20MB !");
                 }

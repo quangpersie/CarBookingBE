@@ -106,7 +106,7 @@ namespace CarBookingBE.Services
             {
                 return new Result<string>(false, "Not support file type !");
             }
-            if (postedFile.ContentLength > (2 * 1024 * 1024))
+            if (postedFile.ContentLength > (20 * 1024 * 1024))
             {
                 return new Result<string>(false, "The maximum size of file is 20MB !");
             }

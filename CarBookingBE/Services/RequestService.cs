@@ -570,6 +570,23 @@ namespace CarBookingBE.Services
             {
                 return new Result<Request>(false, "Request Status: " + request.Status + " is required");
             }
+
+            //**------------Role Admin----------------**//
+            var requireRolesAdmin = new RoleConstants(true, false, false, false, false);
+            var isAuthorizedAdmin = utilMethods.isAuthorized(requireRolesAdmin);
+            if (isAuthorizedAdmin.Success)
+            {
+                if (Note != null)
+                {
+                    request.Note = Note;
+                }
+                request.Status = action;
+                db.SaveChanges();
+                return new Result<Request>(true, request.Status + " Request Success");
+            }
+
+            //**------------Role Admin----------------**//
+
             var requireRolesApprover = new RoleConstants(true, true, true, false, false);
             var isAuthorizedApprover = utilMethods.isAuthorized(requireRolesApprover);
             if (isAuthorizedApprover.Success)

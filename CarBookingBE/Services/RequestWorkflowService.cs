@@ -193,7 +193,7 @@ namespace CarBookingBE.Services
             var isAuthorizedAdmin = utilMethods.isAuthorized(requireRolesAdmin);
             if (isAuthorizedAdmin.Success)
             {
-                var requestWorkflows = db.RequestWorkflows.Where(rw => rw.IsDeleted == false && rw.RequestId == requestId).ToList();
+                var requestWorkflows = db.RequestWorkflows.Where(rw => rw.IsDeleted == false && rw.RequestId == requestId).OrderBy(rw => rw.Level).ToList();
                 foreach (RequestWorkflow requestWorkflow1 in requestWorkflows)
                 {
                     if (requestWorkflow1.Status == "Waiting for approval")
@@ -203,6 +203,7 @@ namespace CarBookingBE.Services
                         return new Result<RequestWorkflow>(true, "Approved Success!", requestWorkflow1);
                     }
                 }
+                return new Result<RequestWorkflow>(true, "Success");
             }
             // **-------Role Admin----------------**//
 

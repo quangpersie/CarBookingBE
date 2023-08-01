@@ -145,6 +145,10 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Account>(false, "Role with input id does not exist !");
                 }
+                else if (user.JobTitle == null || user.JobTitle.Trim().Length == 0)
+                {
+                    return new Result<Account>(false, "Missing job title of user !");
+                }
                 else
                 {
                     string flag = "";

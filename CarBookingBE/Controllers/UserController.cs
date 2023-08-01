@@ -53,6 +53,7 @@ namespace CarBookingTest.Controllers
             user.LastName = httpRequest.Unvalidated.Form["LastName"];
             user.Sex = bool.Parse(httpRequest.Unvalidated.Form["Sex"]);
             user.EmployeeNumber = httpRequest.Unvalidated.Form["EmployeeNumber"];
+            user.JobTitle = httpRequest.Unvalidated.Form["JobTitle"];
             string roleId = httpRequest.Unvalidated.Form["Role"];
             if (httpRequest.Files.Count == 1)
             {

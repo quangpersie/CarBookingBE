@@ -496,10 +496,12 @@ namespace CarBookingBE.Services
             
             var host = "http://localhost:63642";
             string format = "dd/MM/yyyy hh:mm tt";
-            var wf = _db.RequestWorkflows.Include(w => w.User).FirstOrDefault(w => w.IsDeleted == false && w.RequestId == r.Id && w.Level == 1);
-            var hasWf = (wf != null && wf.User != null);
+            var wf = _db.RequestWorkflows.Include(w => w.User).OrderBy(w => w.Level).Where(w => w.IsDeleted == false && w.RequestId == r.Id).ToList();
+            var hasWf = wf.Any();
             var am = _db.RequestAttachments.Where(a => a.IsDeleted == false && a.RequestId == r.Id).ToList();
             var hasAm = am.Any();
+            var cmt = _db.RequestComments.Include(c => c.Account).OrderBy(c => c.Created).Where(c => c.IsDeleted == false && c.RequestId == r.Id).ToList();
+            var hasCmt = cmt.Any();
 
             /*var qrCode = createQRCode($"http://localhost:3000/setting/profile/{wf.UserId}");
             if (!qrCode.Success)
@@ -511,9 +513,13 @@ namespace CarBookingBE.Services
             string documentSigners = "";
             if(hasWf)
             {
-                documentSigners = @"
+                documentSigners += @"
                     <!-- document signer -->
-                    <div class=""title-cbr text-left m-top"">Document Signers</div>
+                    <div class=""title-cbr text-left m-top"">Document Signers</div>";
+                foreach (var item in wf)
+                {
+                    
+                    documentSigners += @"
                     <div class=""m-top"">
                         <div class=""full-line m-top""></div>
                         <div class=""flex-row align-center gap-12"">
@@ -521,14 +527,14 @@ namespace CarBookingBE.Services
                                 <div>
                                     <div class=""flex-row pt-8"">
                                         <div class=""title min-width"">Title</div>
-                                        <div>"+ (r.SenderUser.JobTitle == null ? r.SenderUser.JobTitle : "") +@"</div>
+                                        <div>" + (item.User.JobTitle != null ? item.User.JobTitle : "") + @"</div>
                                     </div>
                                 </div>
                                 <div class=""p-top"">
                                     <div class=""full-line-grey""></div>
                                     <div class=""flex-row pt-8"">
                                         <div class=""title min-width"">Email</div>
-                                        <div>"+ (r.SenderUser.Email == null ? r.SenderUser.Email : "") + @"</div>
+                                        <div>" + (item.User.Email != null ? item.User.Email : "") + @"</div>
                                     </div>
                                 </div>
                                 <div class=""p-top"">
@@ -547,11 +553,12 @@ namespace CarBookingBE.Services
                             <div class=""full-line-grey""></div>
                             <div class=""flex-row pt-8"">
                                 <div class=""title min-width"">Name</div>
-                                <div>" + $"{(r.SenderUser.FirstName == null ? r.SenderUser.FirstName : "")} {(r.SenderUser.LastName == null ? r.SenderUser.LastName : "")}" +@"</div>
+                                <div>" + $"{(item.User.FirstName != null ? item.User.FirstName : "")} {(item.User.LastName != null ? item.User.LastName : "")}" + @"</div>
                             </div>
                         </div>
                     </div>
                 ";
+                }
             }
 
             string astring = "";
@@ -560,10 +567,12 @@ namespace CarBookingBE.Services
                 foreach (var a in am)
                 {
                     astring += @"
-                    <div class=""flex-row gap-36"">
-                        <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                        <a class=""col-4"" href=" + $"{host}/{a.Path}" + @">" + $"{a.Path.Replace($"{host}/Files/Attachments/{r.RequestCode}", "")}" + @"</a>
-                        <span class=""col-3"">Bang Nguyen Minh</span>
+                    <div class=""flex-col m-top"">
+                        <div class=""flex-row gap-36"">
+                            <div class=""col-3"">" + r.Created?.ToString("ddd, dd MMM yyyy HH:mm:ss zzz") + @"</div>
+                            <a class=""col-4"" href=" + $"{host}/{a.Path}" + @">" + $"{a.Path.Replace($"{host}/Files/Attachments/{r.RequestCode}", "")}" + @"</a>
+                            <span class=""col-3"">"+ $"{(r.SenderUser.FirstName != null ? r.SenderUser.FirstName : "")} {(r.SenderUser.LastName != null ? r.SenderUser.LastName : "")}" + @"</span>
+                        </div>
                     </div>
                 ";
                 }
@@ -573,29 +582,33 @@ namespace CarBookingBE.Services
                 <!-- related document -->
                 <div>
                     <div class=""title-cbr text-left m-top"">Related document</div>
-                    <div class=""full-line m-top""></div>
-
-                    <div class=""flex-col m-top"">
-                        "+ astring +@"
-                    </div>
+                    <div class=""full-line m-top""></div>"+ astring +@"
                 </div>
             ";
-
-            /*string discussionLog = @"
+            string discussionLog = "";
+            if(hasCmt)
+            {
+                string c = "";
+                foreach (var item in cmt)
+                {
+                    c += @"
+                        <div class=""flex-col m-top"">
+                            <div class=""flex-row gap-36"">
+                                <div class=""col-3"">"+ item.Created.ToString("ddd, dd MMM yyyy HH:mm:ss zzz") + @"</div>
+                                <div class=""col-4"">"+ item.Content +@"</div>
+                                <span class=""col-3"">"+ $"{(item.Account.FirstName != null ? item.Account.FirstName : "")} {(item.Account.LastName != null ? item.Account.LastName : "")}" + @"</span>
+                            </div>
+                        </div>";
+                }
+                discussionLog = @"
                 <!-- Discussion log -->
                 <div>
                     <div class=""title text-left m-top"">Discussion log</div>
                     <div class=""full-line m-top""></div>
-
-                    <div class=""flex-col m-top"">
-                        <div class=""flex-row gap-36"">
-                            <div class=""col-3"">Thu, 20 Jul 2023 11:27:25 +07:00</div>
-                            <div class=""col-4"">Submit the request 2023OPS-CAR-0720-001 for approval</div>
-                            <span class=""col-3"">Bang Nguyen Minh</span>
-                        </div>
-                    </div>
+                    " + c +@"
                 </div>
-            ";*/
+            ";
+            }
             try
             {
                 string htmlContent = @"
@@ -691,7 +704,7 @@ namespace CarBookingBE.Services
                                 </div>
                                 <label for=""no"" class=""label-radio"">No</label>
                             </div>
-                        </div>"+ documentSigners + relatedDocument + @"
+                        </div>"+ documentSigners + relatedDocument + discussionLog + @"
                     </div>
                 </body>
                 </html>";

@@ -105,6 +105,10 @@ namespace CarBookingBE.Services
                 {
                     return new Result<Account>(false, "Email is required !");
                 }
+                else if (!util.IsValidEmail(user.Email))
+                {
+                    return new Result<Account>(false, "Wrong format of email !");
+                }
                 else if (_db.Users.FirstOrDefault(u => u.Email == user.Email) != null)
                 {
                     return new Result<Account>(false, "This email has existed !");

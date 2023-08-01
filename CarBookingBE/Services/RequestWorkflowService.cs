@@ -44,25 +44,29 @@ namespace CarBookingBE.Services
             List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
             foreach (var userId in listOfUserId)
             {
-                var userRoles = db.UserRoles.Where(ur => ur.IsDeleted == false && ur.UserId.ToString() == userId).ToList();
+                var userRoles = utilMethods.userRoles(Guid.Parse(userId));
+                if (!userRoles.Success)
+                {
+                    return new Result<List<RequestWorkflow>>(false, "User has not Role");
+                }
+                var listUserRoles = userRoles.Data;
+                /*var userRoles = db.UserRoles.Where(ur => ur.IsDeleted == false && ur.UserId.ToString() == userId).ToList();
                 var roles = new List<string>();
                 foreach (AccountRole accountRole in userRoles)
                 {
                     var role = db.Roles.SingleOrDefault(r => r.Id == accountRole.RoleId);
                     roles.Add(role.Title);
-                }
-                foreach (string checkRole in roles)
+                }*/
+
+                if (listUserRoles.Contains("ADMIN") || listUserRoles.Contains("ADMINISTRATIVE") || listUserRoles.Contains("APPROVER"))
                 {
-                    if (checkRole == "ADMIN" || checkRole == "ADMINISTRATIVE" || checkRole == "APPROVER")
-                    {
-                        RequestWorkflow requestWorkflow = new RequestWorkflow();
-                        requestWorkflow.UserId = Guid.Parse(userId.ToString());
-                        requestWorkflow.RequestId = requestId;
-                        requestWorkflows.Add(requestWorkflow);
-                    } else
-                    {
-                        return new Result<List<RequestWorkflow>>(false, "User Permission Failed");
-                    }
+                    RequestWorkflow requestWorkflow = new RequestWorkflow();
+                    requestWorkflow.UserId = Guid.Parse(userId.ToString());
+                    requestWorkflow.RequestId = requestId;
+                    requestWorkflows.Add(requestWorkflow);
+                } else
+                {
+                    return new Result<List<RequestWorkflow>>(false, "User Permission Failed");
                 }
                 
             }
@@ -183,6 +187,24 @@ namespace CarBookingBE.Services
             {
                 return new Result<RequestWorkflow>(false, userLogin.Message);
             }
+
+            // **-------Role Admin----------------**//
+            var requireRolesAdmin = new RoleConstants(true, false, false, false, false);
+            var isAuthorizedAdmin = utilMethods.isAuthorized(requireRolesAdmin);
+            if (isAuthorizedAdmin.Success)
+            {
+                var requestWorkflows = db.RequestWorkflows.Where(rw => rw.IsDeleted == false && rw.RequestId == requestId).ToList();
+                foreach (RequestWorkflow requestWorkflow1 in requestWorkflows)
+                {
+                    if (requestWorkflow1.Status == "Waiting for approval")
+                    {
+                        requestWorkflow1.Status = action;
+                        db.SaveChanges();
+                        return new Result<RequestWorkflow>(true, "Approved Success!", requestWorkflow1);
+                    }
+                }
+            }
+            // **-------Role Admin----------------**//
 
             var userLoginId = userLogin.Data;
             var requestWorkflow = db.RequestWorkflows.SingleOrDefault(rw => rw.IsDeleted == false && rw.RequestId == requestId && rw.UserId == userLoginId);

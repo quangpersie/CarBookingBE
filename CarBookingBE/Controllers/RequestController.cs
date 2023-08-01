@@ -106,27 +106,27 @@ namespace CarBookingBE.Controllers
         {
             var httpRequest = HttpContext.Current.Request;
             Request request = new Request();
-            if (httpRequest.Form["SenderId"] != null) request.SenderId = Guid.Parse(httpRequest.Form["SenderId"]);
-            if (httpRequest.Form["DepartmentId"] != null) request.DepartmentId = Guid.Parse(httpRequest.Form["DepartmentId"]);
-            if (httpRequest.Form["ReceiverId"] != null) request.ReceiverId = Guid.Parse(httpRequest.Form["ReceiverId"]);
-            if (httpRequest.Form["Mobile"] != null) request.Mobile = httpRequest.Form["Mobile"];
-            if (httpRequest.Form["CostCenter"] != null) request.CostCenter = httpRequest.Form["CostCenter"];
-            if (httpRequest.Form["TotalPassengers"] != null) request.TotalPassengers = int.Parse(httpRequest.Form["TotalPassengers"]);
-            if (httpRequest.Form["UsageFrom"] != null) request.UsageFrom = DateTime.Parse(httpRequest.Form["UsageFrom"]);
-            if (httpRequest.Form["UsageTo"] != null) request.UsageTo = DateTime.Parse(httpRequest.Form["UsageTo"]);
-            if (httpRequest.Form["PickTime"] != null) request.PickTime = DateTime.Parse(httpRequest.Form["PickTime"]);
-            if (httpRequest.Form["PickLocation"] != null) request.PickLocation = httpRequest.Form["PickLocation"];
-            if (httpRequest.Form["Destination"] != null) request.Destination = httpRequest.Form["Destination"];
-            if (httpRequest.Form["Reason"] != null) request.Reason = httpRequest.Form["Reason"];
-            if (httpRequest.Form["ApplyNote"] != null) request.ApplyNote = bool.Parse(httpRequest.Form["ApplyNote"]);
-            if (httpRequest.Form["Note"] != null) request.Note = httpRequest.Form["Note"];
+            if (httpRequest.Unvalidated.Form["SenderId"] != null) request.SenderId = Guid.Parse(httpRequest.Unvalidated.Form["SenderId"]);
+            if (httpRequest.Unvalidated.Form["DepartmentId"] != null) request.DepartmentId = Guid.Parse(httpRequest.Unvalidated.Form["DepartmentId"]);
+            if (httpRequest.Unvalidated.Form["ReceiverId"] != null) request.ReceiverId = Guid.Parse(httpRequest.Unvalidated.Form["ReceiverId"]);
+            if (httpRequest.Unvalidated.Form["Mobile"] != null) request.Mobile = httpRequest.Unvalidated.Form["Mobile"];
+            if (httpRequest.Unvalidated.Form["CostCenter"] != null) request.CostCenter = httpRequest.Unvalidated.Form["CostCenter"];
+            if (httpRequest.Unvalidated.Form["TotalPassengers"] != null) request.TotalPassengers = int.Parse(httpRequest.Unvalidated.Form["TotalPassengers"]);
+            if (httpRequest.Unvalidated.Form["UsageFrom"] != null) request.UsageFrom = DateTime.Parse(httpRequest.Unvalidated.Form["UsageFrom"]);
+            if (httpRequest.Unvalidated.Form["UsageTo"] != null) request.UsageTo = DateTime.Parse(httpRequest.Unvalidated.Form["UsageTo"]);
+            if (httpRequest.Unvalidated.Form["PickTime"] != null) request.PickTime = DateTime.Parse(httpRequest.Unvalidated.Form["PickTime"]);
+            if (httpRequest.Unvalidated.Form["PickLocation"] != null) request.PickLocation = httpRequest.Unvalidated.Form["PickLocation"];
+            if (httpRequest.Unvalidated.Form["Destination"] != null) request.Destination = httpRequest.Unvalidated.Form["Destination"];
+            if (httpRequest.Unvalidated.Form["Reason"] != null) request.Reason = httpRequest.Unvalidated.Form["Reason"];
+            if (httpRequest.Unvalidated.Form["ApplyNote"] != null) request.ApplyNote = bool.Parse(httpRequest.Unvalidated.Form["ApplyNote"]);
+            if (httpRequest.Unvalidated.Form["Note"] != null) request.Note = httpRequest.Unvalidated.Form["Note"];
             var requestEdit = requestService.EditRequest(id, request);
             if (!requestEdit.Success)
             {
                 return BadRequest(requestEdit.Message);
             }
             var requestId = requestEdit.Data.Id;
-            if (httpRequest.Form["ListOfUserId[]"] != null)
+            if (httpRequest.Unvalidated.Form["ListOfUserId[]"] != null)
             {
                 // Edit RequestWorkflow
                 var listOfUserId = httpRequest.Params.GetValues("ListOfUserId[]");
@@ -190,20 +190,20 @@ namespace CarBookingBE.Controllers
                 return BadRequest(checkKeys.Message);
             }
             Request request = new Request();
-            request.SenderId = Guid.Parse(httpRequest.Form["SenderId"]);
-            request.DepartmentId = Guid.Parse(httpRequest.Form["DepartmentId"]);
-            request.ReceiverId = Guid.Parse(httpRequest.Form["ReceiverId"]);
-            request.Mobile = httpRequest.Form["Mobile"];
-            request.CostCenter = httpRequest.Form["CostCenter"];
-            request.TotalPassengers = int.Parse(httpRequest.Form["TotalPassengers"]);
-            request.UsageFrom = DateTime.Parse(httpRequest.Form["UsageFrom"]);
-            request.UsageTo = DateTime.Parse(httpRequest.Form["UsageTo"]);
-            request.PickTime = DateTime.Parse(httpRequest.Form["PickTime"]);
-            request.PickLocation = httpRequest.Form["PickLocation"];
-            request.Destination = httpRequest.Form["Destination"];
-            request.Reason = httpRequest.Form["Reason"];
-            request.ApplyNote = bool.Parse(httpRequest.Form["ApplyNote"]);
-            if (httpRequest.Form["Status"] != null) request.Status = httpRequest.Form["Status"];
+            request.SenderId = Guid.Parse(httpRequest.Unvalidated.Form["SenderId"]);
+            request.DepartmentId = Guid.Parse(httpRequest.Unvalidated.Form["DepartmentId"]);
+            request.ReceiverId = Guid.Parse(httpRequest.Unvalidated.Form["ReceiverId"]);
+            request.Mobile = httpRequest.Unvalidated.Form["Mobile"];
+            request.CostCenter = httpRequest.Unvalidated.Form["CostCenter"];
+            request.TotalPassengers = int.Parse(httpRequest.Unvalidated.Form["TotalPassengers"]);
+            request.UsageFrom = DateTime.Parse(httpRequest.Unvalidated.Form["UsageFrom"]);
+            request.UsageTo = DateTime.Parse(httpRequest.Unvalidated.Form["UsageTo"]);
+            request.PickTime = DateTime.Parse(httpRequest.Unvalidated.Form["PickTime"]);
+            request.PickLocation = httpRequest.Unvalidated.Form["PickLocation"];
+            request.Destination = httpRequest.Unvalidated.Form["Destination"];
+            request.Reason = httpRequest.Unvalidated.Form["Reason"];
+            request.ApplyNote = bool.Parse(httpRequest.Unvalidated.Form["ApplyNote"]);
+            if (httpRequest.Unvalidated.Form["Status"] != null) request.Status = httpRequest.Unvalidated.Form["Status"];
             
             var newRequest = requestService.CreateRequest(request);
 
@@ -250,8 +250,8 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult ActionRequest(string Id)
         {
             var httpRequest = HttpContext.Current.Request;
-            string action = httpRequest.Form["action"];
-            string Note = httpRequest.Form["Note"];
+            string action = httpRequest.Unvalidated.Form["action"];
+            string Note = httpRequest.Unvalidated.Form["Note"];
             var requestWorkflow = requestWorkflowService.ActionRequest(Guid.Parse(Id), action);
             if (!requestWorkflow.Success)
             {
@@ -280,8 +280,8 @@ namespace CarBookingBE.Controllers
         public IHttpActionResult ActionCancel(string Id)
         {
             var httpRequest = HttpContext.Current.Request;
-            string action = httpRequest.Form["action"];
-            string Note = httpRequest.Form["Note"];
+            string action = httpRequest.Unvalidated.Form["action"];
+            string Note = httpRequest.Unvalidated.Form["Note"];
             var actionRequest = requestService.ActionRequest(Id, Note, action);
             if (!actionRequest.Success)
             {

@@ -127,10 +127,12 @@ namespace CarBookingBE.Services
                 if(dUpdate.Description != null) dTarget.Description = dUpdate.Description;
 
                 var allEmployees = _db.DepartmentsMembers.Where(m => m.DepartmentId == dUpdate.Id).ToList();
+                var oldManager = _db.DepartmentsMembers.FirstOrDefault(d => d.Position.Contains("Manager") && d.DepartmentId == dUpdate.Id);
                 if (dUpdate.Manager != null)
                 {
                     //check and remove old manager
-                    var hasNewManager = Guid.TryParse(dUpdate.Manager, out _);
+                    var newManagerId = Guid.Parse(dUpdate.Manager);
+                    var hasNewManager = newManagerId != null && oldManager.UserId != newManagerId;
                     if (hasNewManager)
                     {
                         foreach (var item in allEmployees)
@@ -139,8 +141,8 @@ namespace CarBookingBE.Services
                             if (emPos.Count > 0 && emPos.Contains("Manager"))
                             {
                                 emPos.Remove("Manager");
-                                item.Position = string.Join(",", emPos);
                             }
+                            item.Position = emPos.Count > 0 ? item.Position = string.Join(",", emPos) : "Employee";
                         }
                     }
                 
@@ -149,15 +151,19 @@ namespace CarBookingBE.Services
                     if (manager != null)
                     {
                         var listPos = manager.Position.Split(',').ToList();
-                        if (listPos.Count != 0 && !listPos.Contains("Manager"))
+                        if(dUpdate.ManEm)
                         {
-                            listPos.Add("Manager");
-                            manager.Position = string.Join(",", listPos);
+                            if(!listPos.Contains("Employee")) listPos.Add("Employee");
                         }
                         else
                         {
-                            manager.Position = "Manager";
+                            if (listPos.Contains("Employee")) listPos.Remove("Employee");
                         }
+                        if (!listPos.Contains("Manager"))
+                        {
+                            listPos.Add("Manager");
+                        }
+                        manager.Position = string.Join(",", listPos);
                     }
                 }
                 if(dUpdate.Supervisors != null)
@@ -166,11 +172,11 @@ namespace CarBookingBE.Services
                     foreach (var em in allEmployees)
                     {
                         var listPosRemove = em.Position.Split(',').ToList();
-                        if(listPosRemove.Count != 0 && listPosRemove.Contains("Supervisor"))
+                        if(listPosRemove.Contains("Supervisor"))
                         {
                             listPosRemove.Remove("Supervisor");
-                            em.Position = listPosRemove.Count > 0 ? string.Join(",", listPosRemove) : "Employee";
                         }
+                        em.Position = listPosRemove.Count > 0 ? string.Join(",", listPosRemove) : "Employee";
                     }
                     //edit new
                     foreach (var item in dUpdate.Supervisors)
@@ -180,11 +186,19 @@ namespace CarBookingBE.Services
                         if (supervisor != null)
                         {
                             var listPos = supervisor.Position.Split(',').ToList();
-                            if (listPos.Count != 0 && !listPos.Contains("Supervisor"))
+                            if (dUpdate.SupEm)
+                            {
+                                if (!listPos.Contains("Employee")) listPos.Add("Employee");
+                            }
+                            else
+                            {
+                                if (listPos.Contains("Employee")) listPos.Remove("Employee");
+                            }
+                            if (!listPos.Contains("Supervisor"))
                             {
                                 listPos.Add("Supervisor");
-                                supervisor.Position = string.Join(",", listPos);
                             }
+                            supervisor.Position = string.Join(",", listPos);
                         }
                     }
                 }

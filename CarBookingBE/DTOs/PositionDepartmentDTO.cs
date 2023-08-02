@@ -14,9 +14,11 @@ namespace CarBookingBE.DTOs
         public string Name { get; set; }
         public string ContactInfo { get; set; }
         public string Code { get; set; }
-        public Guid UnderDepartment { get; set; }
+        public Guid? UnderDepartment { get; set; }
         public string Description { get; set; }
         public string Manager { get; set; }
         public List<string> Supervisors { get; set; }
+        public bool ManEm { get; set; }
+        public bool SupEm { get; set; }
     }
 }

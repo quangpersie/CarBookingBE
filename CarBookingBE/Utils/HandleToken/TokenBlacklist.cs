@@ -11,12 +11,16 @@ namespace CarBookingBE.Utils.HandleToken
     public class TokenBlacklist
     {
         public static List<TokenBlacklistDTO> _blacklistedTokens = new List<TokenBlacklistDTO>();
-        public static string blackListPath = HttpContext.Current.Server.MapPath($"~/Utils/HandleToken/TokenBacklist.txt");
+        public static string blackListPath = HttpContext.Current.Server.MapPath($"~/Utils/HandleToken/TokenBlacklist.txt");
         public TokenBlacklist ()
         {
             _blacklistedTokens.Clear();
             try
             {
+                if(!File.Exists(blackListPath))
+                {
+                    File.Create(blackListPath);
+                }
                 using (StreamReader reader = new StreamReader(blackListPath))
                 {
                     string line;

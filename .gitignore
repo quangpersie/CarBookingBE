@@ -5,6 +5,7 @@
 
 #ignore local files
 CarBookingBE/Files/
+CarBookingBE/Utils/HandleToken/TokenBlacklist.txt
 
 # User-specific files
 *.rsuser

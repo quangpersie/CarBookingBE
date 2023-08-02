@@ -231,7 +231,7 @@ namespace CarBookingBE.Services
                         }
                         requestWorkflow.Status = action;
                         db.SaveChanges();
-                        return new Result<RequestWorkflow>(true, "Approved Success!", requestWorkflow);
+                        return new Result<RequestWorkflow>(true, action + " Success!", requestWorkflow);
                     }
                     else
                     {
@@ -262,8 +262,12 @@ namespace CarBookingBE.Services
                 {
                     foreach (RequestWorkflow requestWorkflow1 in requestWorkflows)
                     {
-                        requestWorkflow1.Status = requestWorkflowCheck.Status;
-                        db.SaveChanges();
+                        if (requestWorkflow1.Level > requestWorkflowCheck.Level)
+                        {
+                            requestWorkflow1.Status = requestWorkflowCheck.Status;
+                            db.SaveChanges();
+                        }
+                        
                     }
                 }
                 

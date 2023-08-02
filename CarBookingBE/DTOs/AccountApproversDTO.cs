@@ -13,5 +13,7 @@ namespace CarBookingBE.DTOs
         public string Email { get; set; }
 
         public string JobTitle { get; set; }
+
+        public string Position { get; set; }
     }
 }

@@ -309,6 +309,7 @@ namespace CarBookingBE.Services
                     Email = u.Email,
                     FullName = ((u.FirstName != null && u. LastName != null) || (u.FirstName.Trim().Length > 0 && u.LastName.Trim().Length > 0)) ? u.FirstName + " " + u.LastName : "",
                     JobTitle = u.JobTitle,
+                    Position = _db.DepartmentsMembers.Where(dm => dm.UserId == approverId && dm.IsDeleted == false && dm.DepartmentId == departmentId).Select(d => d.Position).FirstOrDefault()
                 }).FirstOrDefault();
                 if (approver != null)
                 {

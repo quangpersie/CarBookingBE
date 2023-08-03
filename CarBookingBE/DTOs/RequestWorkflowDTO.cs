@@ -11,5 +11,6 @@ namespace CarBookingBE.DTOs
         public AccountDTO User { get; set; }
         public int Level { get; set; }
         public string Status { get; set; }
+        public string Position { get; set; }
     }
 }

@@ -16,6 +16,12 @@ namespace CarBookingBE.Services
 
         public Result<List<RequestWorkflowDTO>> GetRequestWorkflowByRequestId (string requestId)
         {
+            var request = db.Requests.Where(r => r.IsDeleted == false && r.Id.ToString() == requestId).FirstOrDefault();
+            if (request == null)
+            {
+                return new Result<List<RequestWorkflowDTO>>(false, "Request Not Found");
+            }
+
             List<RequestWorkflowDTO> requestWorkflows =
                 db.RequestWorkflows.Where(rwf => rwf.RequestId.ToString() == requestId && rwf.IsDeleted == false)
                 .Select(rwf => new RequestWorkflowDTO()
@@ -31,7 +37,8 @@ namespace CarBookingBE.Services
                         JobTitle = rwf.User.JobTitle
                     },
                     Level = rwf.Level,
-                    Status = rwf.Status
+                    Status = rwf.Status,
+                    Position = db.DepartmentsMembers.Where(dm => dm.UserId == rwf.User.Id && dm.IsDeleted == false && dm.DepartmentId == request.DepartmentId).Select(d => d.Position).FirstOrDefault()
                 })
                 .OrderBy(rwf => rwf.Level)
                 .ToList();

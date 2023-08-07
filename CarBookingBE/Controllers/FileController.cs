@@ -79,14 +79,21 @@ namespace CarBookingBE.Controllers
 
         [HttpPost]
         [Route("upload")]
+        [JwtAuthorize]
         public HttpResponseMessage uploadAvatar()
         {
-            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
+            /*var isAuthorized = util.isAuthorized(new RoleConstants(true, true, true, true, true));
             if (!isAuthorized.Success)
             {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" }); ;
+                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
             }
-            var curId = isAuthorized.Data;
+            var curId = isAuthorized.Data;*/
+            var data = util.getCurId().Data;
+            if(data == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
+            }
+            var curId = data;
             var httpRequest = HttpContext.Current.Request;
             if (httpRequest.Files.Count == 1)
             {
@@ -97,14 +104,9 @@ namespace CarBookingBE.Controllers
         
         [HttpPost]
         [Route("upload-finish")]
+        [JwtAuthorize]
         public HttpResponseMessage finishUpload()
         {
-            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
-            if (!isAuthorized.Success)
-            {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
-            }
-            //var curId = isAuthorized.Data;
             HttpRequest request = HttpContext.Current.Request;
             var userId = request.Form["userId"];
             var fileName = request.Form["fileName"];
@@ -113,14 +115,9 @@ namespace CarBookingBE.Controllers
 
         [HttpPost]
         [Route("upload-temp")]
+        [JwtAuthorize]
         public HttpResponseMessage uploadAvatarTemp()
         {
-            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
-            if (!isAuthorized.Success)
-            {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
-            }
-            //var curId = isAuthorized.Data;
             var httpRequest = HttpContext.Current.Request;
             if (httpRequest.Files.Count == 1)
             {
@@ -131,14 +128,9 @@ namespace CarBookingBE.Controllers
 
         [HttpPost]
         [Route("signature-finish")]
+        [JwtAuthorize]
         public HttpResponseMessage finishUploadSignature()
         {
-            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
-            if (!isAuthorized.Success)
-            {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
-            }
-            //var curId = isAuthorized.Data;
             HttpRequest request = HttpContext.Current.Request;
             var userId = request.Form["userId"];
             var fileName = request.Form["fileName"];
@@ -147,14 +139,9 @@ namespace CarBookingBE.Controllers
 
         [HttpPost]
         [Route("signature-temp")]
+        [JwtAuthorize]
         public HttpResponseMessage uploadSignatureTemp()
         {
-            var isAuthorized = util.isAuthorized(new RoleConstants(true, false, false, false, false));
-            if (!isAuthorized.Success)
-            {
-                return Request.CreateResponse(HttpStatusCode.Unauthorized, new { Success = false, Message = "Unauthorized request !" });
-            }
-            //var curId = isAuthorized.Data;
             var httpRequest = HttpContext.Current.Request;
             if (httpRequest.Files.Count == 1)
             {

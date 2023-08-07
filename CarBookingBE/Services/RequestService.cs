@@ -315,6 +315,11 @@ namespace CarBookingBE.Services
 
                 })
                 .SingleOrDefault();
+            var allRequest = GetAllRequests().Data.ToList();
+            if (!allRequest.Exists(r => r.Id == request.Id))
+            {
+                return new Result<RequestDetailDTO>(false, "Request Not Found");
+            }
             if (request == null)
             {
                 return new Result<RequestDetailDTO>(false, "Failed");

@@ -365,10 +365,6 @@ namespace CarBookingBE.Services
                         }
                         user.EmployeeNumber = updateUser["EmployeeNumber"];
                     }
-                    if (updateUser["AvatarPath"] != null && util.stringValid(updateUser["AvatarPath"]))
-                    {
-                        user.AvatarPath = updateUser["AvatarPath"];
-                    }
                     if (updateUser["FirstName"] != null && util.stringValid(updateUser["FirstName"])) user.FirstName = updateUser["FirstName"];
                     if (updateUser["LastName"] != null && util.stringValid(updateUser["LastName"])) user.LastName = updateUser["LastName"];
                     if (updateUser["Sex"] != null && util.stringValid(updateUser["Sex"]))
@@ -394,8 +390,12 @@ namespace CarBookingBE.Services
                     if (updateUser["BelongToDepartments"] != null && util.stringValid(updateUser["BelongToDepartments"])) user.BelongToDepartments = updateUser["BelongToDepartments"];
 
                 }
-                
+
                 // user can edit
+                if (updateUser["AvatarPath"] != null && util.stringValid(updateUser["AvatarPath"]))
+                {
+                    user.AvatarPath = updateUser["AvatarPath"];
+                }
                 if (updateUser["DateOfIdCard"] != null && util.stringValid(updateUser["DateOfIdCard"]))
                 {
                     try

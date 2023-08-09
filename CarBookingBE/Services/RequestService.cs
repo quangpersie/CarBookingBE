@@ -339,7 +339,15 @@ namespace CarBookingBE.Services
                     return new Result<Request>(false, "Request can't Edit");
                 }
             }
-            
+
+            var requireRoles = new RoleConstants(true, true, false, false, false);
+            var isAuthorized = utilMethods.isAuthorized(requireRoles);
+            var userLoginId = isAuthorized.Data;
+            if (!isAuthorized.Success && req.SenderId != userLoginId)
+            {
+                return new Result<Request>(false, "Permission Failed");
+            }
+
             /*if (requestEdit.Status != "Draft" || requestEdit.Status == null)
             {
                 requestEdit.Status = "Waiting for approval";

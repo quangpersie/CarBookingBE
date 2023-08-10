@@ -17,6 +17,8 @@ namespace CarBookingBE.DTOs
          
         public string JobTitle { get; set; }
 
+        public string AvatarPath { get; set; }
+
         public string FullName
         {
             get { return string.Format("{0} {1}", FirstName, LastName); }

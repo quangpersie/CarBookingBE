@@ -23,6 +23,11 @@ namespace CarBookingBE.Services
             {
                 return new Result<RequestShare>(false, "User Not Found");
             }
+/*            if (request.SenderId == userId)
+            {
+                return new Result<RequestShare>(false, "Can't share for SenderId");
+            }*/
+
             var requestShare = db.RequestShares.SingleOrDefault(rs => rs.IsDeleted == false && rs.RequestId == requestId && rs.UserId == userId);
             if (requestShare != null)
             {

@@ -34,7 +34,8 @@ namespace CarBookingBE.Services
                     {
                         Id = rc.Account.Id,
                         FirstName = rc.Account.FirstName,
-                        LastName = rc.Account.LastName
+                        LastName = rc.Account.LastName,
+                        AvatarPath = rc.Account.AvatarPath,
                     },
                     Content = rc.Content,
                     Created = rc.Created,

@@ -132,7 +132,7 @@ namespace CarBookingBE.Services
                 {
                     //check and remove old manager
                     var newManagerId = Guid.Parse(dUpdate.Manager);
-                    var hasNewManager = newManagerId != null && oldManager.UserId != newManagerId;
+                    var hasNewManager = oldManager == null || (newManagerId != null && oldManager.UserId != newManagerId);
                     if (hasNewManager)
                     {
                         foreach (var item in allEmployees)

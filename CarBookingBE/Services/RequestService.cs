@@ -63,8 +63,8 @@ namespace CarBookingBE.Services
                         },
                         UsageFrom = req.UsageFrom,
                         UsageTo = req.UsageTo,
-                        Status = req.Status
-
+                        Status = req.Status,
+                        RequestWorkflows = db.RequestWorkflows.Where(rwf => rwf.RequestId == req.Id && rwf.IsDeleted == false).Select(rwf => rwf.UserId).ToList()
                     });
                 return new Result<IQueryable<RequestDTO>>(true, "Get Data Success", queries);
             }
@@ -101,8 +101,8 @@ namespace CarBookingBE.Services
                         },
                         UsageFrom = req.UsageFrom,
                         UsageTo = req.UsageTo,
-                        Status = req.Status
-
+                        Status = req.Status,
+                        RequestWorkflows = db.RequestWorkflows.Where(rwf => rwf.RequestId == req.Id && rwf.IsDeleted == false).Select(rwf => rwf.UserId).ToList()
                     });
                 return new Result<IQueryable<RequestDTO>>(true, "Get Data Success", queries);
             }
@@ -150,7 +150,8 @@ namespace CarBookingBE.Services
                     },
                     UsageFrom = req.UsageFrom,
                     UsageTo = req.UsageTo,
-                    Status = req.Status
+                    Status = req.Status,
+                    RequestWorkflows = db.RequestWorkflows.Where(rwf => rwf.RequestId == req.Id && rwf.IsDeleted == false).Select(rwf => rwf.UserId).ToList()
                 });
 
 
@@ -202,8 +203,9 @@ namespace CarBookingBE.Services
                         },
                         UsageFrom = req.UsageFrom,
                         UsageTo = req.UsageTo,
-                        Status = req.Status
-                    });
+                        Status = req.Status,
+                        RequestWorkflows = db.RequestWorkflows.Where(rwf => rwf.RequestId == req.Id && rwf.IsDeleted == false).Select(rwf => rwf.UserId).ToList()
+                });
             return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
         }
 
@@ -249,7 +251,8 @@ namespace CarBookingBE.Services
                     },
                     UsageFrom = req.UsageFrom,
                     UsageTo = req.UsageTo,
-                    Status = req.Status
+                    Status = req.Status,
+                    RequestWorkflows = db.RequestWorkflows.Where(rwf => rwf.RequestId == req.Id && rwf.IsDeleted == false).Select(rwf => rwf.UserId).ToList()
                 });
             return new Result<IQueryable<RequestDTO>>(true, "Get Requests Success", queries);
         }

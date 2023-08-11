@@ -23,10 +23,19 @@ namespace CarBookingBE.Services
             {
                 return new Result<RequestShare>(false, "User Not Found");
             }
-/*            if (request.SenderId == userId)
+            if (request.SenderId == userId)
             {
-                return new Result<RequestShare>(false, "Can't share for SenderId");
-            }*/
+                return new Result<RequestShare>(false, "Can't share for Sender User");
+            }
+            if (request.ReceiverId == userId)
+            {
+                return new Result<RequestShare>(false, "Can't share for Receiver User");
+            }
+            var requestWorkflows = db.RequestWorkflows.Where(rwf => rwf.RequestId == requestId && rwf.IsDeleted == false).Select(rwf => rwf.UserId).ToList();
+            if (requestWorkflows.Contains(userId))
+            {
+                return new Result<RequestShare>(false, "Can't share for Approver");
+            }
 
             var requestShare = db.RequestShares.SingleOrDefault(rs => rs.IsDeleted == false && rs.RequestId == requestId && rs.UserId == userId);
             if (requestShare != null)

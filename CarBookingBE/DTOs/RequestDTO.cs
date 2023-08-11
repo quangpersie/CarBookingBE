@@ -19,6 +19,8 @@ namespace CarBookingBE.DTOs
         public DateTime? UsageTo { get; set; }
         public string Status { get; set; }
 
+        public List<Guid?> RequestWorkflows { get; set; }
+
     }
 
 

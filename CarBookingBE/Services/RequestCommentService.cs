@@ -93,6 +93,31 @@ namespace CarBookingBE.Services
             return new Result<RequestCommentAttachment>(true, "Create Comment Attachments Success");
         }
 
+        public Result<string> DeleteAllRequestComments(Guid requestId)
+        {
+            var existRequestsComments = db.RequestComments.Where(e => e.IsDeleted == false && e.RequestId == requestId).ToList();
+            foreach (RequestComment existRequestsComment in existRequestsComments)
+            {
+                DeleteRequestComment(existRequestsComment.Id);
+            }
+            return new Result<string>(true, "Delete All Request Comment Success!");
+        }
+
+        public Result<string> DeleteRequestComment(Guid Id)
+        {
+            var requestComment = db.RequestComments.SingleOrDefault(rwf => rwf.IsDeleted == false
+            && rwf.Id == Id);
+
+            if (requestComment == null)
+            {
+                return new Result<string>(false, "Request Comment Not Found");
+            }
+            requestComment.IsDeleted = true;
+            db.SaveChanges();
+
+            return new Result<string>(true, "Delete Request Comment has Id = " + requestComment.Id.ToString());
+        }
+
 
         //-----------------Function----------------------------
         protected Result<string> uploadFile(HttpPostedFile postedFile, string requestCode, string userLoginId)

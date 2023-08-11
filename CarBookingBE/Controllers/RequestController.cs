@@ -26,6 +26,7 @@ namespace CarBookingBE.Controllers
         RequestAttachmentService requestAttachmentService = new RequestAttachmentService();
         RequestWorkflowService requestWorkflowService = new RequestWorkflowService();
         VehicleRequestService vehicleRequestService = new VehicleRequestService();
+        RequestCommentService requestCommentService = new RequestCommentService();
 
 
         // GET: api/Request
@@ -174,6 +175,7 @@ namespace CarBookingBE.Controllers
             requestWorkflowService.DeleteAllRequestWorkflows(requestId);
             requestAttachmentService.DeleteAllAttachments(requestId);
             vehicleRequestService.deleteVehicleRequest(requestId);
+/*            requestCommentService.DeleteAllRequestComments(requestId);*/
             requestService.DeleteRequest(requestId);
             return Ok();
         }

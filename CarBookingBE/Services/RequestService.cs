@@ -285,6 +285,7 @@ namespace CarBookingBE.Services
                         LastName = req.SenderUser.LastName,
                         Username = req.SenderUser.Username,
                         Email = req.SenderUser.Email,
+                        AvatarPath = req.SenderUser.AvatarPath,
                         JobTitle = req.SenderUser.JobTitle
                     },
                     Created = req.Created,

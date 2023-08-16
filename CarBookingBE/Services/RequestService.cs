@@ -301,6 +301,7 @@ namespace CarBookingBE.Services
                         LastName = req.ReceiveUser.LastName,
                         Username = req.ReceiveUser.Username,
                         Email = req.ReceiveUser.Email,
+                        AvatarPath = req.ReceiveUser.AvatarPath,
                         JobTitle = req.ReceiveUser.JobTitle
                     },/*
                     RequestWorkflow = requestWorkflow,*/

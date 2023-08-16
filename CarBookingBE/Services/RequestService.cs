@@ -285,7 +285,8 @@ namespace CarBookingBE.Services
                         LastName = req.SenderUser.LastName,
                         Username = req.SenderUser.Username,
                         Email = req.SenderUser.Email,
-                        JobTitle = req.SenderUser.JobTitle
+                        JobTitle = req.SenderUser.JobTitle,
+                        Position = db.DepartmentsMembers.Where(dm => dm.UserId == req.SenderUser.Id && dm.IsDeleted == false && dm.DepartmentId == req.Department.Id).Select(d => d.Position).FirstOrDefault()
                     },
                     Created = req.Created,
                     Department = new DepartmentDTO()

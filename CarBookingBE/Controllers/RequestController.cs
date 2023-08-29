@@ -214,6 +214,10 @@ namespace CarBookingBE.Controllers
                 // Create RequestWorkflow
                 var requestId = newRequest.Data.Id;
                 var listOfUserId = httpRequest.Params.GetValues("ListOfUserId[]");
+                if (listOfUserId == null)
+                {
+                    listOfUserId = httpRequest.Params.GetValues("ListOfUserId");
+                }
                 /*List<RequestWorkflow> requestWorkflows = new List<RequestWorkflow>();
                 foreach (var userId in httpRequest.Params.GetValues("ListOfUserId"))
                 {

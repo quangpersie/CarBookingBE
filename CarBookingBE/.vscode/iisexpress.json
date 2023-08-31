@@ -1,9 +1,0 @@
-{
-  "port": 63642,
-  "path": "./",
-  "clr": "v4.0",
-  "protocol": "http",
-  "logging": {
-    "engineLogging": false
-}
-}

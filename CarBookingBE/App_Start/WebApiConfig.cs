@@ -11,8 +11,12 @@ namespace CarBookingBE
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-            var corsAttr = new EnableCorsAttribute("http://localhost:3000", "*", "*");
-            config.EnableCors(corsAttr);
+                var corsAttr = new EnableCorsAttribute("http://localhost:3000, http://localhost:8000", "*", "*");
+                config.EnableCors(corsAttr);
+
+            /*// Web API configuration and services
+            var corsAttr2 = new EnableCorsAttribute("http://localhost:8000", "*", "*");
+            config.EnableCors(corsAttr2);*/
 
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new System.Net.Http.Headers.MediaTypeHeaderValue("application/json"));
             //config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
